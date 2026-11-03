@@ -44,3 +44,9 @@ def close_store() -> None:
     from auto_ontology.dal.session import dispose_engine
 
     dispose_engine()
+
+# Sophia Labs fork: with CATALOG_READ_BACKEND=rdf the reads below are served
+# from a gardend graph through SPARQL (see auto_ontology/rdf/README.md).
+from auto_ontology.rdf.patch import install as _install_rdf_backend  # noqa: E402
+
+_install_rdf_backend()

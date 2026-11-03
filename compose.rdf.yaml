@@ -1,0 +1,40 @@
+# Sophia Labs fork: the RDF ontology POC overlay.
+#   docker compose -f docker-compose.yml -f compose.rdf.yaml up -d postgres gardend auto-ontology
+# gardend (the Sophia engine) holds the catalog as RDF; the backend reads it
+# through SPARQL when CATALOG_READ_BACKEND=rdf. Postgres stays for ingestion,
+# compilation and pgvector in this POC. GARDEND_TOKEN comes from .env.
+services:
+  gardend:
+    image: ${GARDEND_IMAGE:-gardend:cell-ad8f4dd985f4}
+    container_name: auto-ontology-gardend
+    restart: unless-stopped
+    command: ["serve", "--profile", "/data/profile", "--port", "8086"]
+    user: "0:0"
+    environment:
+      GARDEN_LOOPBACK_TOKEN: ${GARDEND_TOKEN}
+      GARDEN_LOOPBACK_HOST: 0.0.0.0
+      GARDEN_SPARQL_MAX_ROWS: "200000"
+      GARDEN_NO_UPDATE_CHECK: "1"
+    ports:
+      - "${GARDEND_PORT:-7691}:8086"
+    volumes:
+      - gardend_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8086/health >/dev/null 2>&1 || curl -sf http://127.0.0.1:8086/health >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  auto-ontology:
+    environment:
+      CATALOG_READ_BACKEND: ${CATALOG_READ_BACKEND:-rdf}
+      AO_RDF_STRICT: ${AO_RDF_STRICT:-0}
+      GARDEND_URL: http://gardend:8086
+      GARDEND_TOKEN: ${GARDEND_TOKEN}
+      GARDEND_GRAPH_ID: ${GARDEND_GRAPH_ID:-ao-catalog}
+    depends_on:
+      gardend:
+        condition: service_started
+
+volumes:
+  gardend_data:

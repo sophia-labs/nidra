@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: Apache-2.0
+"""Postgres catalog → N-Triples, by Direct Mapping of upstream's own metadata.
+
+Every table in ``auto_ontology.dal.schema.METADATA`` is exported: a row is a
+resource typed by its table, every non-NULL column is a literal property, and
+every foreign-key column also yields a ``ref-`` property to the referenced row.
+Arrays are exported twice: once as an ordered JSON literal (lossless) and once
+as one triple per member (matchable). Nothing here knows a table by name, so an
+upstream schema change is exported without a change here.
+"""
+from __future__ import annotations
+
+import logging
+import sys
+from typing import Iterator
+
+from sqlalchemy import select
+
+from auto_ontology.dal.schema import METADATA
+from auto_ontology.dal.session import store
+from auto_ontology.rdf.client import iri, lit
+from auto_ontology.rdf.vocab import RDF_TYPE, class_iri, prop_iri, ref_iri, row_iri
+
+logger = logging.getLogger(__name__)
+
+
+def _triple(s: str, p: str, o: str) -> str:
+    return f"{iri(s)} {iri(p)} {o} ."
+
+
+def export_table(table_name: str) -> Iterator[str]:
+    table = METADATA.tables[table_name]
+    pk_cols = [c.name for c in table.primary_key.columns]
+    if not pk_cols:
+        # Direct Mapping would use blank nodes; a hash of all columns keeps it
+        # addressable. No catalog table lacks a key today.
+        pk_cols = [c.name for c in table.columns]
+    fk_by_col = {
+        fk.parent.name: (fk.column.table.name, fk.column.name) for fk in table.foreign_keys
+    }
+    rows = store().query_read(select(table))
+    for row in rows:
+        subject = row_iri(table_name, {c: row[c] for c in pk_cols})
+        yield _triple(subject, RDF_TYPE, iri(class_iri(table_name)))
+        for column, value in row.items():
+            if value is None:
+                continue
+            prop = prop_iri(table_name, column)
+            yield _triple(subject, prop, lit(value))
+            if isinstance(value, list):
+                for member in value:
+                    yield _triple(subject, prop, lit(member))
+            if column in fk_by_col:
+                ref_table, ref_col = fk_by_col[column]
+                yield _triple(subject, ref_iri(table_name, column), iri(row_iri(ref_table, {ref_col: value})))
+
+
+def export_all(tables: list[str] | None = None) -> Iterator[str]:
+    names = tables or [t.name for t in METADATA.sorted_tables]
+    for name in names:
+        n = 0
+        for line in export_table(name):
+            n += 1
+            yield line
+        logger.info("%s: %d triples", name, n)
+
+
+def main(argv: list[str]) -> int:
+    logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stderr)
+    if "--load" in argv:
+        from auto_ontology.rdf.client import client
+
+        c = client()
+        c.ensure_graph()
+        if "--replace" in argv:
+            # Loaded triples live in the graph's authored-RDF named graph; a
+            # variable GRAPH target is refused in local authority mode.
+            c.update(f"CLEAR SILENT GRAPH <urn:mnemosyne:local:graph:{c.graph_id}:user:rdf>")
+        total = c.load_lines(export_all())
+        logger.info("loaded %d triples into %s/%s (%d quads now)", total, c.url, c.graph_id, c.count())
+        return 0
+    for line in export_all():
+        sys.stdout.write(line + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
