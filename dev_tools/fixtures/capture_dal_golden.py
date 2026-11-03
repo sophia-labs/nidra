@@ -711,6 +711,24 @@ def capture_arg_reads(cap: Capture, ids: dict[str, Any]) -> None:
         )
 
 
+def _extra_capture_modules():
+    """Sophia Labs fork: ``dev_tools/fixtures/golden_extra/<lane>.py`` modules,
+    each with ``capture(cap, ids)``, so a porting lane adds captures without
+    touching this file."""
+    import importlib
+    import pkgutil
+
+    try:
+        import dev_tools.fixtures.golden_extra as pkg
+    except ImportError:
+        return []
+    return [
+        importlib.import_module(f"dev_tools.fixtures.golden_extra.{m.name}")
+        for m in pkgutil.iter_modules(pkg.__path__)
+        if not m.name.startswith("_")
+    ]
+
+
 def capture_all() -> Capture:
     """Run every capture against the live graph. Used by the replay test too."""
     import importlib
@@ -735,15 +753,24 @@ def capture_all() -> Capture:
             )
 
     capture_arg_reads(cap, ids)
+    for module in _extra_capture_modules():
+        module.capture(cap, ids)
     return cap
 
 
 def load_golden() -> dict[str, Any]:
-    """The recorded golden, or an empty payload if it has not been captured."""
-    path = GOLDEN_DIR / "dal_reads.json"
-    if not path.is_file():
-        return {"results": {}, "errors": {}}
-    return json.loads(path.read_text())
+    """The recorded golden, or an empty payload if it has not been captured.
+
+    Sophia Labs fork: ``dal_reads.json`` plus every ``dal_reads.<lane>.json``
+    beside it, merged. A porting lane records the reads it adds into its own
+    file (``--only <prefix> --out <file>``) so lanes never edit one JSON.
+    """
+    merged: dict[str, Any] = {"results": {}, "errors": {}}
+    for path in sorted(GOLDEN_DIR.glob("dal_reads*.json")):
+        payload = json.loads(path.read_text())
+        merged["results"].update(payload.get("results", {}))
+        merged["errors"].update(payload.get("errors", {}))
+    return merged
 
 
 def main() -> None:
@@ -751,11 +778,22 @@ def main() -> None:
         level=logging.INFO, format="%(levelname)s %(name)s: %(message)s"
     )
 
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--only", action="append", default=[], help="keep reads whose name starts with this")
+    parser.add_argument("--out", default="dal_reads.json", help="file name under the golden dir")
+    args = parser.parse_args()
+
     logger.info("capturing...")
     cap = capture_all()
+    if args.only:
+        keep = lambda name: any(name.startswith(prefix) for prefix in args.only)  # noqa: E731
+        cap.results = {k: v for k, v in cap.results.items() if keep(k)}
+        cap.errors = {k: v for k, v in cap.errors.items() if keep(k)}
 
     GOLDEN_DIR.mkdir(parents=True, exist_ok=True)
-    out = GOLDEN_DIR / "dal_reads.json"
+    out = GOLDEN_DIR / args.out
     out.write_text(
         json.dumps(
             {"results": cap.results, "errors": cap.errors},
