@@ -393,6 +393,16 @@ async function route(req, res, { internal, state, store }) {
     const found = await store.question(one[1])
     return found ? json(res, 200, { question: found, live: false }) : json(res, 404, { ok: false, error: 'no such question' })
   }
+  const link = url.pathname.match(/^\/nidra\/questions\/([0-9a-f-]{36})\/link$/)
+  if (link && req.method === 'POST') {
+    // Which Compute run and session asked this question (the page reads it off the session's record, where the
+    // nidra_ask call's receipt names the question): added to the question once, never changed.
+    const body = await readJson(req)
+    const runId = /^wfr-[a-z0-9-]{1,64}$/.test(String(body?.runId || '')) ? body.runId : null
+    const sessionId = /^ags_[0-9a-f]{20,32}$/.test(String(body?.sessionId || '')) ? body.sessionId : null
+    if (!runId && !sessionId) return json(res, 400, { ok: false, error: 'send {runId, sessionId}' })
+    return json(res, 200, await store.link(link[1], { runId, sessionId }))
+  }
   if (url.pathname === '/nidra/certify' && req.method === 'POST') {
     if (!who.mayWrite) return json(res, 403, { ok: false, error: 'only the owner may certify' })
     if (state.state !== 'running') return json(res, 503, { ok: false, error: `Nidra's engine is ${state.state}: ${state.reason}` })
@@ -860,7 +870,7 @@ class Gardend {
     const content = `${act.certified ? 'Certified' : 'Withdrew the certification of'} the ${what} of glossary term ${act.termId}${act.note ? `: ${act.note}` : '.'}`
     const result = await this.tool('remember', {
       graph_id: GRAPH, observer_agent_id: act.agentId, content, kind: 'ClaimMemory', scope: 'graph', content_orientation: 'knowledge',
-      visibility: 'shared', status: 'active', tags: ['nidra', 'certification', act.certified ? 'certified' : 'uncertified', `part:${act.part}`],
+      visibility: 'shared', status: 'active', tags: ['nidra', 'certification', act.certified ? 'certified' : 'uncertified', `part:${act.part}`, `term:${act.termId}`],
       source_refs: [{ sourceKind: 'ArtifactReference', externalUri: `urn:ao:term/id=${act.termId}`, label: `term ${act.termId}` },
         { sourceKind: 'ToolCall', externalUri: `urn:nidra:certification/${act.id}`, label: 'nidra_certify' }],
     })
@@ -878,6 +888,16 @@ class Gardend {
     let found = payload.result?.structuredContent
     if (!found) for (const item of payload.result?.content || []) if (item.type === 'text') { try { found = JSON.parse(item.text) } catch {} }
     return found ?? null
+  }
+  async link(id, { runId, sessionId }) {
+    const s = `<${NS}question/${id}>`
+    const known = await this.select(`SELECT ?runId ?sessionId WHERE { GRAPH ?g { ${s} ${P('question')} ?q . OPTIONAL { ${s} ${P('runId')} ?runId } OPTIONAL { ${s} ${P('sessionId')} ?sessionId } } } LIMIT 1`)
+    if (!known.length) return { ok: false, error: 'no such question' }
+    const triples = []
+    if (runId && !known[0].runId) triples.push(`${s} ${P('runId')} ${lit(runId)}`, `${s} ${P('run')} <urn:sophia:wf-run:${runId}>`)
+    if (sessionId && !known[0].sessionId) triples.push(`${s} ${P('sessionId')} ${lit(sessionId)}`)
+    if (triples.length) await this.update(`INSERT DATA { GRAPH <${dataGraph()}> { ${triples.join(' .\n')} . } }`)
+    return { ok: true, added: triples.length }
   }
   async certification(act) {
     const C = `${NS}Certification`
