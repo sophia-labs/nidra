@@ -1,0 +1,12 @@
+{
+  "serviceId": "nidra",
+  "displayName": "Nidra",
+  "command": "node",
+  "args": ["main.mjs"],
+  "requires": { "node": "22.19" },
+  "workingDir": ".",
+  "healthPath": "/health",
+  "proxyMount": "/services/nidra",
+  "autostart": false,
+  "env": [{ "name": "NODE_ENV", "value": "production" }]
+}

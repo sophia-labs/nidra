@@ -1,0 +1,64 @@
+# Nidra attached to a Sophia app's own gardend, as a supervised gardend service.
+#
+#   docker compose -p sophia-nidra -f engine/compose.nidra.yaml -f compose.sophia.yaml up -d
+#
+# main.mjs runs this; nobody needs to by hand. Over the fork's compose.nidra.yaml it
+#  - leaves the bundled gardend out (profile `standalone`): the app's gardend holds the catalog, in graph
+#    ${GARDEND_GRAPH_ID};
+#  - points the engine at the service's fence (GARDEND_URL, GARDEND_TOKEN, set by main.mjs), which forwards only
+#    what the engine needs of gardend, for that one graph;
+#  - uses the engine image as loaded (no build, no pull), with no .env, no host-wide ports (loopback only) and no
+#    restart policy: gardend's service, not Docker, decides when the engine runs;
+#  - names its containers apart from a standalone Nidra on the same Docker.
+# Model settings arrive in the environment of `docker compose` (DEFAULT_MODELS_*), never in a file.
+services:
+  gardend:
+    profiles: ["standalone"]
+
+  auto-ontology:
+    build: !reset null
+    image: ${NIDRA_ENGINE_IMAGE:-nidra-engine:latest}
+    pull_policy: never
+    container_name: ${NIDRA_PROJECT:-sophia-nidra}-engine
+    restart: "no"
+    env_file: !reset []
+    ports: !override
+      - "127.0.0.1:${NIDRA_ENGINE_PORT:-7682}:3001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !override
+      - ingestion-service
+    environment: &engine-env
+      DEFAULT_MODELS_ENDPOINT: ${DEFAULT_MODELS_ENDPOINT}
+      DEFAULT_MODELS_API_KEY: ${DEFAULT_MODELS_API_KEY}
+      DEFAULT_MODELS_MODEL: ${DEFAULT_MODELS_MODEL}
+      # On gardend the vector index is `find`, embedded inside gardend: no embedding endpoint.
+      EMBED_ENDPOINT: ${DEFAULT_MODELS_ENDPOINT}
+      EMBED_MODEL: unused-on-gardend
+      RERANK_ENDPOINT: ""
+      # The engine's own store is gardend; these name a Postgres that is not there (nidra/closure.sh does the same).
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: "1"
+      POSTGRES_USER: nidra
+      POSTGRES_PASSWORD: no-postgres
+      POSTGRES_DATABASE: none
+      INGESTION_SERVICE_URL: http://ingestion-service:3002
+      # Without the frontend's database the instance settings are environment flags (infra/feature_flags.py):
+      # compile the semantic layer at start and daily, as an installed Nidra should.
+      AO_FLAG_SEMANTIC_COMPILATION_ENABLED: "true"
+
+  ingestion-service:
+    image: ${NIDRA_ENGINE_IMAGE:-nidra-engine:latest}
+    pull_policy: never
+    container_name: ${NIDRA_PROJECT:-sophia-nidra}-ingestion
+    restart: "no"
+    env_file: !reset []
+    ports:
+      - "127.0.0.1:${NIDRA_INGEST_PORT:-7683}:3002"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+    environment: *engine-env
+    # The image's check asks :3001/api/health/live, the API server's; this service is on :3002.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:3002/health/live', timeout=3).status == 200 else 1)"]
