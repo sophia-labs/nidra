@@ -95,7 +95,16 @@ def _freeze_modified() -> dict[str, list[bool]]:
     return seen
 
 
-def run(call: str, kwargs: dict[str, Any] | None = None, tables: list[str] | None = None) -> dict[str, Any]:
+def run(
+    call: str,
+    kwargs: dict[str, Any] | None = None,
+    tables: list[str] | None = None,
+    before: list[list[Any]] | None = None,
+) -> dict[str, Any]:
+    """``before``: ``[[call, kwargs], ...]`` run first (state to act on), on both backends."""
+    for step_call, step_kwargs in before or []:
+        step_module, step_fn = step_call.split(":")
+        getattr(importlib.import_module(step_module), step_fn)(**step_kwargs)
     module_name, fn_name = call.split(":")
     fn = getattr(importlib.import_module(module_name), fn_name)
     out: dict[str, Any] = {}
