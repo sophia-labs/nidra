@@ -132,7 +132,7 @@ def _all_statements() -> list[dict[str, Any]]:
 
 # Keys whose value is wall-clock and therefore differs on every ingest. Redacted
 # rather than dropped, so a port that stops populating them still fails.
-VOLATILE_KEYS = frozenset({"created", "updated", "pulled", "last_seen", "timestamp"})
+VOLATILE_KEYS = frozenset({"created", "updated", "pulled", "last_seen", "timestamp", "last_query_timestamp"})
 
 
 def _orient_edge(edge: dict[str, Any]) -> dict[str, Any]:

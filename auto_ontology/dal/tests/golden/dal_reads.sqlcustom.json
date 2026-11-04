@@ -952,7 +952,7 @@
         "created": "<redacted>",
         "id": "<sql:SELECT c.name, count(fc.film_id) FROM film_category fc JOIN >",
         "join_count": 1,
-        "last_query_timestamp": "2026-11-03 15:50:52.165430+00:00",
+        "last_query_timestamp": "<redacted>",
         "last_seen": "<redacted>",
         "nodes_count": 29,
         "query_count": 0,
@@ -1983,6 +1983,11 @@
     "candidates.expand_info__none": {},
     "candidates.expand_info__not_found": {},
     "candidates.expand_info__unknown_label": {},
+    "custom_analyses.count_custom_analyses__d2_search": 1,
+    "custom_analyses.count_custom_analyses__d2_search_none": 0,
+    "custom_analyses.count_custom_analyses__d2_zone_admin": 2,
+    "custom_analyses.count_custom_analyses__d2_zone_none": 0,
+    "custom_analyses.count_custom_analyses__d2_zone_scoped": 0,
     "custom_analyses.custom_analysis_exists": true,
     "custom_analyses.custom_analysis_exists__chinook": false,
     "custom_analyses.custom_analysis_exists__empty_name": true,
@@ -2023,6 +2028,10 @@
     ],
     "custom_analyses.fetch_custom_analyses_with_sql__empty": [],
     "custom_analyses.fetch_custom_analyses_with_sql__unknown": [],
+    "custom_analyses.fetch_database_name_for_analysis": "pagila",
+    "custom_analyses.fetch_database_name_for_analysis__d2_each0": "pagila",
+    "custom_analyses.fetch_database_name_for_analysis__d2_each1": "pagila",
+    "custom_analyses.fetch_database_name_for_analysis__d2_unknown": null,
     "custom_analyses.fetch_tables_from_custom_analyses": [
       {
         "columns": [
@@ -2405,7 +2414,23 @@
       "id": "<analysis:Top rented films>",
       "name": "Top rented films"
     },
+    "custom_analyses.find_analysis_by_name__d2_absent": null,
+    "custom_analyses.find_analysis_by_name__d2_case": null,
+    "custom_analyses.find_analysis_by_name__d2_empty": null,
+    "custom_analyses.find_analysis_by_name__d2_exclude_other": {
+      "id": "<analysis:Top rented films>",
+      "name": "Top rented films"
+    },
+    "custom_analyses.find_analysis_by_name__d2_exclude_self": null,
+    "custom_analyses.find_analysis_by_sql__d2_absent": null,
+    "custom_analyses.find_analysis_by_sql__d2_exact": {
+      "id": "<analysis:Top rented films>",
+      "name": "Top rented films"
+    },
+    "custom_analyses.find_analysis_by_sql__d2_exclude_self": null,
+    "custom_analyses.find_analysis_by_sql__d2_whitespace": null,
     "custom_analyses.get_custom_analysis_by_id": "<analysis:Top rented films>",
+    "custom_analyses.get_custom_analysis_by_id__d2_unknown": null,
     "custom_analyses.list_custom_analyses[admin]": [
       {
         "description": "Films ordered by rental count.",
@@ -2422,6 +2447,62 @@
     ],
     "custom_analyses.list_custom_analyses[none]": [],
     "custom_analyses.list_custom_analyses[scoped]": [],
+    "custom_analyses.list_custom_analyses__d2_blank_search": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      },
+      {
+        "description": "Payment totals per staff member.",
+        "id": "<analysis:Revenue by staff>",
+        "name": "Revenue by staff",
+        "sql": "SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_limit": [
+      {
+        "description": "Payment totals per staff member.",
+        "id": "<analysis:Revenue by staff>",
+        "name": "Revenue by staff",
+        "sql": "SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_limit0": [],
+    "custom_analyses.list_custom_analyses__d2_past_end": [],
+    "custom_analyses.list_custom_analyses__d2_search_none": [],
+    "custom_analyses.list_custom_analyses__d2_search_upper": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_skip": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_underscore": [],
+    "custom_analyses.list_custom_analyses__d2_wildcard": [],
+    "custom_analyses.list_custom_analyses__d2_zone_admin_search": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_zone_none_search": [],
+    "custom_analyses.list_custom_analyses__d2_zone_scoped_search": [],
+    "pql_analyses.count_pql_analyses": 1,
+    "pql_analyses.count_pql_analyses__d2_search": 1,
+    "pql_analyses.count_pql_analyses__d2_search_none": 0,
     "pql_analyses.fetch_pql_analyses_by_ids": {
       "<pql:Customer churn>": {
         "description": "Predict which customers stop renting.",
@@ -2452,7 +2533,20 @@
       "id": "<pql:Customer churn>",
       "name": "Customer churn"
     },
+    "pql_analyses.find_pql_analysis_by_name__d2_absent": null,
+    "pql_analyses.find_pql_analysis_by_name__d2_exclude_other": {
+      "id": "<pql:Customer churn>",
+      "name": "Customer churn"
+    },
+    "pql_analyses.find_pql_analysis_by_name__d2_exclude_self": null,
+    "pql_analyses.find_pql_analysis_by_pql": {
+      "id": "<pql:Customer churn>",
+      "name": "Customer churn"
+    },
+    "pql_analyses.find_pql_analysis_by_pql__d2_absent": null,
+    "pql_analyses.find_pql_analysis_by_pql__d2_exclude_self": null,
     "pql_analyses.get_pql_analysis_by_id": "<pql:Customer churn>",
+    "pql_analyses.get_pql_analysis_by_id__d2_unknown": null,
     "pql_analyses.list_pql_analyses": [
       {
         "description": "Predict which customers stop renting.",
@@ -2461,7 +2555,34 @@
         "pql": "PREDICT COUNT(rental.*, 30, days) = 0 FOR EACH customer.customer_id"
       }
     ],
+    "pql_analyses.list_pql_analyses__d2_limit": [
+      {
+        "description": "Predict which customers stop renting.",
+        "id": "<pql:Customer churn>",
+        "name": "Customer churn",
+        "pql": "PREDICT COUNT(rental.*, 30, days) = 0 FOR EACH customer.customer_id"
+      }
+    ],
+    "pql_analyses.list_pql_analyses__d2_past_end": [],
+    "pql_analyses.list_pql_analyses__d2_search": [
+      {
+        "description": "Predict which customers stop renting.",
+        "id": "<pql:Customer churn>",
+        "name": "Customer churn",
+        "pql": "PREDICT COUNT(rental.*, 30, days) = 0 FOR EACH customer.customer_id"
+      }
+    ],
+    "pql_analyses.list_pql_analyses__d2_search_none": [],
+    "pql_analyses.list_pql_analyses__d2_skip": [],
+    "pql_analyses.list_pql_analyses__d2_wildcard": [],
     "sql_attributes.count_sql_attributes_by_term_id": 2,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_Customer": 1,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_Payment": 1,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_Track": 0,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_unknown": 0,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_zone_admin": 2,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_zone_none": 0,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_zone_scoped": 1,
     "sql_attributes.fetch_sql_attribute_counts[admin]": [
       {
         "count": 1,
@@ -2483,6 +2604,39 @@
         "term_id": "<term:Film>"
       }
     ],
+    "sql_attributes.fetch_sql_attribute_counts__d2_admin_empty_terms": [],
+    "sql_attributes.fetch_sql_attribute_counts__d2_admin_terms": [
+      {
+        "count": 1,
+        "term_id": "<term:Customer>"
+      },
+      {
+        "count": 2,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_counts__d2_data_ids": [
+      {
+        "count": 1,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_counts__d2_none_empty_terms": [],
+    "sql_attributes.fetch_sql_attribute_counts__d2_none_terms": [],
+    "sql_attributes.fetch_sql_attribute_counts__d2_scoped_empty_terms": [],
+    "sql_attributes.fetch_sql_attribute_counts__d2_scoped_terms": [
+      {
+        "count": 1,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_counts__d2_terms_only": [
+      {
+        "count": 2,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_counts__d2_unknown_term": [],
     "sql_attributes.fetch_sql_attribute_docs": [
       {
         "id": "<sqlattr:total revenue>",
@@ -2492,6 +2646,43 @@
         "text": "sql_attribute: total revenue, description: Sum of all payment amounts., term: Payment, sql: SELECT sum(amount) FROM payment"
       }
     ],
+    "sql_attributes.fetch_sql_attribute_docs__d2_each0": [
+      {
+        "id": "<sqlattr:customer lifetime value>",
+        "label": "SqlAttribute",
+        "name": "customer lifetime value",
+        "source": "table",
+        "text": "sql_attribute: customer lifetime value, description: Total paid by each customer., term: Customer, sql: SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_docs__d2_each1": [
+      {
+        "id": "<sqlattr:film count>",
+        "label": "SqlAttribute",
+        "name": "film count",
+        "source": "sql",
+        "text": "sql_attribute: film count, description: Number of films in the catalog., term: Film, sql: SELECT count(film_id) FROM film"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_docs__d2_each2": [
+      {
+        "id": "<sqlattr:films per category>",
+        "label": "SqlAttribute",
+        "name": "films per category",
+        "source": "bridgeTable",
+        "text": "sql_attribute: films per category, description: Film count grouped by category, via the bridge table., term: Film, sql: SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_docs__d2_each3": [
+      {
+        "id": "<sqlattr:total revenue>",
+        "label": "SqlAttribute",
+        "name": "total revenue",
+        "source": "manual",
+        "text": "sql_attribute: total revenue, description: Sum of all payment amounts., term: Payment, sql: SELECT sum(amount) FROM payment"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_docs__d2_unknown": [],
     "sql_attributes.fetch_sql_attributes_by_term_id": [
       {
         "certified": false,
@@ -2952,6 +3143,13 @@
     ],
     "sql_attributes.fetch_tables_from_sql_attributes__empty": [],
     "sql_attributes.fetch_tables_from_sql_attributes__unknown": [],
+    "sql_attributes.find_attr_by_expression": null,
+    "sql_attributes.find_attr_by_expression__d2_absent": null,
+    "sql_attributes.find_attr_by_expression__d2_case_ws": null,
+    "sql_attributes.find_attr_by_expression__d2_empty": null,
+    "sql_attributes.find_attr_by_expression__d2_exclude_self": null,
+    "sql_attributes.find_attr_by_expression__d2_other_term": null,
+    "sql_attributes.find_attr_by_expression__d2_unknown_term": null,
     "sql_attributes.find_attr_by_name": {
       "id": "<sqlattr:total revenue>",
       "name": "total revenue"
@@ -3135,6 +3333,11 @@
     "sql_attributes.get_full_sql_attribute_by_id__zone_none": null,
     "sql_attributes.get_full_sql_attribute_by_id__zone_scoped": null,
     "sql_attributes.get_sql_attribute_by_id": "<sqlattr:total revenue>",
+    "sql_attributes.get_sql_attribute_by_id__d2_each0": "<sqlattr:customer lifetime value>",
+    "sql_attributes.get_sql_attribute_by_id__d2_each1": "<sqlattr:film count>",
+    "sql_attributes.get_sql_attribute_by_id__d2_each2": "<sqlattr:films per category>",
+    "sql_attributes.get_sql_attribute_by_id__d2_each3": "<sqlattr:total revenue>",
+    "sql_attributes.get_sql_attribute_by_id__d2_unknown": null,
     "sql_attributes.list_sql_attributes": [
       {
         "certified": false,

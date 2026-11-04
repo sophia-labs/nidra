@@ -153,6 +153,13 @@ def update_counters_and_timestamps_for_query_and_affected_data(
     from auto_ontology.catalog.query_stats import get_sql_counters
 
     latest_timestamp = sql_node.get_properties()["last_query_timestamp"]
+    # Postgres coerces the caller's string into timestamptz; the graph stores
+    # what it is given, so coerce here (naive values are UTC, as in Postgres).
+    if isinstance(latest_timestamp, str):
+        from datetime import datetime, timezone
+
+        parsed = datetime.fromisoformat(latest_timestamp)
+        latest_timestamp = parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
     total_counter, _unreadable_month_counters = get_sql_counters(sql_node)
 
     subject = row_iri_single("sql_query", identical_sql_id)
