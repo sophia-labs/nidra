@@ -497,11 +497,28 @@ async function engineProxy(req, res, url, caller, store) {
 
 const ASKS = new Asks()
 
+/**
+ * The engine answers one question at a time: a second one sent while it works comes back at once as an empty stream.
+ * So asks wait their turn here, in order, and a waiting ask says so (a "Waiting for the engine" step).
+ */
+let engineTurn = Promise.resolve()
+let engineWaiting = 0
+
 /** Ask the engine in the background; the ask is recorded in the graph when the stream ends, however it ends. */
 function startAsk({ question, targetDb, caller, via, context }, store) {
   const ask = ASKS.add(new Ask({ question, targetDb, caller, via, context }))
   const body = JSON.stringify({ question, ...(targetDb ? { target_db: targetDb } : {}) })
+  const previous = engineTurn
+  let release
+  engineTurn = new Promise(resolve => { release = resolve })
+  const ahead = ASKS.live().filter(other => other !== ask).length
+  if (ahead > 0) ask.feed({ type: 'step', phase: 'start', node: 'queue', label: `Waiting for the engine (${ahead} ${ahead === 1 ? 'question' : 'questions'} ahead)` })
+  engineWaiting++
   ;(async () => {
+    await previous
+    engineWaiting--
+    if (ahead > 0) ask.feed({ type: 'step', phase: 'end', node: 'queue', label: 'Waiting for the engine', thought: null })
+    let events = 0
     try {
       const response = await fetch(`http://127.0.0.1:${ENGINE_PORT}/api/chat/completions`, {
         method: 'POST', headers: { 'content-type': 'application/json', accept: 'text/event-stream', 'x-auto-ontology-user-id': caller }, body,
@@ -513,7 +530,7 @@ function startAsk({ question, targetDb, caller, via, context }, store) {
         ask.feed({ type: 'error', message: `the engine answered ${response.status}: ${text.slice(0, 300)}` })
         return ask.finish()
       }
-      const sse = createSseReader(event => (event.type === 'done' ? null : ask.feed(event)))
+      const sse = createSseReader(event => { if (event.type !== 'done') { events++; ask.feed(event) } })
       const reader = response.body.getReader()
       for (;;) {
         const { done, value } = await reader.read()
@@ -521,11 +538,13 @@ function startAsk({ question, targetDb, caller, via, context }, store) {
         sse.push(value)
       }
       sse.end()
+      if (events === 0) ask.feed({ type: 'error', message: 'the engine ended the question without a word (it was busy with another, or its worker stopped): ask again' })
       ask.finish()
     } catch (error) {
       ask.feed({ type: 'error', message: `the engine stream broke: ${error?.cause?.code || error?.message || error}` })
       ask.finish({ stopped: true })
     } finally {
+      release()
       store.record(ask.record()).catch(error => log('could not record a question:', error.message))
     }
   })()
@@ -557,7 +576,7 @@ function toolHandlers(state, store) {
       const id = String(args.question_id || '').trim()
       const live = ASKS.get(id)
       if (live) {
-        await live.wait(Math.min(100, Math.max(0, Number(args.wait_seconds ?? 90))) * 1000)
+        await live.wait(Math.min(TOOL_BUDGET_MS / 1000, Math.max(0, Number(args.wait_seconds ?? TOOL_BUDGET_MS / 1000))) * 1000)
         return live.forModel()
       }
       const found = await store.question(id)

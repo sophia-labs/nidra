@@ -9,8 +9,12 @@ import { randomUUID } from 'node:crypto'
 /** The rows an answer carries to a model: enough to read, not a table dump. The record keeps up to ROW_KEEP. */
 export const ROWS_FOR_MODEL = 50
 export const ROW_KEEP = 1000
-/** gardend gives a lent tool at most 120 s; answer before it gives up, and keep asking in the background. */
-export const TOOL_BUDGET_MS = Number(process.env.NIDRA_TOOL_BUDGET_MS || 100_000)
+/**
+ * How long a tool call waits for the engine before it answers "running" (and the question goes on in the background):
+ * under the shortest caller's patience. gardend gives a lent tool up to 120 s; Sophia Compute's MCP proxy gives a call
+ * 60 s (MNEMOSYNE_REQUEST_TIMEOUT_MS).
+ */
+export const TOOL_BUDGET_MS = Number(process.env.NIDRA_TOOL_BUDGET_MS || 45_000)
 /** A finished ask stays in memory this long (for a tool or a page that asks after it), then lives only in the graph. */
 const KEEP_FINISHED_MS = 30 * 60_000
 
@@ -222,7 +226,7 @@ export const TOOLS = [
     description: 'Ask the databases Nidra catalogues one question in plain words. Nidra\'s engine (NVIDIA Auto Ontology\'s text-to-SQL agent) '
       + 'classifies it, finds the tables and terms, writes and validates SQL, runs it read-only and answers. Returns the answer, the SQL it ran, '
       + 'the first rows with the true row count, the catalog columns the SQL used (sqlColumns) and every step the engine took with its seconds. '
-      + 'A question that takes longer than about 100 s comes back with status "running" and a questionId: call nidra_question with it to wait for the rest. '
+      + 'A question that takes longer than about 45 s comes back with status "running" and a questionId: call nidra_question with it (again, while it says running) to wait for the rest; never ask the same question twice. '
       + 'Each question is recorded in the graph as urn:nidra:question/<questionId>.',
     inputSchema: {
       type: 'object',
@@ -248,7 +252,7 @@ export const TOOLS = [
       additionalProperties: false,
       properties: {
         question_id: { type: 'string', minLength: 1 },
-        wait_seconds: { type: 'number', minimum: 0, maximum: 100, description: 'How long to wait for a running question to end (default 90).' },
+        wait_seconds: { type: 'number', minimum: 0, maximum: 45, description: 'How long to wait for a running question to end (default and most: 45).' },
       },
     },
     annotations: { readOnlyHint: true, openWorldHint: false },
