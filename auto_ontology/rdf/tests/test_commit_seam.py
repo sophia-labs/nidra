@@ -354,6 +354,32 @@ def test_seeding_the_fixture_loaded_or_committed_is_the_same_graph():
     assert report["equal"] is True and report["triples"] == len(graphs["commit"][1])
 
 
+def test_replace_moves_a_sparql_loaded_graph_into_the_ledger():
+    """An existing graph seeded by SPARQL load (no frames) is brought under the ledger
+    by ``load(..., replace=True)`` in commit mode: clear, commit the retraction of the
+    rows it held with the new rows, replay into live. A stale row goes."""
+    from auto_ontology.rdf.export import load
+
+    lines = FIXTURE_NT.read_text().splitlines()
+    stale = '<urn:ao:tag/id=stale> <urn:ao:tag#name> "stale" .'
+    stale_type = '<urn:ao:tag/id=stale> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <urn:ao:tag> .'
+    reference, moved = _fresh("replace-ref"), _fresh("replace-moved")
+    try:
+        W.set_write_mode("sparql")
+        with use_client(reference):
+            load(lines)
+        with use_client(moved):
+            load(lines + [stale, stale_type])
+        W.set_write_mode("commit")
+        with use_client(moved):
+            load(lines, replace=True)
+    finally:
+        W.set_write_mode(None)
+    assert _triples(moved) == _triples(reference)
+    report = _oracle(moved)
+    assert report["equal"] is True and report["triples"] == len(_triples(moved))
+
+
 # -- live: the import, compensated ------------------------------------------------------
 
 
