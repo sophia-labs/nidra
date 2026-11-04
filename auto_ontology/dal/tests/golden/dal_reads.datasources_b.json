@@ -1,0 +1,363 @@
+{
+  "errors": {},
+  "results": {
+    "datasources.count_columns_for_table__rental": 7,
+    "datasources.count_columns_for_table__unknown": 0,
+    "datasources.fetch_columns_for_table__limit0": {
+      "columns": [],
+      "database_name": "pagila",
+      "schema_name": "public",
+      "table_name": "film",
+      "table_type": "base table"
+    },
+    "datasources.fetch_columns_for_table__page": {
+      "columns": [
+        {
+          "column_name": "description",
+          "data_type": "text",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:pagila.public.film.description>",
+          "ordinal_position": 3,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "title",
+          "data_type": "text",
+          "description": "The film's title.",
+          "description_certified": false,
+          "id": "<col:pagila.public.film.title>",
+          "ordinal_position": 2,
+          "sample_values": null,
+          "tags": []
+        }
+      ],
+      "database_name": "pagila",
+      "schema_name": "public",
+      "table_name": "film",
+      "table_type": "base table"
+    },
+    "datasources.fetch_columns_for_table__past_end": {
+      "columns": [],
+      "database_name": "pagila",
+      "schema_name": "public",
+      "table_name": "film",
+      "table_type": "base table"
+    },
+    "datasources.fetch_columns_for_table__rental": {
+      "columns": [
+        {
+          "column_name": "customer_id",
+          "data_type": "integer",
+          "description": "Primary key of customer.",
+          "description_certified": false,
+          "id": "<col:pagila.public.rental.customer_id>",
+          "ordinal_position": 4,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "inventory_id",
+          "data_type": "integer",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:pagila.public.rental.inventory_id>",
+          "ordinal_position": 3,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "last_update",
+          "data_type": "timestamp with time zone",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:pagila.public.rental.last_update>",
+          "ordinal_position": 7,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "rental_date",
+          "data_type": "timestamp with time zone",
+          "description": "When the rental started.",
+          "description_certified": false,
+          "id": "<col:pagila.public.rental.rental_date>",
+          "ordinal_position": 2,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "rental_id",
+          "data_type": "integer",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:pagila.public.rental.rental_id>",
+          "ordinal_position": 1,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "return_date",
+          "data_type": "timestamp with time zone",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:pagila.public.rental.return_date>",
+          "ordinal_position": 5,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "staff_id",
+          "data_type": "integer",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:pagila.public.rental.staff_id>",
+          "ordinal_position": 6,
+          "sample_values": null,
+          "tags": []
+        }
+      ],
+      "database_name": "pagila",
+      "schema_name": "public",
+      "table_name": "rental",
+      "table_type": "base table"
+    },
+    "datasources.fetch_columns_for_table__track": {
+      "columns": [
+        {
+          "column_name": "AlbumId",
+          "data_type": "INTEGER",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:chinook.main.Track.AlbumId>",
+          "ordinal_position": 3,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "Bytes",
+          "data_type": "INTEGER",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:chinook.main.Track.Bytes>",
+          "ordinal_position": 8,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "Composer",
+          "data_type": "NVARCHAR(220)",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:chinook.main.Track.Composer>",
+          "ordinal_position": 6,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "GenreId",
+          "data_type": "INTEGER",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:chinook.main.Track.GenreId>",
+          "ordinal_position": 5,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "MediaTypeId",
+          "data_type": "INTEGER",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:chinook.main.Track.MediaTypeId>",
+          "ordinal_position": 4,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "Milliseconds",
+          "data_type": "INTEGER",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:chinook.main.Track.Milliseconds>",
+          "ordinal_position": 7,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "Name",
+          "data_type": "NVARCHAR(200)",
+          "description": "The track's title.",
+          "description_certified": false,
+          "id": "<col:chinook.main.Track.Name>",
+          "ordinal_position": 2,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "TrackId",
+          "data_type": "INTEGER",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:chinook.main.Track.TrackId>",
+          "ordinal_position": 1,
+          "sample_values": null,
+          "tags": []
+        },
+        {
+          "column_name": "UnitPrice",
+          "data_type": "NUMERIC(10,2)",
+          "description": null,
+          "description_certified": false,
+          "id": "<col:chinook.main.Track.UnitPrice>",
+          "ordinal_position": 9,
+          "sample_values": null,
+          "tags": []
+        }
+      ],
+      "database_name": "chinook",
+      "schema_name": "main",
+      "table_name": "Track",
+      "table_type": "base table"
+    },
+    "datasources.fetch_item_by_id__column": {
+      "data_type": "text",
+      "description": null,
+      "description_certified": false,
+      "format": null,
+      "id": "<col:pagila.public.film.title>",
+      "imported_id": null,
+      "is_nullable": false,
+      "is_unique": null,
+      "label": "Column",
+      "name": "title",
+      "ordinal_position": 2,
+      "pii_processed": false,
+      "sample_values": null,
+      "table_id": "<table:pagila.public.film>"
+    },
+    "datasources.fetch_item_by_id__database": {
+      "connection": null,
+      "created": "<redacted>",
+      "description": null,
+      "description_certified": false,
+      "dialect": null,
+      "id": "<db:pagila>",
+      "imported_id": null,
+      "label": "Database",
+      "name": "pagila",
+      "owner_id": null,
+      "pulled": "<redacted>"
+    },
+    "datasources.fetch_item_by_id__list": {
+      "data_type": "text",
+      "description": null,
+      "description_certified": false,
+      "format": null,
+      "id": "<col:pagila.public.film.title>",
+      "imported_id": null,
+      "is_nullable": false,
+      "is_unique": null,
+      "label": "Column",
+      "name": "title",
+      "ordinal_position": 2,
+      "pii_processed": false,
+      "sample_values": null,
+      "table_id": "<table:pagila.public.film>"
+    },
+    "datasources.fetch_item_by_id__list_table_first": {
+      "description": null,
+      "description_certified": false,
+      "id": "<table:pagila.public.film>",
+      "imported_id": null,
+      "is_junction_table": false,
+      "label": "Table",
+      "name": "film",
+      "owner_id": null,
+      "pk": [
+        "film_id"
+      ],
+      "schema_id": "<schema:pagila.public>",
+      "table_type": "base table"
+    },
+    "datasources.fetch_item_by_id__mixed_labels": null,
+    "datasources.fetch_item_by_id__not_found": null,
+    "datasources.fetch_item_by_id__schema": {
+      "database_id": "<db:pagila>",
+      "description": null,
+      "description_certified": false,
+      "id": "<schema:pagila.public>",
+      "imported_id": null,
+      "label": "Schema",
+      "name": "public",
+      "owner_id": null
+    },
+    "datasources.fetch_item_by_id__table_pk": {
+      "description": null,
+      "description_certified": false,
+      "id": "<table:pagila.public.rental>",
+      "imported_id": null,
+      "is_junction_table": false,
+      "label": "Table",
+      "name": "rental",
+      "owner_id": null,
+      "pk": [
+        "rental_id"
+      ],
+      "schema_id": "<schema:pagila.public>",
+      "table_type": "base table"
+    },
+    "datasources.fetch_item_by_id__unknown_label": null,
+    "datasources.fetch_item_by_id__wrong_label": null,
+    "datasources.fetch_join_neighbors__rental": [],
+    "datasources.fetch_join_neighbors__track": [],
+    "datasources.fetch_join_neighbors__unknown": [],
+    "datasources.fetch_parent_table_id_for_column__unknown": null,
+    "datasources.find_column_id_by_table_and_name": "<col:pagila.public.film.title>",
+    "datasources.find_column_id_by_table_and_name__case": "<col:pagila.public.film.title>",
+    "datasources.find_column_id_by_table_and_name__db": "<col:pagila.public.film.title>",
+    "datasources.find_column_id_by_table_and_name__empty_column": null,
+    "datasources.find_column_id_by_table_and_name__empty_table": null,
+    "datasources.find_column_id_by_table_and_name__no_column": null,
+    "datasources.find_column_id_by_table_and_name__no_table": null,
+    "datasources.find_column_id_by_table_and_name__track": "<col:chinook.main.Track.Name>",
+    "datasources.find_column_id_by_table_and_name__wrong_db": null,
+    "datasources.find_table_key_columns": {
+      "pk": [
+        "film_id"
+      ],
+      "unique": []
+    },
+    "datasources.find_table_key_columns__db": {
+      "pk": [
+        "film_id"
+      ],
+      "unique": []
+    },
+    "datasources.find_table_key_columns__empty": {
+      "pk": [],
+      "unique": []
+    },
+    "datasources.find_table_key_columns__rental": {
+      "pk": [
+        "rental_id"
+      ],
+      "unique": []
+    },
+    "datasources.find_table_key_columns__track": {
+      "pk": [
+        "trackid"
+      ],
+      "unique": []
+    },
+    "datasources.find_table_key_columns__unknown": {
+      "pk": [],
+      "unique": []
+    },
+    "datasources.find_table_key_columns__wrong_db": {
+      "pk": [],
+      "unique": []
+    }
+  }
+}
