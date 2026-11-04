@@ -342,6 +342,27 @@ def _embed_with_retry(
     return embedded
 
 
+
+def _self_embedding_store() -> bool:
+    """Sophia Labs fork: on the gardend vector store the graph embeds its own
+    entities (``find``), so rows are marked instead of sent to an endpoint."""
+    from auto_ontology.vdb import vdb_backend
+
+    return vdb_backend() == "gardend"
+
+
+_SELF_EMBEDDED = ["gardend"]  # a truthy marker in metadata["embedding"]
+
+
+def _mark_self_embedded_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    out = []
+    for row in rows:
+        copy = dict(row)
+        copy["metadata"] = {**(row.get("metadata") or {}), "embedding": list(_SELF_EMBEDDED)}
+        out.append(copy)
+    return out
+
+
 def batch_embed_chunks(
     rows: "list[dict] | pd.DataFrame",
     params: EmbedParams,
@@ -361,6 +382,12 @@ def batch_embed_chunks(
     frame = rows if isinstance(rows, pd.DataFrame) else pd.DataFrame(rows)
     total = len(frame)
     if total == 0:
+        return
+    if _self_embedding_store():
+        size = chunk_size or 500
+        for index in range(math.ceil(total / size)):
+            part = frame.iloc[index * size : (index + 1) * size]
+            yield pd.DataFrame(_mark_self_embedded_rows(part.to_dict("records")))
         return
 
     size = chunk_size or embed_chunk_size(params)
@@ -474,6 +501,8 @@ def embed_rows(
     """
     if not rows:
         return []
+    if _self_embedding_store():
+        return _mark_self_embedded_rows(rows)
     try:
         vectors = embed_texts(
             [row.get("text") or "" for row in rows],

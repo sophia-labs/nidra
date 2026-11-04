@@ -54,17 +54,23 @@ class Retriever:
         embedded, with the endpoint's HTTP status in the message, so callers
         can tell a transient failure from an empty result.
         """
-        vector = embed_texts(
-            [text],
-            self.embed_params,
-            "query",
-            timeout=_QUERY_TIMEOUT_S,
-            retries=0,
-        )[0]
-        if vector is None:
-            raise ValueError("Cannot search for a blank query.")
         where = (vdb_kwargs or {}).get("where")
-        hits = self.vdb.retrieval([vector], top_k=top_k, where=where)[0]
+        if getattr(self.vdb, "embeds_itself", False):
+            # Sophia Labs fork: gardend embeds the query itself (find).
+            if not (text or "").strip():
+                raise ValueError("Cannot search for a blank query.")
+            hits = self.vdb.retrieval([None], top_k=top_k, where=where, texts=[text])[0]
+        else:
+            vector = embed_texts(
+                [text],
+                self.embed_params,
+                "query",
+                timeout=_QUERY_TIMEOUT_S,
+                retries=0,
+            )[0]
+            if vector is None:
+                raise ValueError("Cannot search for a blank query.")
+            hits = self.vdb.retrieval([vector], top_k=top_k, where=where)[0]
         return [
             {
                 "text": (hit.get("text") or "").strip(),

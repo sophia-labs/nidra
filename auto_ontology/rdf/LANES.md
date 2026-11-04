@@ -58,3 +58,43 @@ captures added, anything the vocabulary could not express.
 - No builds, no docker, no `uv sync` beyond your own worktree, no writes to
   gardend or Postgres (reads only; the fixture is shared).
 - Never touch `.env`/`lane.env` and never print their values.
+
+# Write lanes: the DAL and catalog-store writes, SQL → SPARQL
+
+Nidra runs with no Postgres at all, so every write goes to the graph too. The
+primitive is `auto_ontology/rdf/writes.py`: `insert_row(s)` (server defaults
+applied: uuid ids, `false` flags, `now()` stamps), `update_row(s)` (replace the
+changed columns' triples, mirrors and ref links included), `delete_rows` /
+`delete_subjects` (follows the metadata's `ON DELETE CASCADE` and `SET NULL`),
+`row_triples`, `apply_defaults`, `data_graph_iri`. Read it first; build on it,
+and put a missing generic operation (an upsert by natural key, say) in your own
+module and name it in your report so it can move into `writes.py`.
+
+A write port keeps the upstream name, signature, return value and side effects
+(what rows exist afterwards, with which values), including `ON CONFLICT`
+semantics, `RETURNING` ids and the embed hooks (`embed_*` calls stay as they
+are: the vector store is gardend too). Reads inside a write use the DAL
+functions (already ported) or `select_rows`. `write_transaction()` cannot roll
+back on this backend; port it as a no-op context manager where asked, and keep
+each function's writes to as few update requests as possible (one `INSERT DATA`
+for a batch, never one request per row in a loop of thousands).
+
+**Port modules** are named `<dalmodule>__writes.py` (targets
+`auto_ontology.dal.<dalmodule>`), or carry `TARGET = "auto_ontology.catalog.store.rows"`
+for a catalog-store module.
+
+## The oracle for writes
+`dev_tools/fixtures/write_diff.py` runs one write on a fresh Postgres copy and a
+fresh gardend copy of the fixture, captures every DAL read on both, and diffs:
+
+    uv run --no-sync python -m dev_tools.fixtures.write_diff \
+        auto_ontology.dal.terms:update_term --kwargs '{"term_id": "<term:Film>", "name": "Movie"}'
+
+`SAME` is the pass. `<token>` arguments are the golden's fixture tokens (see
+`build_id_map` / `_fixture_ids` in `capture_dal_golden.py`). For a write that
+takes objects (DataFrames, nodes), write a tiny driver function in
+`dev_tools/fixtures/write_cases/<lane>.py` and point `write_diff` at it
+(`dev_tools.fixtures.write_cases.<lane>:case_name`). Cover: create, update,
+no-op update, delete with cascades, conflict/upsert on an existing natural key,
+empty input. Record the exact commands you ran in your report. Every case must
+be `SAME` before you commit.

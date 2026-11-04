@@ -158,7 +158,9 @@ class GardendVDB:
         where = dict(kwargs.get("where") or {})
         label = where.pop("label", None)
         types = [_find_type(LABEL_TABLE[label])] if label in LABEL_TABLE else None
-        k = min(max(top_k, 1), _FIND_MAX)
+        # Over-fetch: find ranks every entity of the graph, and rows of other
+        # collections or filtered-out metadata are dropped below.
+        k = _FIND_MAX
         if top_k > _FIND_MAX:
             logger.info("GardendVDB.retrieval: top_k %d capped at %d (find's limit)", top_k, _FIND_MAX)
         results: list[list[dict]] = []
