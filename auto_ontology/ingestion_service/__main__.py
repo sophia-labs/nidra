@@ -69,11 +69,21 @@ async def lifespan(app: FastAPI):
     app.state.data_scheduler = data_scheduler
     app.state.semantic_scheduler = semantic_scheduler
 
-    data_scheduler.start()
+    # Sophia Labs fork: NIDRA_SCHEDULER=external leaves both schedulers idle;
+    # the host (a Cloudflare Cron/Workflow, a launchd timer) drives sweeps
+    # through POST /ingest and POST /semantic/compile instead, so a container
+    # that wakes for one question does not re-ingest and re-compile.
+    external = os.environ.get("NIDRA_SCHEDULER", "internal").lower() == "external"
+    if external:
+        logger.info("NIDRA_SCHEDULER=external: schedulers idle, sweeps are driven by the host")
+    else:
+        data_scheduler.start()
     # Only start semantic compilation if it's enabled in settings. When a user
     # enables it later, the POST /semantic/compile trigger starts the scheduler
     # on demand, so no restart is needed.
-    if is_semantic_compilation_enabled():
+    if external:
+        pass
+    elif is_semantic_compilation_enabled():
         semantic_scheduler.start()
         logger.info("semantic: compilation enabled; scheduler started")
     else:
