@@ -53,6 +53,7 @@ services:
       GARDEND_URL: ${GARDEND_URL:-http://gardend:8086}
       GARDEND_TOKEN: ${GARDEND_TOKEN}
       GARDEND_GRAPH_ID: ${GARDEND_GRAPH_ID:-nidra}
+      AO_FLAG_SEMANTIC_COMPILATION_ENABLED: ${AO_FLAG_SEMANTIC_COMPILATION_ENABLED:-true}
       INGESTION_SERVICE_URL: http://ingestion-service:3002
       CONNECTION_STRINGS: ${CONNECTION_STRINGS:-sqlite:////data/chinook.sqlite}
     volumes:
@@ -74,6 +75,7 @@ services:
       GARDEND_URL: ${GARDEND_URL:-http://gardend:8086}
       GARDEND_TOKEN: ${GARDEND_TOKEN}
       GARDEND_GRAPH_ID: ${GARDEND_GRAPH_ID:-nidra}
+      AO_FLAG_SEMANTIC_COMPILATION_ENABLED: ${AO_FLAG_SEMANTIC_COMPILATION_ENABLED:-true}
       CONNECTION_STRINGS: ${CONNECTION_STRINGS:-sqlite:////data/chinook.sqlite}
     volumes:
       - ./nidra/data:/data:ro

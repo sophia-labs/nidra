@@ -27,6 +27,7 @@ from auto_ontology.retrieval.text_to_sql.prompts import main_system_prompt_templ
 from auto_ontology.utils.llm_invoke import (
     get_llm_client,
     get_non_reasoning_llm_client,
+    last_refusal_since,
 )
 
 logger = logging.getLogger(__name__)
@@ -430,6 +431,7 @@ def stream_agent_response(
     ``thoughts`` key summarizes every ``thought`` collected along the way).
     On error yields ``{"type": "error", "message": ...}``."""
     t0 = time.perf_counter()
+    run_started = time.monotonic()
 
     logger.info("Text-to-SQL agent started for question: %s", payload["question"])
 
@@ -532,6 +534,19 @@ def stream_agent_response(
             answer["thoughts"] = thoughts_summary
         elapsed = time.perf_counter() - t0
         logger.debug("Final answer (%.2fs):\n%s", elapsed, answer)
+        # A model endpoint that refused (402 out of credits, 401/403 bad key) makes
+        # every call return ``None``, which the graph reports as "the LLM failed to
+        # produce a response". Say what happened instead. (Sophia Labs fork.)
+        refusal = last_refusal_since(run_started)
+        if refusal is not None and not str(answer.get("sql_code") or "").strip():
+            yield {
+                "type": "error",
+                "message": str(refusal),
+                "node": last_node,
+                "error_type": type(refusal).__name__,
+                "partial_answer": _extract_partial_answer(final_state),
+            }
+            return
         yield {"type": "result", "answer": answer}
 
     except Exception as exc:
