@@ -22,6 +22,77 @@ from auto_ontology.utils.model_config import resolve
 
 logger = logging.getLogger(__name__)
 
+#: HTTP statuses that mean the model endpoint will not serve this key at all
+#: (OpenRouter answers 402 ``in_flight_budget_exhausted`` / insufficient credits;
+#: 401 and 403 are a bad or unauthorised key). Retrying is pointless, and the
+#: callers that turn a failed call into ``None`` would otherwise report it as the
+#: model "failing to produce a response". (Sophia Labs fork.)
+REFUSAL_STATUSES = frozenset({401, 402, 403})
+
+
+class ModelEndpointRefused(RuntimeError):
+    """The model endpoint answered 401, 402 or 403."""
+
+    def __init__(self, status: int, detail: str):
+        self.status = status
+        self.detail = detail
+        super().__init__(f"the model endpoint refused: {status} {detail}".rstrip())
+
+
+_refusal_lock = threading.Lock()
+_last_refusal: tuple[float, ModelEndpointRefused] | None = None
+
+
+def _status_of(exc: BaseException) -> int | None:
+    status = getattr(exc, "status_code", None)
+    if status is None:
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+    return status if isinstance(status, int) else None
+
+
+def _detail_of(exc: BaseException) -> str:
+    body = getattr(exc, "body", None)
+    if isinstance(body, dict):
+        error = body.get("error", body)
+        if isinstance(error, dict):
+            code, message = error.get("code"), error.get("message")
+            text = " ".join(str(x) for x in (code, message) if x)
+            if text:
+                return text
+    message = getattr(exc, "message", None) or str(exc)
+    return " ".join(str(message).split())[:300]
+
+
+def refusal_from(exc: BaseException) -> ModelEndpointRefused | None:
+    """The refusal *exc* (or anything it was raised from) reports, if any."""
+    seen = 0
+    while exc is not None and seen < 8:
+        if isinstance(exc, ModelEndpointRefused):
+            return exc
+        status = _status_of(exc)
+        if status in REFUSAL_STATUSES:
+            return ModelEndpointRefused(status, _detail_of(exc))
+        exc = exc.__cause__ or exc.__context__
+        seen += 1
+    return None
+
+
+def note_refusal(exc: BaseException) -> None:
+    """Remember that the model endpoint refused, for the run that is in flight."""
+    global _last_refusal
+    refusal = refusal_from(exc)
+    if refusal is not None:
+        with _refusal_lock:
+            _last_refusal = (time.monotonic(), refusal)
+
+
+def last_refusal_since(started: float) -> ModelEndpointRefused | None:
+    """The newest refusal noted after ``time.monotonic() == started``."""
+    with _refusal_lock:
+        if _last_refusal is not None and _last_refusal[0] >= started:
+            return _last_refusal[1]
+    return None
+
 
 class StrictLLMOutputModel(BaseModel):
     """Base for LLM structured-output schemas.
@@ -493,6 +564,7 @@ def invoke_text(llm: BaseChatModel, prompt: str) -> str:
     try:
         return _invoke_text_once(llm, prompt)
     except Exception as exc:
+        note_refusal(exc)
         fallback = _reasoning_fallback_client(llm)
         if fallback is None:
             raise
@@ -525,6 +597,7 @@ def _safe_invoke_text(llm: BaseChatModel, prompt: str) -> str:
                 continue
             raise
         except Exception as e:
+            note_refusal(e)
             is_retryable = _is_retryable(e)
             if is_retryable and attempt < RETRY_MAX_ATTEMPTS - 1:
                 wait = 2 ** (attempt + 1) + random.uniform(0, 1)
@@ -613,6 +686,7 @@ def safe_invoke_with_structured_output(
                 )
                 raise
         except Exception as e:
+            note_refusal(e)
             is_retryable = _is_retryable(e)
             if is_retryable and attempt < RETRY_MAX_ATTEMPTS - 1:
                 wait = 2 ** (attempt + 1) + random.uniform(0, 1)
@@ -663,12 +737,14 @@ def invoke_with_structured_output(
     try:
         return safe_invoke_with_structured_output(llm, messages, schema)
     except Exception as e:
+        note_refusal(e)
         fallback = _reasoning_fallback_client(llm)
         if fallback is not None:
             _log_non_reasoning_fallback(e, schema_name)
             try:
                 return safe_invoke_with_structured_output(fallback, messages, schema)
             except Exception as e2:
+                note_refusal(e2)
                 logger.error(
                     "Reasoning LLM also failed for %s: %s: %s",
                     schema_name,

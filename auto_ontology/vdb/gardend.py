@@ -34,6 +34,46 @@ P_COLLECTION = f"{VDB_NS}collection"
 P_TEXT = DCT_DESCRIPTION
 _FIND_MAX = 25
 
+# -- score -> distance --------------------------------------------------------
+#
+# The engine reads ``_distance`` (lower is better) against CLARIFY_MAX_DISTANCE
+# 0.65 and DEFAULT_MAX_DISTANCE 0.75. ``1 - score`` cannot meet them: ``find``'s
+# fused score is 1.0 for a word-for-word hit and is *capped at 0.70* for a hit
+# found by meaning alone, so nonsense sat at distance 0.30 and everything
+# "was in the schema" (``check_answerable`` could never say no).
+#
+# Measured on the Pagila/Chinook catalog fixture (274 entities, e5-small, k=25),
+# top hit per query, ``find`` default = ``mode="fused"``:
+#   10 relevant (column/term names and their descriptions: "film title",
+#      "customer email address", "rental date", "payment amount", "replacement
+#      cost of a film", "A motion picture available for rental.", "A person who
+#      rents films from a store.", "Primary key of customer.", "store
+#      inventory", "film category"):  fused 0.94 .. 1.00 (median 1.00);
+#                                     vector 0.86 .. 0.91 (median 0.89)
+#   10 nonsense ("pension plan contributions", "weather in Lisbon", "quantum
+#      chromodynamics lecture", "how to bake sourdough bread", "football world
+#      cup winner", "medieval castle architecture", "stock market volatility
+#      index", "volcano eruption in Iceland", "guitar chord progressions", "tax
+#      return deadline for freelancers"):  fused 0.70 .. 0.70 (all ten; the cap)
+#                                          vector 0.75 .. 0.83 (median 0.775)
+# Fused separates the two groups by 0.24; vector by 0.03 (relevant min 0.86
+# against nonsense max 0.83), too thin to threshold. So the mapping is on the
+# fused score and linear: distance = 1.40 - 0.85 * score, clamped at 0.
+#   score 1.00 -> 0.55   0.94 -> 0.60   (relevant: below 0.65)
+#   score 0.70 -> 0.805  0.50 -> 0.975  (nonsense: above 0.75)
+# 0.65 and 0.75 correspond to scores 0.882 and 0.765; between them lies the zone
+# the group measurements left empty. Limit: a paraphrase with no word in common
+# ("client mailing contact") is capped at 0.70 like nonsense, and the vector
+# score does not rescue it (0.84 against nonsense up to 0.83): such a query is
+# judged not answerable by the thresholds.
+_DISTANCE_INTERCEPT = 1.40
+_DISTANCE_SLOPE = 0.85
+
+
+def distance_from_score(score: float) -> float:
+    """The engine's distance (lower is better) for a ``find`` fused score; monotone decreasing."""
+    return max(0.0, _DISTANCE_INTERCEPT - _DISTANCE_SLOPE * float(score))
+
 #: AO catalog labels → the DM table whose rows carry them.
 LABEL_TABLE = {
     "Database": "catalog_database",
@@ -193,7 +233,7 @@ class GardendVDB:
                     metadata = stored["metadata"]
                     if any(str(metadata.get(key)) != str(value) for key, value in where.items()):
                         continue
-                    out.append({"text": stored["text"] or h.get("says", ""), "metadata": metadata, "_distance": 1.0 - float(h.get("score", 0.0))})
+                    out.append({"text": stored["text"] or h.get("says", ""), "metadata": metadata, "_distance": distance_from_score(h.get("score", 0.0))})
                 results.append(out[:top_k])
             except GardendError as exc:
                 logger.error("GardendVDB.retrieval: %s", exc)
