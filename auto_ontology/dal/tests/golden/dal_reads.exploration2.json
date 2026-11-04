@@ -1,0 +1,2534 @@
+{
+  "errors": {},
+  "results": {
+    "exploration.fetch_data_exploration_graph__e2_limit3[admin]": {
+      "links": [],
+      "nodes": [
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.actor>",
+          "name": "actor",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.actor_info>",
+          "name": "actor_info",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "view",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 8,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.address>",
+          "name": "address",
+          "relationship_count": 4,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        }
+      ]
+    },
+    "exploration.fetch_data_exploration_graph__e2_limit3[none]": {
+      "links": [],
+      "nodes": []
+    },
+    "exploration.fetch_data_exploration_graph__e2_limit3[scoped]": {
+      "links": [
+        {
+          "foreign_keys": [
+            {
+              "source_column": "film_id",
+              "source_sample_values": null,
+              "target_column": "film_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [
+            "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+          ],
+          "relationship_types": [
+            "FOREIGN_KEY",
+            "SQL"
+          ],
+          "source": "<table:pagila.public.film>",
+          "target": "<table:pagila.public.inventory>",
+          "via_foreign_key": true
+        }
+      ],
+      "nodes": [
+        {
+          "columns_count": 14,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": "A motion picture available for rental.",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 2,
+          "table_type": "base table",
+          "terms_count": 1,
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        },
+        {
+          "columns_count": 3,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.category>",
+          "name": "category",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 1,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        },
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 1,
+          "table_type": "base table",
+          "terms_count": 1,
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        }
+      ]
+    },
+    "exploration.fetch_data_exploration_graph__e2_missing_db[admin]": {
+      "links": [],
+      "nodes": []
+    },
+    "exploration.fetch_data_exploration_graph__e2_missing_db[none]": {
+      "links": [],
+      "nodes": []
+    },
+    "exploration.fetch_data_exploration_graph__e2_missing_db[scoped]": {
+      "links": [],
+      "nodes": []
+    },
+    "exploration.fetch_data_exploration_graph__e2_pagila[admin]": {
+      "links": [
+        {
+          "foreign_keys": [],
+          "queries": [
+            "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+          ],
+          "relationship_types": [
+            "SQL"
+          ],
+          "source": "<table:pagila.public.film>",
+          "target": "<table:pagila.public.rental>",
+          "via_foreign_key": false
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "actor_id",
+              "source_sample_values": null,
+              "target_column": "actor_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.actor>",
+          "target": "<table:pagila.public.film_actor>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "address_id",
+              "source_sample_values": null,
+              "target_column": "address_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.address>",
+          "target": "<table:pagila.public.customer>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "address_id",
+              "source_sample_values": null,
+              "target_column": "address_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.address>",
+          "target": "<table:pagila.public.staff>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "address_id",
+              "source_sample_values": null,
+              "target_column": "address_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.address>",
+          "target": "<table:pagila.public.store>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "category_id",
+              "source_sample_values": null,
+              "target_column": "category_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [
+            "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name"
+          ],
+          "relationship_types": [
+            "FOREIGN_KEY",
+            "SQL"
+          ],
+          "source": "<table:pagila.public.category>",
+          "target": "<table:pagila.public.film_category>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "city_id",
+              "source_sample_values": null,
+              "target_column": "city_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.address>",
+          "target": "<table:pagila.public.city>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "country_id",
+              "source_sample_values": null,
+              "target_column": "country_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.city>",
+          "target": "<table:pagila.public.country>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "customer_id",
+              "source_sample_values": null,
+              "target_column": "customer_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.customer>",
+          "target": "<table:pagila.public.rental>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "film_id",
+              "source_sample_values": null,
+              "target_column": "film_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [
+            "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+          ],
+          "relationship_types": [
+            "FOREIGN_KEY",
+            "SQL"
+          ],
+          "source": "<table:pagila.public.film>",
+          "target": "<table:pagila.public.inventory>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "film_id",
+              "source_sample_values": null,
+              "target_column": "film_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.film>",
+          "target": "<table:pagila.public.film_actor>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "film_id",
+              "source_sample_values": null,
+              "target_column": "film_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.film>",
+          "target": "<table:pagila.public.film_category>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "inventory_id",
+              "source_sample_values": null,
+              "target_column": "inventory_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [
+            "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+          ],
+          "relationship_types": [
+            "FOREIGN_KEY",
+            "SQL"
+          ],
+          "source": "<table:pagila.public.inventory>",
+          "target": "<table:pagila.public.rental>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "language_id",
+              "source_sample_values": null,
+              "target_column": "language_id",
+              "target_sample_values": null
+            },
+            {
+              "source_column": "original_language_id",
+              "source_sample_values": null,
+              "target_column": "language_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.film>",
+          "target": "<table:pagila.public.language>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "staff_id",
+              "source_sample_values": null,
+              "target_column": "staff_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.rental>",
+          "target": "<table:pagila.public.staff>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "store_id",
+              "source_sample_values": null,
+              "target_column": "store_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.customer>",
+          "target": "<table:pagila.public.store>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "store_id",
+              "source_sample_values": null,
+              "target_column": "store_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.inventory>",
+          "target": "<table:pagila.public.store>",
+          "via_foreign_key": true
+        },
+        {
+          "foreign_keys": [
+            {
+              "source_column": "store_id",
+              "source_sample_values": null,
+              "target_column": "store_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [],
+          "relationship_types": [
+            "FOREIGN_KEY"
+          ],
+          "source": "<table:pagila.public.staff>",
+          "target": "<table:pagila.public.store>",
+          "via_foreign_key": true
+        }
+      ],
+      "nodes": [
+        {
+          "columns_count": 10,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": "A person who rents films from a store.",
+          "id": "<table:pagila.public.customer>",
+          "name": "customer",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 1,
+          "zones": []
+        },
+        {
+          "columns_count": 11,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.staff>",
+          "name": "staff",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": [
+            {
+              "color": "#dc2626",
+              "enabled": false,
+              "id": "<zone:Retired zone>",
+              "name": "Retired zone"
+            }
+          ]
+        },
+        {
+          "columns_count": 14,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": "A motion picture available for rental.",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "relationship_count": 5,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 2,
+          "table_type": "base table",
+          "terms_count": 1,
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        },
+        {
+          "columns_count": 2,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.rental_by_category>",
+          "name": "rental_by_category",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "materialized view",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 2,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.sales_by_film_category>",
+          "name": "sales_by_film_category",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "view",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 3,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.category>",
+          "name": "category",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 1,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        },
+        {
+          "columns_count": 3,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.country>",
+          "name": "country",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 3,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.film_actor>",
+          "name": "film_actor",
+          "relationship_count": 2,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 3,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.film_category>",
+          "name": "film_category",
+          "relationship_count": 2,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 1,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 3,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.language>",
+          "name": "language",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 3,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.sales_by_store>",
+          "name": "sales_by_store",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "view",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.analytics.top_films>",
+          "name": "top_films",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.analytics>",
+          "schema_name": "analytics",
+          "sql_count": 0,
+          "table_type": "view",
+          "terms_count": 0,
+          "zones": [
+            {
+              "color": "#059669",
+              "enabled": true,
+              "id": "<zone:Cross database>",
+              "name": "Cross database"
+            }
+          ]
+        },
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.actor>",
+          "name": "actor",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.actor_info>",
+          "name": "actor_info",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "view",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.city>",
+          "name": "city",
+          "relationship_count": 2,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 1,
+          "table_type": "base table",
+          "terms_count": 1,
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        },
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.store>",
+          "name": "store",
+          "relationship_count": 4,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 5,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.analytics.category_rollup>",
+          "name": "category_rollup",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.analytics>",
+          "schema_name": "analytics",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": [
+            {
+              "color": "#059669",
+              "enabled": true,
+              "id": "<zone:Cross database>",
+              "name": "Cross database"
+            }
+          ]
+        },
+        {
+          "columns_count": 5,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.analytics.film_performance>",
+          "name": "film_performance",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.analytics>",
+          "schema_name": "analytics",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": [
+            {
+              "color": "#059669",
+              "enabled": true,
+              "id": "<zone:Cross database>",
+              "name": "Cross database"
+            }
+          ]
+        },
+        {
+          "columns_count": 6,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": "Money received for a rental. Owning table is partitioned.",
+          "id": "<table:pagila.public.payment>",
+          "name": "payment",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 3,
+          "table_type": "base table",
+          "terms_count": 2,
+          "zones": []
+        },
+        {
+          "columns_count": 7,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": "A single film rental transaction.",
+          "id": "<table:pagila.public.rental>",
+          "name": "rental",
+          "relationship_count": 4,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 1,
+          "table_type": "base table",
+          "terms_count": 2,
+          "zones": []
+        },
+        {
+          "columns_count": 8,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.address>",
+          "name": "address",
+          "relationship_count": 4,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 8,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.film_list>",
+          "name": "film_list",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "view",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 8,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.nicer_but_slower_film_list>",
+          "name": "nicer_but_slower_film_list",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "view",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 8,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.staff_list>",
+          "name": "staff_list",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "view",
+          "terms_count": 0,
+          "zones": []
+        },
+        {
+          "columns_count": 9,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.customer_list>",
+          "name": "customer_list",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 0,
+          "table_type": "view",
+          "terms_count": 0,
+          "zones": []
+        }
+      ]
+    },
+    "exploration.fetch_data_exploration_graph__e2_pagila[none]": {
+      "links": [],
+      "nodes": []
+    },
+    "exploration.fetch_data_exploration_graph__e2_pagila[scoped]": {
+      "links": [
+        {
+          "foreign_keys": [
+            {
+              "source_column": "film_id",
+              "source_sample_values": null,
+              "target_column": "film_id",
+              "target_sample_values": null
+            }
+          ],
+          "queries": [
+            "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+          ],
+          "relationship_types": [
+            "FOREIGN_KEY",
+            "SQL"
+          ],
+          "source": "<table:pagila.public.film>",
+          "target": "<table:pagila.public.inventory>",
+          "via_foreign_key": true
+        }
+      ],
+      "nodes": [
+        {
+          "columns_count": 14,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": "A motion picture available for rental.",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 2,
+          "table_type": "base table",
+          "terms_count": 1,
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        },
+        {
+          "columns_count": 3,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.category>",
+          "name": "category",
+          "relationship_count": 0,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 1,
+          "table_type": "base table",
+          "terms_count": 0,
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        },
+        {
+          "columns_count": 4,
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "sql_count": 1,
+          "table_type": "base table",
+          "terms_count": 1,
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        }
+      ]
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_customer[admin]": {
+      "nodes": [
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.address>",
+          "name": "address",
+          "relationship_count": 4,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.rental>",
+          "name": "rental",
+          "relationship_count": 4,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.store>",
+          "name": "store",
+          "relationship_count": 4,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        }
+      ],
+      "total": 3
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_customer[none]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_customer[scoped]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_film[admin]": {
+      "nodes": [
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.film_actor>",
+          "name": "film_actor",
+          "relationship_count": 2,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.film_category>",
+          "name": "film_category",
+          "relationship_count": 2,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.language>",
+          "name": "language",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.rental>",
+          "name": "rental",
+          "relationship_count": 4,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        }
+      ],
+      "total": 5
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_film[none]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_film[scoped]": {
+      "nodes": [
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_count": 1,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        }
+      ],
+      "total": 1
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_missing[admin]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_missing[none]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_missing[scoped]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_rental[admin]": {
+      "nodes": [
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.customer>",
+          "name": "customer",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "relationship_count": 5,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.staff>",
+          "name": "staff",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        }
+      ],
+      "total": 4
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_rental[none]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_data_rental[scoped]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_page_data_limit1": {
+      "nodes": [
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.customer>",
+          "name": "customer",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        }
+      ],
+      "total": 4
+    },
+    "exploration.fetch_exploration_related_nodes__e2_page_data_skip1": {
+      "nodes": [
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "relationship_count": 5,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.staff>",
+          "name": "staff",
+          "relationship_count": 3,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        }
+      ],
+      "total": 4
+    },
+    "exploration.fetch_exploration_related_nodes__e2_page_data_skip1_limit1": {
+      "nodes": [
+        {
+          "database_id": "<db:pagila>",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "relationship_count": 5,
+          "schema_id": "<schema:pagila.public>",
+          "table_type": "base table"
+        }
+      ],
+      "total": 4
+    },
+    "exploration.fetch_exploration_related_nodes__e2_page_data_skip99": {
+      "nodes": [],
+      "total": 4
+    },
+    "exploration.fetch_exploration_related_nodes__e2_page_semantic_limit1": {
+      "nodes": [
+        {
+          "id": "<term:Payment>",
+          "name": "Payment",
+          "relationship_count": 1
+        }
+      ],
+      "total": 2
+    },
+    "exploration.fetch_exploration_related_nodes__e2_page_semantic_skip1": {
+      "nodes": [
+        {
+          "id": "<term:Rental>",
+          "name": "Rental",
+          "relationship_count": 1
+        }
+      ],
+      "total": 2
+    },
+    "exploration.fetch_exploration_related_nodes__e2_page_semantic_skip1_limit1": {
+      "nodes": [
+        {
+          "id": "<term:Rental>",
+          "name": "Rental",
+          "relationship_count": 1
+        }
+      ],
+      "total": 2
+    },
+    "exploration.fetch_exploration_related_nodes__e2_page_semantic_skip99": {
+      "nodes": [],
+      "total": 2
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_customer[admin]": {
+      "nodes": [
+        {
+          "id": "<term:Payment>",
+          "name": "Payment",
+          "relationship_count": 1
+        },
+        {
+          "id": "<term:Rental>",
+          "name": "Rental",
+          "relationship_count": 1
+        }
+      ],
+      "total": 2
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_customer[none]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_customer[scoped]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_film[admin]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_film[none]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_film[scoped]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_missing[admin]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_missing[none]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_missing[scoped]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_payment[admin]": {
+      "nodes": [
+        {
+          "id": "<term:Customer>",
+          "name": "Customer",
+          "relationship_count": 2
+        }
+      ],
+      "total": 1
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_payment[none]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_exploration_related_nodes__e2_semantic_payment[scoped]": {
+      "nodes": [],
+      "total": 0
+    },
+    "exploration.fetch_semantic_exploration_graph__e2_limit2[admin]": {
+      "links": [],
+      "nodes": [
+        {
+          "column_attributes_count": 2,
+          "description": "A person who rents films from a store.",
+          "id": "<term:Customer>",
+          "name": "Customer",
+          "relationship_count": 2,
+          "sql_attributes_count": 1,
+          "synonyms": [
+            "patron",
+            "renter"
+          ],
+          "zones": []
+        },
+        {
+          "column_attributes_count": 3,
+          "description": "A motion picture available for rental.",
+          "id": "<term:Film>",
+          "name": "Film",
+          "relationship_count": 0,
+          "sql_attributes_count": 2,
+          "synonyms": [
+            "movie",
+            "picture",
+            "title"
+          ],
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        }
+      ]
+    },
+    "exploration.fetch_semantic_exploration_graph__e2_limit2[none]": {
+      "links": [],
+      "nodes": []
+    },
+    "exploration.fetch_semantic_exploration_graph__e2_limit2[scoped]": {
+      "links": [],
+      "nodes": [
+        {
+          "column_attributes_count": 3,
+          "description": "A motion picture available for rental.",
+          "id": "<term:Film>",
+          "name": "Film",
+          "relationship_count": 0,
+          "sql_attributes_count": 1,
+          "synonyms": [
+            "movie",
+            "picture",
+            "title"
+          ],
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        }
+      ]
+    },
+    "exploration.fetch_semantic_exploration_graph__e2_pagila[admin]": {
+      "links": [
+        {
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS",
+            "SEMANTIC_FK"
+          ],
+          "source": "<term:Customer>",
+          "target": "<term:Payment>"
+        },
+        {
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS",
+            "SEMANTIC_FK"
+          ],
+          "source": "<term:Customer>",
+          "target": "<term:Rental>"
+        }
+      ],
+      "nodes": [
+        {
+          "column_attributes_count": 1,
+          "description": "A single film rental transaction.",
+          "id": "<term:Rental>",
+          "name": "Rental",
+          "relationship_count": 1,
+          "sql_attributes_count": 0,
+          "synonyms": [
+            "hire",
+            "loan"
+          ],
+          "zones": []
+        },
+        {
+          "column_attributes_count": 1,
+          "description": "Money received for a rental. Owning table is partitioned.",
+          "id": "<term:Payment>",
+          "name": "Payment",
+          "relationship_count": 1,
+          "sql_attributes_count": 1,
+          "synonyms": [
+            "transaction"
+          ],
+          "zones": []
+        },
+        {
+          "column_attributes_count": 2,
+          "description": "A person who rents films from a store.",
+          "id": "<term:Customer>",
+          "name": "Customer",
+          "relationship_count": 2,
+          "sql_attributes_count": 1,
+          "synonyms": [
+            "patron",
+            "renter"
+          ],
+          "zones": []
+        },
+        {
+          "column_attributes_count": 3,
+          "description": "A motion picture available for rental.",
+          "id": "<term:Film>",
+          "name": "Film",
+          "relationship_count": 0,
+          "sql_attributes_count": 2,
+          "synonyms": [
+            "movie",
+            "picture",
+            "title"
+          ],
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        }
+      ]
+    },
+    "exploration.fetch_semantic_exploration_graph__e2_pagila[none]": {
+      "links": [],
+      "nodes": []
+    },
+    "exploration.fetch_semantic_exploration_graph__e2_pagila[scoped]": {
+      "links": [],
+      "nodes": [
+        {
+          "column_attributes_count": 3,
+          "description": "A motion picture available for rental.",
+          "id": "<term:Film>",
+          "name": "Film",
+          "relationship_count": 0,
+          "sql_attributes_count": 1,
+          "synonyms": [
+            "movie",
+            "picture",
+            "title"
+          ],
+          "zones": [
+            {
+              "color": "#4f46e5",
+              "enabled": true,
+              "id": "<zone:Film domain>",
+              "name": "Film domain"
+            }
+          ]
+        }
+      ]
+    },
+    "exploration.fetch_semantic_link_path__e2_customer_film[admin]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_customer_film[none]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_customer_film[scoped]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_customer_payment[admin]": {
+      "hops": [
+        {
+          "relationship": "CONTAINS",
+          "source": {
+            "database_id": "<db:pagila>",
+            "database_name": "pagila",
+            "id": "<col:pagila.public.payment.customer_id>",
+            "name": "customer_id",
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_id": "<table:pagila.public.payment>",
+            "table_name": "payment",
+            "type": "column"
+          },
+          "target": {
+            "database_id": "<db:pagila>",
+            "database_name": "pagila",
+            "id": "<table:pagila.public.payment>",
+            "name": "payment",
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "type": "table"
+          }
+        },
+        {
+          "relationship": "PROPERTY_OF",
+          "source": {
+            "id": "<attr:Customer/customer id/customer_id>",
+            "name": "customer id",
+            "type": "columnAttribute"
+          },
+          "target": {
+            "id": "<term:Customer>",
+            "name": "Customer",
+            "type": "term"
+          }
+        },
+        {
+          "relationship": "REPRESENTS",
+          "source": {
+            "database_id": "<db:pagila>",
+            "database_name": "pagila",
+            "id": "<table:pagila.public.payment>",
+            "name": "payment",
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "type": "table"
+          },
+          "target": {
+            "id": "<term:Payment>",
+            "name": "Payment",
+            "type": "term"
+          }
+        },
+        {
+          "relationship": "SEMANTIC_FK",
+          "source": {
+            "database_id": "<db:pagila>",
+            "database_name": "pagila",
+            "id": "<col:pagila.public.payment.customer_id>",
+            "name": "customer_id",
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_id": "<table:pagila.public.payment>",
+            "table_name": "payment",
+            "type": "column"
+          },
+          "target": {
+            "id": "<attr:Customer/customer id/customer_id>",
+            "name": "customer id",
+            "type": "columnAttribute"
+          }
+        }
+      ]
+    },
+    "exploration.fetch_semantic_link_path__e2_customer_payment[none]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_customer_payment[scoped]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_film_customer[admin]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_film_customer[none]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_film_customer[scoped]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_film_film[admin]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_film_film[none]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_film_film[scoped]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_film_track[admin]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_film_track[none]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_film_track[scoped]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_missing[admin]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_missing[none]": {
+      "hops": []
+    },
+    "exploration.fetch_semantic_link_path__e2_missing[scoped]": {
+      "hops": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_missing[admin]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_missing[none]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_missing[scoped]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt0[admin]": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film"
+        }
+      ],
+      "custom_analyses": [],
+      "sql_attributes": [
+        {
+          "description": "Number of films in the catalog.",
+          "id": "<sqlattr:film count>",
+          "name": "film count",
+          "term_id": "<term:Film>",
+          "term_name": "Film"
+        }
+      ],
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ]
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt0[none]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt0[scoped]": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film"
+        }
+      ],
+      "custom_analyses": [],
+      "sql_attributes": [
+        {
+          "description": "Number of films in the catalog.",
+          "id": "<sqlattr:film count>",
+          "name": "film count",
+          "term_id": "<term:Film>",
+          "term_name": "Film"
+        }
+      ],
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ]
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt1[admin]": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.payment.customer_id>",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        {
+          "data_type": "numeric",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.payment.amount>",
+          "name": "amount",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        }
+      ],
+      "custom_analyses": [],
+      "sql_attributes": [
+        {
+          "description": "Total paid by each customer.",
+          "id": "<sqlattr:customer lifetime value>",
+          "name": "customer lifetime value",
+          "term_id": "<term:Customer>",
+          "term_name": "Customer"
+        }
+      ],
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ]
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt1[none]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt1[scoped]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt2[admin]": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.inventory_id>",
+          "name": "inventory_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.rental.inventory_id>",
+          "name": "inventory_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.rental.rental_id>",
+          "name": "rental_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        {
+          "data_type": "text",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.title>",
+          "name": "title",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film"
+        }
+      ],
+      "custom_analyses": [
+        {
+          "description": "Films ordered by rental count.",
+          "id": "<analysis:Top rented films>",
+          "name": "Top rented films"
+        }
+      ],
+      "sql_attributes": [],
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "name": "rental",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ]
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt2[none]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt2[scoped]": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.inventory_id>",
+          "name": "inventory_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        },
+        {
+          "data_type": "text",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.title>",
+          "name": "title",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film"
+        }
+      ],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ]
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt3[admin]": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.payment.staff_id>",
+          "name": "staff_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        {
+          "data_type": "numeric",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.payment.amount>",
+          "name": "amount",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        }
+      ],
+      "custom_analyses": [
+        {
+          "description": "Payment totals per staff member.",
+          "id": "<analysis:Revenue by staff>",
+          "name": "Revenue by staff"
+        }
+      ],
+      "sql_attributes": [],
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ]
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt3[none]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt3[scoped]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt4[admin]": {
+      "columns": [
+        {
+          "data_type": "numeric",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.payment.amount>",
+          "name": "amount",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        }
+      ],
+      "custom_analyses": [],
+      "sql_attributes": [
+        {
+          "description": "Sum of all payment amounts.",
+          "id": "<sqlattr:total revenue>",
+          "name": "total revenue",
+          "term_id": "<term:Payment>",
+          "term_name": "Payment"
+        }
+      ],
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ]
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt4[none]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_sql_exploration_details__e2_stmt4[scoped]": {
+      "columns": [],
+      "custom_analyses": [],
+      "sql_attributes": [],
+      "tables": []
+    },
+    "exploration.fetch_table_exploration_details__e2_customer[admin]": {
+      "queries": [],
+      "terms": [
+        {
+          "description": "A person who rents films from a store.",
+          "id": "<term:Customer>",
+          "name": "Customer",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ]
+        }
+      ],
+      "terms_total": 1
+    },
+    "exploration.fetch_table_exploration_details__e2_customer[none]": {
+      "queries": [],
+      "terms": [],
+      "terms_total": 0
+    },
+    "exploration.fetch_table_exploration_details__e2_customer[scoped]": {
+      "queries": [],
+      "terms": [],
+      "terms_total": 0
+    },
+    "exploration.fetch_table_exploration_details__e2_film[admin]": {
+      "queries": [
+        {
+          "id": "<sql:SELECT count(film_id) FROM film>",
+          "sql": "SELECT count(film_id) FROM film"
+        },
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ],
+      "terms": [
+        {
+          "description": "A motion picture available for rental.",
+          "id": "<term:Film>",
+          "name": "Film",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ]
+        }
+      ],
+      "terms_total": 1
+    },
+    "exploration.fetch_table_exploration_details__e2_film[none]": {
+      "queries": [],
+      "terms": [],
+      "terms_total": 0
+    },
+    "exploration.fetch_table_exploration_details__e2_film[scoped]": {
+      "queries": [
+        {
+          "id": "<sql:SELECT count(film_id) FROM film>",
+          "sql": "SELECT count(film_id) FROM film"
+        },
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ],
+      "terms": [
+        {
+          "description": "A motion picture available for rental.",
+          "id": "<term:Film>",
+          "name": "Film",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ]
+        }
+      ],
+      "terms_total": 1
+    },
+    "exploration.fetch_table_exploration_details__e2_missing[admin]": {
+      "queries": [],
+      "terms": [],
+      "terms_total": 0
+    },
+    "exploration.fetch_table_exploration_details__e2_missing[none]": {
+      "queries": [],
+      "terms": [],
+      "terms_total": 0
+    },
+    "exploration.fetch_table_exploration_details__e2_missing[scoped]": {
+      "queries": [],
+      "terms": [],
+      "terms_total": 0
+    },
+    "exploration.fetch_table_exploration_details__e2_page_limit1": {
+      "queries": [
+        {
+          "id": "<sql:SELECT count(film_id) FROM film>",
+          "sql": "SELECT count(film_id) FROM film"
+        },
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ],
+      "terms": [
+        {
+          "description": "A motion picture available for rental.",
+          "id": "<term:Film>",
+          "name": "Film",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ]
+        }
+      ],
+      "terms_total": 1
+    },
+    "exploration.fetch_table_exploration_details__e2_page_skip1": {
+      "queries": [
+        {
+          "id": "<sql:SELECT count(film_id) FROM film>",
+          "sql": "SELECT count(film_id) FROM film"
+        },
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ],
+      "terms": [],
+      "terms_total": 1
+    },
+    "exploration.fetch_table_exploration_details__e2_page_skip1_limit1": {
+      "queries": [
+        {
+          "id": "<sql:SELECT count(film_id) FROM film>",
+          "sql": "SELECT count(film_id) FROM film"
+        },
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ],
+      "terms": [],
+      "terms_total": 1
+    },
+    "exploration.fetch_table_exploration_details__e2_page_skip99": {
+      "queries": [
+        {
+          "id": "<sql:SELECT count(film_id) FROM film>",
+          "sql": "SELECT count(film_id) FROM film"
+        },
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ],
+      "terms": [],
+      "terms_total": 1
+    },
+    "exploration.fetch_table_exploration_details__e2_rental[admin]": {
+      "queries": [
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ],
+      "terms": [
+        {
+          "description": "A person who rents films from a store.",
+          "id": "<term:Customer>",
+          "name": "Customer",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ]
+        },
+        {
+          "description": "A single film rental transaction.",
+          "id": "<term:Rental>",
+          "name": "Rental",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ]
+        }
+      ],
+      "terms_total": 2
+    },
+    "exploration.fetch_table_exploration_details__e2_rental[none]": {
+      "queries": [],
+      "terms": [],
+      "terms_total": 0
+    },
+    "exploration.fetch_table_exploration_details__e2_rental[scoped]": {
+      "queries": [],
+      "terms": [],
+      "terms_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_customer[admin]": {
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.customer>",
+          "name": "customer",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "name": "payment",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "name": "rental",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ],
+      "tables_total": 3
+    },
+    "exploration.fetch_term_exploration_details__e2_customer[none]": {
+      "tables": [],
+      "tables_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_customer[scoped]": {
+      "tables": [],
+      "tables_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_film[admin]": {
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ],
+      "tables_total": 2
+    },
+    "exploration.fetch_term_exploration_details__e2_film[none]": {
+      "tables": [],
+      "tables_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_film[scoped]": {
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        },
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ],
+      "tables_total": 2
+    },
+    "exploration.fetch_term_exploration_details__e2_missing[admin]": {
+      "tables": [],
+      "tables_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_missing[none]": {
+      "tables": [],
+      "tables_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_missing[scoped]": {
+      "tables": [],
+      "tables_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_page_limit1": {
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.film>",
+          "name": "film",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ],
+      "tables_total": 2
+    },
+    "exploration.fetch_term_exploration_details__e2_page_skip1": {
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ],
+      "tables_total": 2
+    },
+    "exploration.fetch_term_exploration_details__e2_page_skip1_limit1": {
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.inventory>",
+          "name": "inventory",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ],
+      "tables_total": 2
+    },
+    "exploration.fetch_term_exploration_details__e2_page_skip99": {
+      "tables": [],
+      "tables_total": 2
+    },
+    "exploration.fetch_term_exploration_details__e2_payment[admin]": {
+      "tables": [
+        {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "name": "payment",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_type": "base table"
+        }
+      ],
+      "tables_total": 1
+    },
+    "exploration.fetch_term_exploration_details__e2_payment[none]": {
+      "tables": [],
+      "tables_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_payment[scoped]": {
+      "tables": [],
+      "tables_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_track[admin]": {
+      "tables": [
+        {
+          "database_id": "<db:chinook>",
+          "database_name": "chinook",
+          "id": "<table:chinook.main.Track>",
+          "name": "Track",
+          "relationship_types": [
+            "HAS_ATTRIBUTE",
+            "REPRESENTS"
+          ],
+          "schema_id": "<schema:chinook.main>",
+          "schema_name": "main",
+          "table_type": "base table"
+        }
+      ],
+      "tables_total": 1
+    },
+    "exploration.fetch_term_exploration_details__e2_track[none]": {
+      "tables": [],
+      "tables_total": 0
+    },
+    "exploration.fetch_term_exploration_details__e2_track[scoped]": {
+      "tables": [],
+      "tables_total": 0
+    }
+  }
+}
