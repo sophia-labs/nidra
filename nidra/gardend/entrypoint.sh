@@ -5,7 +5,7 @@
 set -eu
 if [ "$#" -gt 0 ]; then exec /usr/local/bin/gardend "$@"; fi
 : "${GARDEN_LOOPBACK_TOKEN:?set GARDEN_LOOPBACK_TOKEN}"
-GRAPH="${NIDRA_GRAPH_ID:-nidra}"; PORT="${GARDEN_LOOPBACK_PORT:-8086}"; EVERY="${NIDRA_INDEX_EVERY_SECONDS:-600}"
+GRAPH="${NIDRA_GRAPH_ID:-nidra}"; PORT="${GARDEN_LOOPBACK_PORT:-8086}"; EVERY="${NIDRA_INDEX_EVERY_SECONDS:-60}"
 /usr/local/bin/gardend serve --profile "${GARDEN_PROFILE_DIR:-/data/profile}" --port "$PORT" &
 SERVE=$!
 trap 'kill -TERM $SERVE 2>/dev/null; wait $SERVE' TERM INT
