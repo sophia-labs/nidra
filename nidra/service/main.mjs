@@ -447,6 +447,9 @@ async function route(req, res, { internal, state, store }) {
     const key = modelKey()
     const { endpoint, model } = modelSettings()
     return json(res, 200, {
+      // The round-1 shape stays on top for the one-command image, whose UI (no Sophia Compute in the container) still
+      // reads it: keyFrom there names only whose key it is.
+      endpoint, model, keySet: Boolean(key.value), keyFrom: key.from === 'OPENROUTER_API_KEY' ? 'openrouter' : key.from ? 'nidra' : null,
       engine: { endpoint, model, keySet: Boolean(key.value), keyFrom: key.from },
       routing: { provider: ROUTING.provider, model: ROUTING.model, from: ROUTING.from, reason: ROUTING.reason ?? null, checkedAt: ROUTING.checkedAt, keyEnv: EGRESS[ROUTING.provider]?.keyEnv ?? null },
       being: ROUTING.being,

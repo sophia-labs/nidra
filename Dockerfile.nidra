@@ -156,6 +156,7 @@ COPY --from=node /NODE-LICENSE /usr/local/share/licenses/NODE-LICENSE
 # The sample source, copied to /data on first start; the Nidra service in attached mode; the UI, when staged.
 COPY nidra/data/chinook.sqlite /opt/nidra/chinook.sqlite
 COPY nidra/service/main.mjs /opt/nidra/services/nidra/main.mjs
+COPY nidra/service/asks.mjs /opt/nidra/services/nidra/asks.mjs
 COPY nidra/oneliner/service.json /opt/nidra/services/nidra/service.json
 COPY --from=ui /ui/ /opt/nidra/ui/
 COPY --chmod=0755 nidra/oneliner/run.sh /usr/local/bin/nidra
