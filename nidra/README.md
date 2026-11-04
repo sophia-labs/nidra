@@ -70,6 +70,66 @@ from `gardend token create --grant session-all`, `GARDEND_GRAPH_ID` to the
 graph you want the catalog in. Turn `find` on for that graph with
 `gardend index --graph <id>`.
 
+## Writes: SPARQL or the ledger (`NIDRA_WRITES`)
+
+Every catalog write goes through one seam, `auto_ontology/rdf/writes.py`
+`commit(ops, witness, origin, txn)`. A write is a list of ops in the wire form of
+gardend's Emporium commit API (`set` with `values[]`, `add`, `remove`,
+`retract`), built from the Direct Mapping by `row_ops` / `update_ops` /
+`delete_ops` (a cascade is explicit ops: the ledger knows no foreign keys).
+`NIDRA_WRITES` (read once at start) picks the transport:
+
+- `sparql` (default): the ops are rendered to one SPARQL update, applied
+  atomically by Oxigraph. Works with any gardend.
+- `commit`: the ops go to `POST /emporium/commit/{graph}/ao?wait=folded`. The
+  ledger appends one frame and acks on its durability barrier (the 1 s window);
+  the fold applies it to the graph every read uses, and `wait=folded` gives
+  read-your-writes. A list column is rewritten whole by one `set values[]`
+  (its `rdf:JSON` value plus one value per member). The engine and the ingestion
+  service probe `GET /emporium/commit/{graph}/ao/watermark` at start and refuse
+  to start against a gardend without the ledger (`LedgerUnavailable`).
+
+Identity: the body's `writer` is `NIDRA_ORIGIN` (default `nidra-engine`;
+tenant-stable, never a cell or container id); the `witness` is the caller in
+`x-auto-ontology-user-id` (`WitnessMiddleware`), else `NIDRA_WITNESS`, else the
+writer.
+
+**In commit mode every catalog subject is ledger-owned.** The fold owns only the
+subjects it holds frames for: probed on the ledger binary (`3bf51b9`), a value
+loaded by `/api/rdf/load` survives a later commit `set` beside the new value, a
+`remove` of a loaded value is a no-op, and a `retract` of a loaded subject
+removes nothing. So in commit mode a graph is seeded through commit too
+(`rdf.export.load`, used by `--load` and `write_diff`, sends `set` ops), and
+SPARQL load is a sparql-mode tool.
+
+**Transactions.** `write_transaction()` under commit collects the block's ops
+and sends one request at the end (one frame, atomic); an exception discards
+them. A read inside the block first sends what is pending, because a ledger
+transaction's frames are invisible to reads until its commit lands. The model
+import cannot be one transaction for the same reason (its SQL stage parses
+against the catalog its earlier stages wrote), so it commits per stage after a
+preflight and is **compensated**: before each write `writes.compensating()`
+records the prior state of every subject the write touches; if a later stage
+fails, one write retracts what the import created and sets what it changed back
+to its prior values, and the error is raised. The ledger keeps the import and
+its undo as lineage. (Under `sparql` the same compensation runs as SPARQL.)
+
+**What stays on SPARQL, and why:** subjects the ledger does not own.
+- The vector index rows (`auto_ontology/vdb/gardend.py`): its text, metadata and
+  collection triples hang on catalog subjects but are not catalog columns; the
+  fold leaves them alone (a live replay would drop them: re-index after one).
+  Note that its text predicate is `dcterms:description`, the same as the
+  description mirror.
+- The Nidra service's own records (`nidra/service/main.mjs`): questions
+  (`urn:nidra:question/`), certifications (`urn:nidra:certification/`) and
+  being registrations, which link to catalog rows but are not rows.
+- After a commit `retract`, the triples left on the retracted subject (vector
+  index) and the links to it from non-catalog subjects (question records) are
+  removed by one SPARQL update, as SPARQL mode's delete always did.
+- `rdf.export --load --replace` in commit mode clears the graph by SPARQL, then
+  commits the retraction of every catalog row it held with the new rows, then
+  rebuilds the sink from the ledger (`replay` into `live`).
+
 ## How it is built
 
 - `auto_ontology/rdf/`: the Direct Mapping of upstream's catalog schema, the

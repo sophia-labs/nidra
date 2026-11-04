@@ -5,6 +5,9 @@
 # (the warehouse being catalogued); nothing of the engine's own state is in it.
 #
 #   GARDEND_URL=http://127.0.0.1:7691 GARDEND_TOKEN=... nidra/closure.sh
+#
+# NIDRA_WRITES=commit (passed through) seeds through gardend's Emporium ledger
+# instead of SPARQL updates; that needs a gardend with the commit seam.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 _URL="${GARDEND_URL:-}"; _TOKEN="${GARDEND_TOKEN:-}"; _GRAPH="${GARDEND_GRAPH_ID:-}"

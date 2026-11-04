@@ -13,6 +13,12 @@ DAL functions read the catalog from a **gardend** graph instead:
   tomorrow with no code change here.
 - `export.py`: Postgres catalog → N-Triples, table by table, through the
   metadata. `python -m auto_ontology.rdf.export > catalog.nt`.
+- `writes.py`: the one write seam, `commit(ops, witness, origin, txn)`, and the
+  row primitives built on it (`row_ops`, `update_ops`, `delete_ops`;
+  `insert_rows`, `update_rows`, `delete_subjects`). `NIDRA_WRITES=sparql`
+  (default) renders the ops to one SPARQL update; `NIDRA_WRITES=commit` posts
+  them to gardend's Emporium ledger (`/emporium/commit/{graph}/ao`). See
+  `nidra/README.md`, "Writes".
 - `client.py`: the gardend HTTP client (`/api/sparql/query`, `/api/rdf/load`,
   `/api/sparql/update`) with N-Triples term parsing. Every pattern must be
   wrapped in `GRAPH ?g { ... }`: cell stores are named-graph partitioned and an
