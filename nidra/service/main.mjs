@@ -228,6 +228,7 @@ function composeEnv(fence) {
     DEFAULT_MODELS_ENDPOINT: endpoint,
     DEFAULT_MODELS_API_KEY: modelKey().value,
     DEFAULT_MODELS_MODEL: model,
+    ...(env.NIDRA_LLM_MAX_INFLIGHT ? { NIDRA_LLM_MAX_INFLIGHT: env.NIDRA_LLM_MAX_INFLIGHT } : {}),
   }
 }
 

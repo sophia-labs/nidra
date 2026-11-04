@@ -46,6 +46,9 @@ services:
       # Without the frontend's database the instance settings are environment flags (infra/feature_flags.py):
       # compile the semantic layer at start and daily, as an installed Nidra should.
       AO_FLAG_SEMANTIC_COMPILATION_ENABLED: "true"
+      # Model calls in flight at once (upstream default 6). A personal key with a small balance refuses
+      # concurrent calls (OpenRouter 402 in_flight_budget_exhausted); set NIDRA_LLM_MAX_INFLIGHT to raise it.
+      LLM_MAX_INFLIGHT: ${NIDRA_LLM_MAX_INFLIGHT:-2}
 
   ingestion-service:
     image: ${NIDRA_ENGINE_IMAGE:-nidra-engine:latest}
