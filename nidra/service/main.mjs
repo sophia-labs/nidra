@@ -24,13 +24,13 @@
 //
 //   node main.mjs                 the service (gardend runs this)
 //   node main.mjs --reap <pid>    detached: stop the containers unless a new service process took over
-//   node main.mjs --write-settings   detached: read {profile, gardend, entries} on stdin, `gardend service env set`
 import http from 'node:http'
 import { spawn, spawnSync } from 'node:child_process'
 import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { Ask, Asks, TOOL_BUDGET_MS, answerRpc, createSseReader } from './asks.mjs'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const env = process.env
@@ -55,7 +55,6 @@ const ATTACHED = env.NIDRA_ENGINE === 'attached'
 const SOURCES = env.CONNECTION_STRINGS || 'sqlite:////data/chinook.sqlite'
 const DEFAULT_ENDPOINT = 'https://openrouter.ai/api/v1'
 const DEFAULT_MODEL = 'anthropic/claude-sonnet-5.5'
-const SETTINGS = { endpoint: 'NIDRA_MODEL_ENDPOINT', model: 'NIDRA_MODEL', key: 'NIDRA_MODEL_KEY' }
 
 // The history vocabulary: one resource per question, in the graph's own RDF (the named graph gardend gives
 // SPARQL updates, as the engine's writes use), so Garden, SPARQL and `find` see it like any other entity.
@@ -139,9 +138,14 @@ async function serve() {
   const missing = []
   if (!member) missing.push('gardend gave this service no token (MNEMOSYNE_MCP_ACCESS_TOKEN)')
   if (!rdfToken) missing.push('NIDRA_GARDEND_RDF_TOKEN is not set: `gardend token create --label nidra-engine --grant rdf-admin --expires-days 365 --json`, its secret piped into `gardend service env set NIDRA_GARDEND_RDF_TOKEN --service nidra`')
+  if (!ATTACHED && member) {
+    set('starting', 'asking Sophia Compute how it routes Nidra')
+    const routing = await learnRouting(gardend, member)
+    log(`routing: ${routing.provider} ${routing.model} (from ${routing.from}${routing.reason ? `: ${routing.reason}` : ''})`)
+  }
   if (!modelKey().value) missing.push(ATTACHED
     ? 'no model key: run Nidra again with -e OPENROUTER_API_KEY=sk-or-… (or the DEFAULT_MODELS_* triplet of any OpenAI-compatible endpoint)'
-    : 'no model key: set one in Nidra’s Settings, or `gardend chat key set` (OpenRouter)')
+    : `no model key: Sophia Compute routes Nidra through ${ROUTING.provider}, whose key is ${EGRESS[ROUTING.provider]?.keyEnv || 'not one this service knows'}: \`gardend service env set ${EGRESS[ROUTING.provider]?.keyEnv || 'DEEPSEEK_API_KEY'} --profile ~/sophia\` (it reaches Compute and Nidra both)`)
   if (missing.length) return set('error', missing.join('; '))
   if (ATTACHED) return watchAttached(set, state, () => stopping)
 
@@ -176,7 +180,10 @@ async function serve() {
     const health = await engineHealth()
     if (health.ok) {
       misses = 0
-      if (state.state !== 'running') set('running', 'the engine answers')
+      if (state.state !== 'running') {
+        set('running', 'the engine answers')
+        store.registerBeing(ROUTING.being).catch(error => log('could not register the being in the graph:', error.message))
+      }
       state.engine = health.body
     } else if (state.state === 'running') {
       if (++misses >= 3) {
@@ -227,16 +234,56 @@ async function fenceSecret() {
   return value
 }
 
+// ── the model, as Sophia Compute routes Nidra ──────────────────────────────────────────────────────────────
+//
+// Nidra is a being of Sophia Compute (Choreograph's `nidra-chat-v1`): Compute names its provider and model and holds the
+// key (DEEPSEEK_API_KEY for the deepseek egress, in the profile's services.env, which reaches every service). The engine
+// answers with the same model through the same key, so there is one routing to read and one key to keep. This service
+// asks Compute for the routing (GET /services/choreograph/api/workflows, nidra-chat-v1's host facts) before it starts the
+// engine, and keeps nothing of its own: NIDRA_MODEL_* in this service's env is read only when Compute cannot be asked.
+const EGRESS = {
+  deepseek: { endpoint: 'https://api.deepseek.com/v1', keyEnv: 'DEEPSEEK_API_KEY' },
+  openrouter: { endpoint: 'https://openrouter.ai/api/v1', keyEnv: 'OPENROUTER_API_KEY' },
+}
+const ROUTING = { provider: env.CHOREOGRAPH_NIDRA_PROVIDER || 'deepseek', model: env.CHOREOGRAPH_NIDRA_MODEL || 'deepseek-v4-pro', from: 'default', being: null, checkedAt: null }
+
+/** Ask Compute how it routes Nidra; keep the answer (never a key: the host facts carry only whether one is set). */
+async function learnRouting(gardend, member, { attempts = 10 } = {}) {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const response = await fetch(`${gardend}/services/choreograph/api/workflows`, { headers: { authorization: `Bearer ${member}` }, signal: AbortSignal.timeout(10_000) })
+      const body = await response.json().catch(() => null)
+      const entry = (body?.workflows || []).find(workflow => workflow?.name === 'nidra-chat-v1')
+      if (response.ok && entry?.host?.routing) {
+        Object.assign(ROUTING, { provider: entry.host.routing.provider, model: entry.host.routing.model, from: 'compute', being: entry.host.being ?? null, keyConfigured: entry.host.routing.keyConfigured, checkedAt: new Date().toISOString() })
+        return ROUTING
+      }
+      if (response.ok) { ROUTING.from = 'default'; ROUTING.reason = 'Sophia Compute here has no Nidra being (nidra-chat-v1)'; return ROUTING }
+      ROUTING.reason = `Sophia Compute answered ${response.status}`
+    } catch (error) {
+      ROUTING.reason = `Sophia Compute did not answer (${error?.cause?.code || error?.message || error})`
+    }
+    await sleep(Math.min(2000 * attempt, 6000))
+  }
+  return ROUTING
+}
+
 function modelKey() {
-  if (env.NIDRA_MODEL_KEY) return { value: env.NIDRA_MODEL_KEY, from: 'nidra' }
-  if (env.OPENROUTER_API_KEY) return { value: env.OPENROUTER_API_KEY, from: 'openrouter' }
-  if (ATTACHED && env.DEFAULT_MODELS_API_KEY) return { value: env.DEFAULT_MODELS_API_KEY, from: 'nidra' }
+  const egress = EGRESS[ROUTING.provider]
+  if (egress && env[egress.keyEnv]) return { value: env[egress.keyEnv], from: egress.keyEnv }
+  if (env.NIDRA_MODEL_KEY) return { value: env.NIDRA_MODEL_KEY, from: 'NIDRA_MODEL_KEY' }
+  if (env.OPENROUTER_API_KEY) return { value: env.OPENROUTER_API_KEY, from: 'OPENROUTER_API_KEY' }
+  if (ATTACHED && env.DEFAULT_MODELS_API_KEY) return { value: env.DEFAULT_MODELS_API_KEY, from: 'DEFAULT_MODELS_API_KEY' }
   return { value: '', from: null }
 }
 
 function modelSettings() {
   // Attached, the supervisor has already turned the container's environment into the engine's triplet.
   if (ATTACHED) return { endpoint: env.DEFAULT_MODELS_ENDPOINT || DEFAULT_ENDPOINT, model: env.DEFAULT_MODELS_MODEL || DEFAULT_MODEL }
+  const key = modelKey()
+  const egress = EGRESS[ROUTING.provider]
+  // The key this engine uses decides where it goes: the routed egress's own key goes to that egress.
+  if (egress && key.from === egress.keyEnv) return { endpoint: egress.endpoint, model: ROUTING.model }
   return { endpoint: env.NIDRA_MODEL_ENDPOINT || DEFAULT_ENDPOINT, model: env.NIDRA_MODEL || DEFAULT_MODEL }
 }
 
@@ -321,6 +368,41 @@ async function route(req, res, { internal, state, store }) {
   // Everything else comes through gardend's proxy, which alone knows the per-process secret.
   if (!believe(req, internal)) return json(res, 403, { ok: false, error: 'reach Nidra through gardend (/services/nidra)' })
   const caller = String(req.headers['x-user-id'] || 'owner').slice(0, 200)
+  const role = String(req.headers['x-sophia-caller-role'] || 'viewer')
+  // Who may change the glossary: the owner, and Sophia Compute's beings (Choreograph's own token, which gardend names
+  // `service:choreograph`). Other members read. gardend lets members reach this service at all (`memberAccess: all`)
+  // only so Compute's beings can call the write tool; this is the door that decides.
+  const who = { userId: caller, role, mayWrite: role === 'owner' || caller === 'service:choreograph' }
+
+  if (url.pathname === '/mcp' && req.method === 'POST') {
+    const message = await readJson(req, 256 * 1024)
+    if (!message) return json(res, 400, { jsonrpc: '2.0', id: null, error: { code: -32700, message: 'one JSON-RPC message, please' } })
+    const reply = await answerRpc(message, toolHandlers(state, store), who)
+    if (!reply) { res.writeHead(202); return res.end() }
+    return json(res, 200, reply)
+  }
+  if (url.pathname === '/nidra/asks' && req.method === 'GET') {
+    // The questions in flight (and the ones just finished), each with its steps so far: the page draws a being's
+    // nidra_ask as it runs from here, since a tool call says nothing until it returns.
+    return json(res, 200, { asks: ASKS.recent().slice(0, 20).map(ask => ask.forModel()) })
+  }
+  const one = url.pathname.match(/^\/nidra\/questions\/([0-9a-f-]{36})$/)
+  if (one && req.method === 'GET') {
+    const live = ASKS.get(one[1])
+    if (live) return json(res, 200, { question: live.record(), live: !live.done })
+    const found = await store.question(one[1])
+    return found ? json(res, 200, { question: found, live: false }) : json(res, 404, { ok: false, error: 'no such question' })
+  }
+  if (url.pathname === '/nidra/certify' && req.method === 'POST') {
+    if (!who.mayWrite) return json(res, 403, { ok: false, error: 'only the owner may certify' })
+    if (state.state !== 'running') return json(res, 503, { ok: false, error: `Nidra's engine is ${state.state}: ${state.reason}` })
+    try {
+      return json(res, 200, await certify(await readJson(req), who, store))
+    } catch (error) {
+      return json(res, 400, { ok: false, error: String(error?.message || error) })
+    }
+  }
+  if (url.pathname === '/nidra/whoami' && req.method === 'GET') return json(res, 200, { userId: caller, role, mayWrite: who.mayWrite })
 
   if (url.pathname.startsWith('/api/')) {
     if (state.state !== 'running') return json(res, 503, { ok: false, error: `Nidra's engine is ${state.state}: ${state.reason}` })
@@ -350,12 +432,20 @@ async function route(req, res, { internal, state, store }) {
     return json(res, response.status, await response.json().catch(() => ({ status: response.statusText })))
   }
   if (url.pathname === '/nidra/settings' && req.method === 'GET') {
+    // What the engine runs on, as this service started it: Compute's routing for the being, the egress, and whether a
+    // key was there (never the key, never where in a file it lives beyond the setting's name).
     const key = modelKey()
-    return json(res, 200, { ...modelSettings(), keySet: Boolean(key.value), keyFrom: key.from })
+    const { endpoint, model } = modelSettings()
+    return json(res, 200, {
+      engine: { endpoint, model, keySet: Boolean(key.value), keyFrom: key.from },
+      routing: { provider: ROUTING.provider, model: ROUTING.model, from: ROUTING.from, reason: ROUTING.reason ?? null, checkedAt: ROUTING.checkedAt, keyEnv: EGRESS[ROUTING.provider]?.keyEnv ?? null },
+      being: ROUTING.being,
+      // Retired: the model is Compute's to route now (round 2). PUT answers 410.
+      editable: false,
+    })
   }
   if (url.pathname === '/nidra/settings' && req.method === 'PUT') {
-    if (ATTACHED) return json(res, 409, { ok: false, error: 'this Nidra takes its model from its container: start it again with -e OPENROUTER_API_KEY=… and -e NIDRA_MODEL=… (or run the installer again)' })
-    return putSettings(req, res)
+    return json(res, 410, { ok: false, error: 'Nidra’s model is routed by Sophia Compute now: its being (nidra-chat-v1) names the provider and model, and the key is DEEPSEEK_API_KEY in the profile (gardend service env set DEEPSEEK_API_KEY --profile ~/sophia).' })
   }
   return json(res, 404, { ok: false, error: `no ${req.method} ${url.pathname} here` })
 }
@@ -367,10 +457,9 @@ async function engineProxy(req, res, url, caller, store) {
   for (const name of ['content-type', 'accept', 'last-event-id']) if (req.headers[name]) headers[name] = String(req.headers[name])
   const abort = new AbortController()
   res.on('close', () => { if (!res.writableFinished) abort.abort() })
-  const ask = url.pathname === '/api/chat/completions' && req.method === 'POST'
-  const started = Date.now()
+  const asking = url.pathname === '/api/chat/completions' && req.method === 'POST'
   let question = null
-  if (ask) { try { question = JSON.parse(body.toString('utf8')) } catch {} }
+  if (asking) { try { question = JSON.parse(body.toString('utf8')) } catch {} }
   let upstream
   try {
     upstream = await fetch(`http://127.0.0.1:${ENGINE_PORT}${url.pathname}${url.search}`, { method: req.method, headers, body, signal: abort.signal, duplex: 'half' })
@@ -381,82 +470,163 @@ async function engineProxy(req, res, url, caller, store) {
   for (const [name, value] of upstream.headers) if (!['content-length', 'content-encoding', 'transfer-encoding', 'connection'].includes(name)) out[name] = value
   res.writeHead(upstream.status, out)
   if (!upstream.body) return res.end()
-  const recorder = ask && typeof question?.question === 'string' && upstream.ok ? new AskRecorder(question, caller, started) : null
+  const ask = asking && typeof question?.question === 'string' && upstream.ok
+    ? ASKS.add(new Ask({ question: question.question, targetDb: typeof question.target_db === 'string' ? question.target_db : null, caller }))
+    : null
   const reader = upstream.body.getReader()
+  const sse = ask ? createSseReader(event => (event.type === 'done' ? null : ask.feed(event))) : null
   try {
     for (;;) {
       const { done, value } = await reader.read()
       if (done) break
-      recorder?.feed(value)
+      sse?.push(value)
       res.write(value)
     }
+    sse?.end()
+    ask?.finish()
     res.end()
   } catch (error) {
-    if (recorder && abort.signal.aborted) recorder.stopped = true
+    ask?.finish({ stopped: abort.signal.aborted })
     res.destroy()
   } finally {
-    if (recorder) store.record(recorder.finish()).catch(error => log('could not record a question:', error.message))
+    if (ask) store.record(ask.record()).catch(error => log('could not record a question:', error.message))
   }
 }
 
-/** Reads the engine's SSE as it passes and keeps what the question came to. */
-class AskRecorder {
-  constructor(request, caller, started) {
-    this.request = request
-    this.caller = caller
-    this.started = started
-    this.buffer = ''
-    this.decoder = new TextDecoder()
-    this.result = null
-    this.error = null
-    this.stopped = false
-  }
-  feed(chunk) {
-    this.buffer += this.decoder.decode(chunk, { stream: true })
-    let cut
-    while ((cut = this.buffer.indexOf('\n\n')) >= 0) {
-      const event = this.buffer.slice(0, cut)
-      this.buffer = this.buffer.slice(cut + 2)
-      const data = event.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n')
-      if (!data || data === '[DONE]') continue
-      try {
-        const parsed = JSON.parse(data)
-        if (parsed.type === 'result') this.result = parsed.answer ?? parsed
-        if (parsed.type === 'error') this.error = String(parsed.message || parsed.error || parsed.detail || 'the engine reported an error')
-      } catch {}
+// ── questions a being asks, and the tools gardend lends it (asks.mjs) ──────────────────────────────────────────
+
+const ASKS = new Asks()
+
+/** Ask the engine in the background; the ask is recorded in the graph when the stream ends, however it ends. */
+function startAsk({ question, targetDb, caller, via, context }, store) {
+  const ask = ASKS.add(new Ask({ question, targetDb, caller, via, context }))
+  const body = JSON.stringify({ question, ...(targetDb ? { target_db: targetDb } : {}) })
+  ;(async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:${ENGINE_PORT}/api/chat/completions`, {
+        method: 'POST', headers: { 'content-type': 'application/json', accept: 'text/event-stream', 'x-auto-ontology-user-id': caller }, body,
+        // The engine's own budget ends a question; this only keeps a wedged stream from living forever.
+        signal: AbortSignal.timeout(15 * 60_000),
+      })
+      if (!response.ok || !response.body) {
+        const text = await response.text().catch(() => '')
+        ask.feed({ type: 'error', message: `the engine answered ${response.status}: ${text.slice(0, 300)}` })
+        return ask.finish()
+      }
+      const sse = createSseReader(event => (event.type === 'done' ? null : ask.feed(event)))
+      const reader = response.body.getReader()
+      for (;;) {
+        const { done, value } = await reader.read()
+        if (done) break
+        sse.push(value)
+      }
+      sse.end()
+      ask.finish()
+    } catch (error) {
+      ask.feed({ type: 'error', message: `the engine stream broke: ${error?.cause?.code || error?.message || error}` })
+      ask.finish({ stopped: true })
+    } finally {
+      store.record(ask.record()).catch(error => log('could not record a question:', error.message))
     }
+  })()
+  return ask
+}
+
+const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null)
+const AGENT_ID = /^agent-[0-9a-f]{16}$/
+
+function toolHandlers(state, store) {
+  const ready = () => { if (state.state !== 'running') throw new Error(`Nidra's engine is ${state.state}: ${state.reason}`) }
+  const engineGet = async pathname => {
+    const response = await fetch(`http://127.0.0.1:${ENGINE_PORT}/api${pathname}`, { headers: { 'x-auto-ontology-user-id': 'service:nidra' }, signal: AbortSignal.timeout(30_000) })
+    const body = await response.json().catch(() => null)
+    if (!response.ok) throw new Error(`the engine answered ${response.status} for ${pathname}: ${JSON.stringify(body?.detail ?? body).slice(0, 300)}`)
+    return body
   }
-  finish() {
-    const answer = this.result || {}
-    return {
-      id: randomUUID(),
-      question: String(this.request.question),
-      targetDb: typeof this.request.target_db === 'string' ? this.request.target_db : null,
-      answer: typeof answer.response === 'string' ? answer.response : null,
-      sql: typeof answer.sql_code === 'string' ? answer.sql_code : null,
-      rows: rowsOf(answer.sql_response_from_db),
-      thoughts: typeof answer.thoughts === 'string' ? answer.thoughts : null,
-      askedBy: this.caller,
-      askedAt: new Date(this.started).toISOString(),
-      seconds: Math.round((Date.now() - this.started) / 100) / 10,
-      // The engine answers "LLM failed to produce a response." as a result when its model calls all failed.
-      ok: Boolean(this.result) && !this.error && !/^LLM failed to produce a response/.test(String(answer.response || '')),
-      error: this.error || (!this.result ? (this.stopped ? 'Stopped before an answer' : 'No answer came back')
-        : /^LLM failed to produce a response/.test(String(answer.response || '')) ? 'The model did not answer (every call to it failed)' : null),
-    }
+  return {
+    async ask(args, who) {
+      ready()
+      const question = text(args.question)
+      if (!question) throw new Error('nidra_ask needs a question')
+      const context = { runId: text(args.run_id), sessionId: text(args.session_id), agentId: AGENT_ID.test(String(args.agent_id || '')) ? args.agent_id : null }
+      const ask = startAsk({ question, targetDb: text(args.target_db), caller: who.userId, via: who.userId.startsWith('service:') ? who.userId.slice(8) : null, context }, store)
+      await ask.wait(TOOL_BUDGET_MS)
+      return ask.forModel()
+    },
+    async question(args) {
+      const id = String(args.question_id || '').trim()
+      const live = ASKS.get(id)
+      if (live) {
+        await live.wait(Math.min(100, Math.max(0, Number(args.wait_seconds ?? 90))) * 1000)
+        return live.forModel()
+      }
+      const found = await store.question(id)
+      if (!found) throw new Error(`no question ${id}`)
+      return { status: found.ok ? 'answered' : 'failed', questionId: id, ...found, rows: (found.rows || []).slice(0, 50) }
+    },
+    async terms(args) {
+      ready()
+      const params = new URLSearchParams({ skip: '0', limit: String(Math.max(1, Math.min(200, Number(args.limit) || 100))) })
+      if (text(args.query)) params.set('query', text(args.query))
+      const page = await engineGet(`/terms?${params}`)
+      const counts = new Map((page.column_attribute_counts || []).map(row => [row.term_id, row.count]))
+      return {
+        total: page.total,
+        terms: (page.terms || []).map(term => ({
+          id: term.id, name: term.name, description: term.description ?? null, synonyms: term.synonyms ?? [],
+          name_certified: Boolean(term.name_certified), description_certified: Boolean(term.description_certified),
+          certification: term.certification ?? null, column_attributes: counts.get(term.id) ?? 0,
+        })),
+      }
+    },
+    async term(args) {
+      ready()
+      const id = encodeURIComponent(String(args.term_id || '').trim())
+      if (!id) throw new Error('nidra_term needs a term_id')
+      const [term, columns, sql] = await Promise.all([engineGet(`/terms/${id}`), engineGet(`/terms/${id}/column-attributes`), engineGet(`/terms/${id}/sql-attributes`)])
+      return { term: term.data ?? term, column_attributes: columns.data ?? [], sql_attributes: sql.data ?? [] }
+    },
+    async certify(args, who) {
+      ready()
+      return certify(args, who, store)
+    },
   }
 }
 
-/** `sql_response_from_db` is a list of JSON strings, each a list of rows; the rows, at most 1000 of them. */
-function rowsOf(value) {
-  if (!Array.isArray(value)) return null
-  const rows = []
-  for (const part of value) {
-    let parsed = part
-    if (typeof part === 'string') { try { parsed = JSON.parse(part) } catch { continue } }
-    if (Array.isArray(parsed)) rows.push(...parsed.filter(row => row && typeof row === 'object'))
+/**
+ * Certify (or withdraw) one part of a term, through the engine's own PATCH (it refreshes what depends on it), and keep
+ * the act as a row in the graph: who, when, which part, the value it set and the note. Testimony in Emporium is written
+ * by the witness itself (a person from the Glossary page, a being through emporium_write): this row is the service's
+ * own receipt of the engine write.
+ */
+async function certify(args, who, store) {
+  const termId = text(args?.term_id)
+  const part = String(args?.part || '')
+  const attributeId = text(args?.attribute_id)
+  if (!termId) throw new Error('certify needs a term_id')
+  if (typeof args?.certified !== 'boolean') throw new Error('certified must be true or false')
+  let pathname
+  let patch
+  if (part === 'name' || part === 'description') { pathname = `/api/terms/${encodeURIComponent(termId)}`; patch = { [`${part}_certified`]: args.certified } }
+  else if (part === 'column_attribute' && attributeId) { pathname = `/api/terms/${encodeURIComponent(termId)}/column-attributes/${encodeURIComponent(attributeId)}`; patch = { certified: args.certified } }
+  else if (part === 'sql_attribute' && attributeId) { pathname = `/api/sql-attributes/${encodeURIComponent(attributeId)}`; patch = { certified: args.certified } }
+  else throw new Error('part is name, description, column_attribute or sql_attribute (the last two with attribute_id)')
+  const response = await fetch(`http://127.0.0.1:${ENGINE_PORT}${pathname}`, {
+    method: 'PATCH', headers: { 'content-type': 'application/json', 'x-auto-ontology-user-id': who.userId }, body: JSON.stringify(patch), signal: AbortSignal.timeout(60_000),
+  })
+  const body = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(`the engine refused the certification (${response.status}): ${JSON.stringify(body?.detail ?? body).slice(0, 300)}`)
+  const act = {
+    id: randomUUID(), termId, part, attributeId, certified: args.certified, note: text(args.note), by: who.userId,
+    agentId: AGENT_ID.test(String(args.agent_id || '')) ? args.agent_id : null, runId: text(args.run_id), at: new Date().toISOString(),
   }
-  return rows.slice(0, 1000)
+  await store.certification(act).catch(error => log('could not record a certification:', error.message))
+  // A being's certification is its testimony too, in its own memory (gardend admits this service's memory writes
+  // only under an agent observer: service.json `agentMemory`). A person's testimony is written by the person, from
+  // the Glossary page, with their own key.
+  let testimony = null
+  if (act.agentId) testimony = await store.testify(act).catch(error => { log('could not write the being\'s testimony:', error.message); return null })
+  return { ok: true, certification: act, iri: `urn:nidra:certification/${act.id}`, testimony }
 }
 
 function envSources() {
@@ -466,61 +636,6 @@ function envSources() {
     const label = dialect === 'sqlite' ? path.basename(raw.replace(/^sqlite:\/+/, '/')) : (raw.match(/\/([^/?]+)(\?|$)/)?.[1] || dialect)
     return { label, dialect, redacted }
   })
-}
-
-// ── settings, through gardend ───────────────────────────────────────────────────────────────────────────
-
-async function putSettings(req, res) {
-  const body = await readJson(req)
-  if (!body || typeof body !== 'object') return json(res, 400, { ok: false, error: 'send {endpoint?, model?, key?}' })
-  const entries = []
-  for (const field of ['endpoint', 'model', 'key']) {
-    if (body[field] === undefined || body[field] === null) continue
-    const value = String(body[field]).trim()
-    if (!value) continue
-    if (/[\r\n\0]/.test(value) || value.length > (field === 'key' ? 1000 : 300)) return json(res, 400, { ok: false, error: `${field}: one line, please` })
-    if (field === 'endpoint' && !/^https?:\/\/[^\s]+$/i.test(value)) return json(res, 400, { ok: false, error: 'endpoint: an http(s) URL of an OpenAI-compatible API' })
-    entries.push([SETTINGS[field], value])
-  }
-  if (!entries.length) return json(res, 400, { ok: false, error: 'nothing to change' })
-  const gardendBin = findGardend()
-  if (!gardendBin) return json(res, 500, { ok: false, error: 'could not find the gardend command to write the settings with' })
-  // Detached: each `gardend service env set` restarts this service through gardend's API, which ends this
-  // process group; the writer must outlive it. The values travel on its stdin, never its arguments.
-  const child = spawn(process.execPath, [fileURLToPath(import.meta.url), '--write-settings'], {
-    detached: true, stdio: ['pipe', 'ignore', 'ignore'], env: { PATH: DOCKER_PATH.join(':'), HOME: env.HOME || '', DATA_DIR },
-  })
-  child.stdin.end(JSON.stringify({ profile: PROFILE, service: SERVICE_ID, gardend: gardendBin, entries }))
-  child.unref()
-  log(`settings: writing ${entries.map(([name]) => name).join(', ')} through gardend (values not logged)`)
-  return json(res, 202, { accepted: entries.map(([name]) => name), restarting: true })
-}
-
-function findGardend() {
-  const candidates = [
-    env.NIDRA_GARDEND_BIN,
-    path.resolve(HERE, '..', '..', '..', 'MacOS', 'gardend'), // Sophia.app: Contents/Resources/services/nidra
-    path.resolve(HERE, '..', '..', 'gardend'), // a gardend release: services/nidra beside the binary
-  ].filter(Boolean)
-  for (const candidate of candidates) if (fs.existsSync(candidate)) return candidate
-  for (const dir of DOCKER_PATH) if (fs.existsSync(path.join(dir, 'gardend'))) return path.join(dir, 'gardend')
-  return null
-}
-
-async function writeSettings() {
-  const input = await new Promise(resolve => {
-    let text = ''
-    process.stdin.setEncoding('utf8')
-    process.stdin.on('data', chunk => { text += chunk })
-    process.stdin.on('end', () => resolve(text))
-  })
-  const { profile, service, gardend, entries } = JSON.parse(input)
-  for (const [name, value] of entries) {
-    const result = spawnSync(gardend, ['service', 'env', 'set', name, '--service', service, '--profile', profile], {
-      input: `${value}\n`, encoding: 'utf8', stdio: ['pipe', 'ignore', 'pipe'], timeout: 120_000,
-    })
-    log(`settings: ${name} ${result.status === 0 ? 'written' : `not written (${tail(result.stderr, 200)})`}`)
-  }
 }
 
 // ── stopping for good ───────────────────────────────────────────────────────────────────────────────────
@@ -658,22 +773,111 @@ class Gardend {
       `${s} ${P('ok')} "${item.ok}"^^<${XSD}boolean>`,
     ]
     if (item.seconds !== null) triples.push(`${s} ${P('seconds')} "${item.seconds}"^^<${XSD}decimal>`)
-    for (const field of ['answer', 'sql', 'thoughts', 'error', 'targetDb']) if (item[field]) triples.push(`${s} ${P(field)} ${lit(item[field])}`)
-    if (item.rows) triples.push(`${s} ${P('rows')} ${lit(JSON.stringify(item.rows))}^^<${RDF_JSON}>`)
+    if (item.rowCount !== null && item.rowCount !== undefined) triples.push(`${s} ${P('rowCount')} "${item.rowCount}"^^<${XSD}integer>`)
+    for (const field of ['answer', 'sql', 'thoughts', 'error', 'targetDb', 'via', 'runId', 'sessionId', 'partialAnswer']) if (item[field]) triples.push(`${s} ${P(field)} ${lit(item[field])}`)
+    // The being that asked (a Choreograph agent id), as the agent IRI gardend's memory uses for a witness.
+    if (item.agentId) triples.push(`${s} ${P('askedByAgent')} <urn:sophia:agent:${item.agentId}>`)
+    for (const field of ['rows', 'steps', 'sqlColumns', 'sqlDrafts']) if (item[field] && item[field].length) triples.push(`${s} ${P(field)} ${lit(JSON.stringify(item[field]))}^^<${RDF_JSON}>`)
+    for (const column of item.sqlColumns || []) if (/^[0-9a-f-]{36}$/.test(column)) triples.push(`${s} ${P('column')} <urn:ao:catalog_column/id=${column}>`)
     await this.update(`INSERT DATA { GRAPH <${dataGraph()}> { ${triples.join(' .\n')} . } }`)
-    log(`history: recorded a question (${item.ok ? 'answered' : 'unanswered'}, ${item.seconds}s)`)
+    log(`history: recorded a question (${item.ok ? 'answered' : 'unanswered'}, ${item.seconds}s${item.via ? `, via ${item.via}` : ''})`)
   }
-  async history(limit) {
-    const fields = ['question', 'answer', 'sql', 'rows', 'thoughts', 'targetDb', 'askedBy', 'askedAt', 'ok', 'error', 'seconds']
-    const rows = await this.select(`SELECT ?s ${fields.map(f => `?${f}`).join(' ')} WHERE { GRAPH ?g { ?s a <${Q}> ; ${P('question')} ?question ; ${P('askedAt')} ?askedAt .
-      ${fields.filter(f => !['question', 'askedAt'].includes(f)).map(f => `OPTIONAL { ?s ${P(f)} ?${f} }`).join('\n      ')} } } ORDER BY DESC(?askedAt) LIMIT ${limit}`)
-    return rows.map(row => ({
-      id: String(row.s).slice(`${NS}question/`.length),
+  static FIELDS = ['question', 'answer', 'sql', 'rows', 'thoughts', 'targetDb', 'askedBy', 'askedAt', 'ok', 'error', 'seconds', 'steps', 'sqlColumns', 'rowCount', 'via', 'runId', 'sessionId', 'partialAnswer', 'askedByAgent']
+  item(id, row) {
+    return {
+      id,
       question: row.question ?? '', answer: row.answer ?? null, sql: row.sql ?? null,
       rows: Array.isArray(row.rows) ? row.rows : null, thoughts: row.thoughts ?? null, targetDb: row.targetDb ?? null,
       askedBy: row.askedBy ?? null, askedAt: row.askedAt instanceof Date ? row.askedAt.toISOString() : String(row.askedAt ?? ''),
       ok: row.ok === true, error: row.error ?? null, seconds: typeof row.seconds === 'number' ? row.seconds : null,
-    }))
+      steps: Array.isArray(row.steps) ? row.steps : null, sqlColumns: Array.isArray(row.sqlColumns) ? row.sqlColumns : null,
+      rowCount: typeof row.rowCount === 'number' ? row.rowCount : (Array.isArray(row.rows) ? row.rows.length : null),
+      via: row.via ?? null, runId: row.runId ?? null, sessionId: row.sessionId ?? null, partialAnswer: row.partialAnswer ?? null,
+      agentId: typeof row.askedByAgent === 'string' ? row.askedByAgent.replace(/^urn:sophia:agent:/, '') : null,
+    }
+  }
+  async history(limit) {
+    const fields = Gardend.FIELDS
+    const rows = await this.select(`SELECT ?s ${fields.map(f => `?${f}`).join(' ')} WHERE { GRAPH ?g { ?s a <${Q}> ; ${P('question')} ?question ; ${P('askedAt')} ?askedAt .
+      ${fields.filter(f => !['question', 'askedAt'].includes(f)).map(f => `OPTIONAL { ?s ${P(f)} ?${f} }`).join('\n      ')} } } ORDER BY DESC(?askedAt) LIMIT ${limit}`)
+    return rows.map(row => this.item(String(row.s).slice(`${NS}question/`.length), row))
+  }
+  async question(id) {
+    if (!/^[0-9a-f-]{36}$/.test(id)) return null
+    const fields = Gardend.FIELDS
+    const s = `<${NS}question/${id}>`
+    const rows = await this.select(`SELECT ${fields.map(f => `?${f}`).join(' ')} WHERE { GRAPH ?g { ${s} ${P('question')} ?question ; ${P('askedAt')} ?askedAt .
+      ${fields.filter(f => !['question', 'askedAt'].includes(f)).map(f => `OPTIONAL { ${s} ${P(f)} ?${f} }`).join('\n      ')} } } LIMIT 1`)
+    return rows.length ? this.item(id, rows[0]) : null
+  }
+  /**
+   * Nidra in its graph's cast: the being Compute runs (its id, name and face, from Compute's host facts) as an agt:Agent
+   * in the graph's own RDF, which the Compute surface (/choreograph › Agents) and agent_status read. Added once, never
+   * replaced: a later run finds it there and writes nothing. Choreograph has no being directory of its own.
+   */
+  async registerBeing(being) {
+    if (!being?.agentId || !/^agent-[0-9a-f]{16}$/.test(being.agentId)) return
+    const s = `<urn:sophia:agent:${being.agentId}>`
+    const AGT = 'http://mnemosyne.dev/agent#'
+    const known = await this.select(`SELECT ?label WHERE { GRAPH ?g { ${s} a <${AGT}Agent> ; <http://www.w3.org/2000/01/rdf-schema#label> ?label } } LIMIT 1`)
+    if (known.length) return
+    const triples = [
+      `${s} a <${AGT}Agent>`,
+      `${s} <http://www.w3.org/2000/01/rdf-schema#label> ${lit(being.label || 'Nidra')}`,
+      `${s} <${AGT}agentId> ${lit(being.agentId)}`,
+      `${s} <${AGT}kind> "nidra"`,
+      `${s} <${AGT}homeGraph> ${lit(being.home || GRAPH)}`,
+      `${s} <http://purl.org/dc/terms/created> "${new Date().toISOString()}"^^<${XSD}dateTime>`,
+    ]
+    if (being.registeredName) triples.push(`${s} <${AGT}registeredName> ${lit(being.registeredName)}`)
+    if (being.face) triples.push(`${s} <${AGT}face> <${being.face}>`)
+    if (being.witness?.memory) triples.push(`${s} <${AGT}memoryWitness> <${being.witness.memory}>`)
+    await this.update(`INSERT DATA { GRAPH <${dataGraph()}> { ${triples.join(' .\n')} . } }`)
+    log(`cast: registered ${being.label || 'Nidra'} (${being.agentId}) in graph ${GRAPH}`)
+  }
+  /** A being's certification as its own memory record (sophia-memory-core, through `remember`, the being as witness). */
+  async testify(act) {
+    const what = act.part === 'name' ? 'name' : act.part === 'description' ? 'description' : act.part === 'column_attribute' ? `column attribute ${act.attributeId}` : `SQL attribute ${act.attributeId}`
+    const content = `${act.certified ? 'Certified' : 'Withdrew the certification of'} the ${what} of glossary term ${act.termId}${act.note ? `: ${act.note}` : '.'}`
+    const result = await this.tool('remember', {
+      graph_id: GRAPH, observer_agent_id: act.agentId, content, kind: 'ClaimMemory', scope: 'graph', content_orientation: 'knowledge',
+      visibility: 'shared', status: 'active', tags: ['nidra', 'certification', act.certified ? 'certified' : 'uncertified', `part:${act.part}`],
+      source_refs: [{ sourceKind: 'ArtifactReference', externalUri: `urn:ao:term/id=${act.termId}`, label: `term ${act.termId}` },
+        { sourceKind: 'ToolCall', externalUri: `urn:nidra:certification/${act.id}`, label: 'nidra_certify' }],
+    })
+    log(`glossary: the being's testimony for a certification is ${result?.subject ? 'written' : 'not written'}`)
+    return result?.subject ?? null
+  }
+  async tool(name, args) {
+    if (!this.session) {
+      await this.mcp({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'nidra-service', version: '2' } } })
+      await this.mcp({ jsonrpc: '2.0', method: 'notifications/initialized' })
+    }
+    const { payload, status } = await this.mcp({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name, arguments: args } })
+    if (!payload || payload.error) throw new Error(`${name}: ${payload?.error?.message || `HTTP ${status}`}`)
+    if (payload.result?.isError) throw new Error(`${name}: ${(payload.result.content || []).map(c => c.text).join(' ').slice(0, 300)}`)
+    let found = payload.result?.structuredContent
+    if (!found) for (const item of payload.result?.content || []) if (item.type === 'text') { try { found = JSON.parse(item.text) } catch {} }
+    return found ?? null
+  }
+  async certification(act) {
+    const C = `${NS}Certification`
+    const s = `<${NS}certification/${act.id}>`
+    const term = `<urn:ao:term/id=${act.termId}>`
+    const triples = [
+      `${s} a <${C}>`,
+      `${s} <${C}#term> ${term}`,
+      `${s} <${C}#part> ${lit(act.part)}`,
+      `${s} <${C}#certified> "${act.certified}"^^<${XSD}boolean>`,
+      `${s} <${C}#by> ${lit(act.by)}`,
+      `${s} <${C}#at> "${act.at}"^^<${XSD}dateTime>`,
+    ]
+    if (act.attributeId) triples.push(`${s} <${C}#attribute> ${lit(act.attributeId)}`)
+    if (act.note) triples.push(`${s} <${C}#note> ${lit(act.note)}`)
+    if (act.agentId) triples.push(`${s} <${C}#byAgent> <urn:sophia:agent:${act.agentId}>`)
+    if (act.runId) triples.push(`${s} <${C}#runId> ${lit(act.runId)}`)
+    await this.update(`INSERT DATA { GRAPH <${dataGraph()}> { ${triples.join(' .\n')} . } }`)
+    log(`glossary: recorded a certification (${act.part}, ${act.certified}, by ${act.by})`)
   }
   async databases() {
     const T = name => `<urn:ao:${name}>`
@@ -763,8 +967,8 @@ function readBody(req, max = 4 * 1024 * 1024) {
   })
 }
 
-async function readJson(req) {
-  try { return JSON.parse((await readBody(req, 64 * 1024)).toString('utf8')) } catch { return null }
+async function readJson(req, max = 64 * 1024) {
+  try { return JSON.parse((await readBody(req, max)).toString('utf8')) } catch { return null }
 }
 
 function json(res, status, value) {
@@ -776,5 +980,4 @@ function json(res, status, value) {
 // Last, so every class and constant above is initialized before any of it runs.
 const mode = process.argv[2]
 if (mode === '--reap') await reap(Number(process.argv[3]))
-else if (mode === '--write-settings') await writeSettings()
 else await serve()

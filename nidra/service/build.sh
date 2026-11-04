@@ -11,7 +11,7 @@ ROOT=$(cd "$HERE/../.." && pwd)
 OUT=${1:?out dir, e.g. <services>/nidra}
 [[ $(basename "$OUT") == nidra ]] || { echo "build.sh: the folder must be named nidra (it is the service id)" >&2; exit 1; }
 rm -rf "$OUT" && mkdir -p "$OUT/engine/nidra/data"
-cp "$HERE/service.json" "$HERE/main.mjs" "$HERE/compose.sophia.yaml" "$OUT/"
+cp "$HERE/service.json" "$HERE/main.mjs" "$HERE/asks.mjs" "$HERE/compose.sophia.yaml" "$OUT/"
 cp "$ROOT/compose.nidra.yaml" "$OUT/engine/"
 cp "$ROOT/nidra/data/chinook.sqlite" "$OUT/engine/nidra/data/"
 cp "$ROOT/LICENSE" "$ROOT/NIDRA-NOTICE.md" "$OUT/" 2>/dev/null || true
