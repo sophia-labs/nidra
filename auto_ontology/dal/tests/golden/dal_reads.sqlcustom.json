@@ -1,0 +1,3209 @@
+{
+  "errors": {},
+  "results": {
+    "candidates.expand_info__Column": {
+      "<col:pagila.public.film.film_id>": {
+        "data_type": "integer",
+        "description": null,
+        "description_certified": false,
+        "format": null,
+        "id": "<col:pagila.public.film.film_id>",
+        "imported_id": null,
+        "is_nullable": false,
+        "is_unique": null,
+        "name": "film_id",
+        "ordinal_position": 1,
+        "parent_id": "<table:pagila.public.film>",
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of film.",
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "original_language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "mpaa_rating",
+                "description": "MPAA rating; an enum.",
+                "format": null,
+                "name": "rating",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "rental_rate",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "replacement_cost",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "length",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "rental_duration",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": "The film's title.",
+                "format": null,
+                "name": "title",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": null,
+                "format": null,
+                "name": "description",
+                "sample_values": null
+              },
+              {
+                "data_type": "text[]",
+                "description": null,
+                "format": null,
+                "name": "special_features",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "tsvector",
+                "description": null,
+                "format": null,
+                "name": "fulltext",
+                "sample_values": null
+              },
+              {
+                "data_type": "year",
+                "description": null,
+                "format": null,
+                "name": "release_year",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.film>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "film",
+            "owner_id": null,
+            "pk": [
+              "film_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "sample_values": null,
+        "table_id": "<table:pagila.public.film>",
+        "table_name": "film",
+        "table_type": "base table"
+      },
+      "<col:pagila.public.film.title>": {
+        "data_type": "text",
+        "description": null,
+        "description_certified": false,
+        "format": null,
+        "id": "<col:pagila.public.film.title>",
+        "imported_id": null,
+        "is_nullable": false,
+        "is_unique": null,
+        "name": "title",
+        "ordinal_position": 2,
+        "parent_id": "<table:pagila.public.film>",
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of film.",
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "original_language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "mpaa_rating",
+                "description": "MPAA rating; an enum.",
+                "format": null,
+                "name": "rating",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "rental_rate",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "replacement_cost",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "length",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "rental_duration",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": "The film's title.",
+                "format": null,
+                "name": "title",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": null,
+                "format": null,
+                "name": "description",
+                "sample_values": null
+              },
+              {
+                "data_type": "text[]",
+                "description": null,
+                "format": null,
+                "name": "special_features",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "tsvector",
+                "description": null,
+                "format": null,
+                "name": "fulltext",
+                "sample_values": null
+              },
+              {
+                "data_type": "year",
+                "description": null,
+                "format": null,
+                "name": "release_year",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.film>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "film",
+            "owner_id": null,
+            "pk": [
+              "film_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "sample_values": null,
+        "table_id": "<table:pagila.public.film>",
+        "table_name": "film",
+        "table_type": "base table"
+      },
+      "<col:pagila.public.rental.customer_id>": {
+        "data_type": "integer",
+        "description": null,
+        "description_certified": false,
+        "format": null,
+        "id": "<col:pagila.public.rental.customer_id>",
+        "imported_id": null,
+        "is_nullable": false,
+        "is_unique": null,
+        "name": "customer_id",
+        "ordinal_position": 4,
+        "parent_id": "<table:pagila.public.rental>",
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "inventory_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "rental_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "staff_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": "When the rental started.",
+                "format": null,
+                "name": "rental_date",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "return_date",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.rental>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "rental",
+            "owner_id": null,
+            "pk": [
+              "rental_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "sample_values": null,
+        "table_id": "<table:pagila.public.rental>",
+        "table_name": "rental",
+        "table_type": "base table"
+      }
+    },
+    "candidates.expand_info__CustomAnalysis": {
+      "<analysis:Top rented films>": {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "imported_id": null,
+        "name": "Top rented films",
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "inventory_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "rental_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "staff_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": "When the rental started.",
+                "format": null,
+                "name": "rental_date",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "return_date",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.rental>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "rental",
+            "owner_id": null,
+            "pk": [
+              "rental_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          },
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of film.",
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "inventory_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "store_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.inventory>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "inventory",
+            "owner_id": null,
+            "pk": [
+              "inventory_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          },
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of film.",
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "original_language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "mpaa_rating",
+                "description": "MPAA rating; an enum.",
+                "format": null,
+                "name": "rating",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "rental_rate",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "replacement_cost",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "length",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "rental_duration",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": "The film's title.",
+                "format": null,
+                "name": "title",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": null,
+                "format": null,
+                "name": "description",
+                "sample_values": null
+              },
+              {
+                "data_type": "text[]",
+                "description": null,
+                "format": null,
+                "name": "special_features",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "tsvector",
+                "description": null,
+                "format": null,
+                "name": "fulltext",
+                "sample_values": null
+              },
+              {
+                "data_type": "year",
+                "description": null,
+                "format": null,
+                "name": "release_year",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.film>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "film",
+            "owner_id": null,
+            "pk": [
+              "film_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      }
+    },
+    "candidates.expand_info__CustomAnalysis_all": {
+      "<analysis:Revenue by staff>": {
+        "description": "Payment totals per staff member.",
+        "id": "<analysis:Revenue by staff>",
+        "imported_id": null,
+        "name": "Revenue by staff",
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "payment_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "rental_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "staff_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": "Amount paid.",
+                "format": null,
+                "name": "amount",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "payment_date",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.payment>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "payment",
+            "owner_id": null,
+            "pk": [
+              "payment_date",
+              "payment_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "sql": "SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id"
+      },
+      "<analysis:Top rented films>": {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "imported_id": null,
+        "name": "Top rented films",
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "inventory_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "rental_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "staff_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": "When the rental started.",
+                "format": null,
+                "name": "rental_date",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "return_date",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.rental>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "rental",
+            "owner_id": null,
+            "pk": [
+              "rental_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          },
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of film.",
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "inventory_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "store_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.inventory>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "inventory",
+            "owner_id": null,
+            "pk": [
+              "inventory_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          },
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of film.",
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "original_language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "mpaa_rating",
+                "description": "MPAA rating; an enum.",
+                "format": null,
+                "name": "rating",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "rental_rate",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "replacement_cost",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "length",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "rental_duration",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": "The film's title.",
+                "format": null,
+                "name": "title",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": null,
+                "format": null,
+                "name": "description",
+                "sample_values": null
+              },
+              {
+                "data_type": "text[]",
+                "description": null,
+                "format": null,
+                "name": "special_features",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "tsvector",
+                "description": null,
+                "format": null,
+                "name": "fulltext",
+                "sample_values": null
+              },
+              {
+                "data_type": "year",
+                "description": null,
+                "format": null,
+                "name": "release_year",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.film>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "film",
+            "owner_id": null,
+            "pk": [
+              "film_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      }
+    },
+    "candidates.expand_info__Database": {
+      "<db:pagila>": {
+        "connection": null,
+        "created": "<redacted>",
+        "description": null,
+        "description_certified": false,
+        "dialect": null,
+        "id": "<db:pagila>",
+        "imported_id": null,
+        "name": "pagila",
+        "owner_id": null,
+        "pulled": "<redacted>"
+      }
+    },
+    "candidates.expand_info__Schema": {
+      "<schema:pagila.public>": {
+        "database_id": "<db:pagila>",
+        "description": null,
+        "description_certified": false,
+        "id": "<schema:pagila.public>",
+        "imported_id": null,
+        "name": "public",
+        "owner_id": null
+      }
+    },
+    "candidates.expand_info__Sql": {
+      "<sql:SELECT c.name, count(fc.film_id) FROM film_category fc JOIN >": {
+        "created": "<redacted>",
+        "id": "<sql:SELECT c.name, count(fc.film_id) FROM film_category fc JOIN >",
+        "join_count": 1,
+        "last_query_timestamp": "2026-11-03 15:50:52.165430+00:00",
+        "last_seen": "<redacted>",
+        "nodes_count": 29,
+        "query_count": 0,
+        "sql_full_query": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "total_counter": 1,
+        "union_count": 0
+      }
+    },
+    "candidates.expand_info__SqlAttribute": {
+      "<sqlattr:total revenue>": {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Sum of all payment amounts.",
+        "description_suggestion": null,
+        "expression": "SELECT sum(amount) FROM payment",
+        "id": "<sqlattr:total revenue>",
+        "imported_id": null,
+        "modified": null,
+        "modified_by": null,
+        "name": "total revenue",
+        "owner_id": null,
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "payment_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "rental_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "staff_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": "Amount paid.",
+                "format": null,
+                "name": "amount",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "payment_date",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.payment>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "payment",
+            "owner_id": null,
+            "pk": [
+              "payment_date",
+              "payment_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "source": "manual",
+        "sql": "SELECT sum(amount) FROM payment",
+        "term_id": "<term:Payment>",
+        "term_name": "Payment"
+      }
+    },
+    "candidates.expand_info__SqlAttribute_all": {
+      "<sqlattr:customer lifetime value>": {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Total paid by each customer.",
+        "description_suggestion": null,
+        "expression": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "id": "<sqlattr:customer lifetime value>",
+        "imported_id": null,
+        "modified": null,
+        "modified_by": null,
+        "name": "customer lifetime value",
+        "owner_id": null,
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "payment_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "rental_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "staff_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": "Amount paid.",
+                "format": null,
+                "name": "amount",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "payment_date",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.payment>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "payment",
+            "owner_id": null,
+            "pk": [
+              "payment_date",
+              "payment_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "source": "table",
+        "sql": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "term_id": "<term:Customer>",
+        "term_name": "Customer"
+      },
+      "<sqlattr:film count>": {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Number of films in the catalog.",
+        "description_suggestion": null,
+        "expression": "SELECT count(film_id) FROM film",
+        "id": "<sqlattr:film count>",
+        "imported_id": null,
+        "modified": null,
+        "modified_by": null,
+        "name": "film count",
+        "owner_id": null,
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of film.",
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "original_language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "mpaa_rating",
+                "description": "MPAA rating; an enum.",
+                "format": null,
+                "name": "rating",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "rental_rate",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "replacement_cost",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "length",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "rental_duration",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": "The film's title.",
+                "format": null,
+                "name": "title",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": null,
+                "format": null,
+                "name": "description",
+                "sample_values": null
+              },
+              {
+                "data_type": "text[]",
+                "description": null,
+                "format": null,
+                "name": "special_features",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "tsvector",
+                "description": null,
+                "format": null,
+                "name": "fulltext",
+                "sample_values": null
+              },
+              {
+                "data_type": "year",
+                "description": null,
+                "format": null,
+                "name": "release_year",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.film>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "film",
+            "owner_id": null,
+            "pk": [
+              "film_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "source": "sql",
+        "sql": "SELECT count(film_id) FROM film",
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      },
+      "<sqlattr:films per category>": {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Film count grouped by category, via the bridge table.",
+        "description_suggestion": null,
+        "expression": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "id": "<sqlattr:films per category>",
+        "imported_id": null,
+        "modified": null,
+        "modified_by": null,
+        "name": "films per category",
+        "owner_id": null,
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "category_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.film_category>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "film_category",
+            "owner_id": null,
+            "pk": [
+              "category_id",
+              "film_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          },
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "category_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": null,
+                "format": null,
+                "name": "name",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.category>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "category",
+            "owner_id": null,
+            "pk": [
+              "category_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "source": "bridgeTable",
+        "sql": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      },
+      "<sqlattr:total revenue>": {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Sum of all payment amounts.",
+        "description_suggestion": null,
+        "expression": "SELECT sum(amount) FROM payment",
+        "id": "<sqlattr:total revenue>",
+        "imported_id": null,
+        "modified": null,
+        "modified_by": null,
+        "name": "total revenue",
+        "owner_id": null,
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "payment_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "rental_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "staff_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": "Amount paid.",
+                "format": null,
+                "name": "amount",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "payment_date",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.payment>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "payment",
+            "owner_id": null,
+            "pk": [
+              "payment_date",
+              "payment_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "source": "manual",
+        "sql": "SELECT sum(amount) FROM payment",
+        "term_id": "<term:Payment>",
+        "term_name": "Payment"
+      }
+    },
+    "candidates.expand_info__Table": {
+      "<table:pagila.public.film>": {
+        "description": null,
+        "description_certified": false,
+        "id": "<table:pagila.public.film>",
+        "imported_id": null,
+        "is_junction_table": false,
+        "name": "film",
+        "owner_id": null,
+        "pk": [
+          "film_id"
+        ],
+        "schema_id": "<schema:pagila.public>",
+        "table_type": "base table"
+      },
+      "<table:pagila.public.rental>": {
+        "description": null,
+        "description_certified": false,
+        "id": "<table:pagila.public.rental>",
+        "imported_id": null,
+        "is_junction_table": false,
+        "name": "rental",
+        "owner_id": null,
+        "pk": [
+          "rental_id"
+        ],
+        "schema_id": "<schema:pagila.public>",
+        "table_type": "base table"
+      }
+    },
+    "candidates.expand_info__Table_track": {
+      "<table:chinook.main.Track>": {
+        "description": null,
+        "description_certified": false,
+        "id": "<table:chinook.main.Track>",
+        "imported_id": null,
+        "is_junction_table": false,
+        "name": "Track",
+        "owner_id": null,
+        "pk": [
+          "TrackId"
+        ],
+        "schema_id": "<schema:chinook.main>",
+        "table_type": "base table"
+      }
+    },
+    "candidates.expand_info__duplicates": {
+      "<table:pagila.public.film>": {
+        "description": null,
+        "description_certified": false,
+        "id": "<table:pagila.public.film>",
+        "imported_id": null,
+        "is_junction_table": false,
+        "name": "film",
+        "owner_id": null,
+        "pk": [
+          "film_id"
+        ],
+        "schema_id": "<schema:pagila.public>",
+        "table_type": "base table"
+      }
+    },
+    "candidates.expand_info__empty": {},
+    "candidates.expand_info__malformed": {},
+    "candidates.expand_info__mixed": {
+      "<analysis:Top rented films>": {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "imported_id": null,
+        "name": "Top rented films",
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "inventory_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "rental_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "staff_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": "When the rental started.",
+                "format": null,
+                "name": "rental_date",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "return_date",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.rental>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "rental",
+            "owner_id": null,
+            "pk": [
+              "rental_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          },
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of film.",
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "inventory_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "store_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.inventory>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "inventory",
+            "owner_id": null,
+            "pk": [
+              "inventory_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          },
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of film.",
+                "format": null,
+                "name": "film_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "original_language_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "mpaa_rating",
+                "description": "MPAA rating; an enum.",
+                "format": null,
+                "name": "rating",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "rental_rate",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": null,
+                "format": null,
+                "name": "replacement_cost",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "length",
+                "sample_values": null
+              },
+              {
+                "data_type": "smallint",
+                "description": null,
+                "format": null,
+                "name": "rental_duration",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": "The film's title.",
+                "format": null,
+                "name": "title",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": null,
+                "format": null,
+                "name": "description",
+                "sample_values": null
+              },
+              {
+                "data_type": "text[]",
+                "description": null,
+                "format": null,
+                "name": "special_features",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              },
+              {
+                "data_type": "tsvector",
+                "description": null,
+                "format": null,
+                "name": "fulltext",
+                "sample_values": null
+              },
+              {
+                "data_type": "year",
+                "description": null,
+                "format": null,
+                "name": "release_year",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.film>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "film",
+            "owner_id": null,
+            "pk": [
+              "film_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      },
+      "<col:pagila.public.customer.customer_id>": {
+        "data_type": "integer",
+        "description": null,
+        "description_certified": false,
+        "format": null,
+        "id": "<col:pagila.public.customer.customer_id>",
+        "imported_id": null,
+        "is_nullable": false,
+        "is_unique": null,
+        "name": "customer_id",
+        "ordinal_position": 1,
+        "parent_id": "<table:pagila.public.customer>",
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "boolean",
+                "description": null,
+                "format": null,
+                "name": "activebool",
+                "sample_values": null
+              },
+              {
+                "data_type": "date",
+                "description": null,
+                "format": null,
+                "name": "create_date",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "active",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "address_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "store_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": "Contact address.",
+                "format": null,
+                "name": "email",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": null,
+                "format": null,
+                "name": "first_name",
+                "sample_values": null
+              },
+              {
+                "data_type": "text",
+                "description": null,
+                "format": null,
+                "name": "last_name",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "last_update",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.customer>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "customer",
+            "owner_id": null,
+            "pk": [
+              "customer_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "sample_values": null,
+        "table_id": "<table:pagila.public.customer>",
+        "table_name": "customer",
+        "table_type": "base table"
+      },
+      "<db:pagila>": {
+        "connection": null,
+        "created": "<redacted>",
+        "description": null,
+        "description_certified": false,
+        "dialect": null,
+        "id": "<db:pagila>",
+        "imported_id": null,
+        "name": "pagila",
+        "owner_id": null,
+        "pulled": "<redacted>"
+      },
+      "<sqlattr:total revenue>": {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Sum of all payment amounts.",
+        "description_suggestion": null,
+        "expression": "SELECT sum(amount) FROM payment",
+        "id": "<sqlattr:total revenue>",
+        "imported_id": null,
+        "modified": null,
+        "modified_by": null,
+        "name": "total revenue",
+        "owner_id": null,
+        "pii_processed": false,
+        "relevant_tables": [
+          {
+            "columns": [
+              {
+                "data_type": "integer",
+                "description": "Primary key of customer.",
+                "format": null,
+                "name": "customer_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "payment_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "rental_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "integer",
+                "description": null,
+                "format": null,
+                "name": "staff_id",
+                "sample_values": null
+              },
+              {
+                "data_type": "numeric",
+                "description": "Amount paid.",
+                "format": null,
+                "name": "amount",
+                "sample_values": null
+              },
+              {
+                "data_type": "timestamp with time zone",
+                "description": null,
+                "format": null,
+                "name": "payment_date",
+                "sample_values": null
+              }
+            ],
+            "database_name": "pagila",
+            "description": null,
+            "description_certified": false,
+            "id": "<table:pagila.public.payment>",
+            "imported_id": null,
+            "is_junction_table": false,
+            "label": "Table",
+            "name": "payment",
+            "owner_id": null,
+            "pk": [
+              "payment_date",
+              "payment_id"
+            ],
+            "schema_id": "<schema:pagila.public>",
+            "schema_name": "public",
+            "table_type": "base table"
+          }
+        ],
+        "source": "manual",
+        "sql": "SELECT sum(amount) FROM payment",
+        "term_id": "<term:Payment>",
+        "term_name": "Payment"
+      },
+      "<table:pagila.public.payment>": {
+        "description": null,
+        "description_certified": false,
+        "id": "<table:pagila.public.payment>",
+        "imported_id": null,
+        "is_junction_table": false,
+        "name": "payment",
+        "owner_id": null,
+        "pk": [
+          "payment_date",
+          "payment_id"
+        ],
+        "schema_id": "<schema:pagila.public>",
+        "table_type": "base table"
+      }
+    },
+    "candidates.expand_info__none": {},
+    "candidates.expand_info__not_found": {},
+    "candidates.expand_info__unknown_label": {},
+    "custom_analyses.custom_analysis_exists": true,
+    "custom_analyses.custom_analysis_exists__chinook": false,
+    "custom_analyses.custom_analysis_exists__empty_name": true,
+    "custom_analyses.custom_analysis_exists__no-such-database": false,
+    "custom_analyses.custom_analysis_exists__none": true,
+    "custom_analyses.custom_analysis_exists__pagila": true,
+    "custom_analyses.fetch_custom_analyses": [
+      {
+        "description": "Films ordered by rental count.\nSQL: SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC",
+        "name": "Top rented films"
+      },
+      {
+        "description": "Payment totals per staff member.\nSQL: SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id",
+        "name": "Revenue by staff"
+      }
+    ],
+    "custom_analyses.fetch_custom_analyses_with_sql": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      }
+    ],
+    "custom_analyses.fetch_custom_analyses_with_sql__all": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      },
+      {
+        "description": "Payment totals per staff member.",
+        "id": "<analysis:Revenue by staff>",
+        "name": "Revenue by staff",
+        "sql": "SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id"
+      }
+    ],
+    "custom_analyses.fetch_custom_analyses_with_sql__empty": [],
+    "custom_analyses.fetch_custom_analyses_with_sql__unknown": [],
+    "custom_analyses.fetch_tables_from_custom_analyses": [
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of customer.",
+            "name": "customer_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "inventory_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "rental_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "staff_id"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": "When the rental started.",
+            "name": "rental_date"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "last_update"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "return_date"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.rental>",
+        "label": "Table",
+        "name": "rental",
+        "pk": [
+          "rental_id"
+        ],
+        "schema_name": "public"
+      },
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of film.",
+            "name": "film_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "inventory_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "store_id"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "last_update"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.inventory>",
+        "label": "Table",
+        "name": "inventory",
+        "pk": [
+          "inventory_id"
+        ],
+        "schema_name": "public"
+      },
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of film.",
+            "name": "film_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "language_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "original_language_id"
+          },
+          {
+            "data_type": "mpaa_rating",
+            "description": "MPAA rating; an enum.",
+            "name": "rating"
+          },
+          {
+            "data_type": "numeric",
+            "description": null,
+            "name": "rental_rate"
+          },
+          {
+            "data_type": "numeric",
+            "description": null,
+            "name": "replacement_cost"
+          },
+          {
+            "data_type": "smallint",
+            "description": null,
+            "name": "length"
+          },
+          {
+            "data_type": "smallint",
+            "description": null,
+            "name": "rental_duration"
+          },
+          {
+            "data_type": "text",
+            "description": "The film's title.",
+            "name": "title"
+          },
+          {
+            "data_type": "text",
+            "description": null,
+            "name": "description"
+          },
+          {
+            "data_type": "text[]",
+            "description": null,
+            "name": "special_features"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "last_update"
+          },
+          {
+            "data_type": "tsvector",
+            "description": null,
+            "name": "fulltext"
+          },
+          {
+            "data_type": "year",
+            "description": null,
+            "name": "release_year"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.film>",
+        "label": "Table",
+        "name": "film",
+        "pk": [
+          "film_id"
+        ],
+        "schema_name": "public"
+      }
+    ],
+    "custom_analyses.fetch_tables_from_custom_analyses__all": [
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of customer.",
+            "name": "customer_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "inventory_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "rental_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "staff_id"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": "When the rental started.",
+            "name": "rental_date"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "last_update"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "return_date"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.rental>",
+        "label": "Table",
+        "name": "rental",
+        "pk": [
+          "rental_id"
+        ],
+        "schema_name": "public"
+      },
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of customer.",
+            "name": "customer_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "payment_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "rental_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "staff_id"
+          },
+          {
+            "data_type": "numeric",
+            "description": "Amount paid.",
+            "name": "amount"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "payment_date"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.payment>",
+        "label": "Table",
+        "name": "payment",
+        "pk": [
+          "payment_date",
+          "payment_id"
+        ],
+        "schema_name": "public"
+      },
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of film.",
+            "name": "film_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "inventory_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "store_id"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "last_update"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.inventory>",
+        "label": "Table",
+        "name": "inventory",
+        "pk": [
+          "inventory_id"
+        ],
+        "schema_name": "public"
+      },
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of film.",
+            "name": "film_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "language_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "original_language_id"
+          },
+          {
+            "data_type": "mpaa_rating",
+            "description": "MPAA rating; an enum.",
+            "name": "rating"
+          },
+          {
+            "data_type": "numeric",
+            "description": null,
+            "name": "rental_rate"
+          },
+          {
+            "data_type": "numeric",
+            "description": null,
+            "name": "replacement_cost"
+          },
+          {
+            "data_type": "smallint",
+            "description": null,
+            "name": "length"
+          },
+          {
+            "data_type": "smallint",
+            "description": null,
+            "name": "rental_duration"
+          },
+          {
+            "data_type": "text",
+            "description": "The film's title.",
+            "name": "title"
+          },
+          {
+            "data_type": "text",
+            "description": null,
+            "name": "description"
+          },
+          {
+            "data_type": "text[]",
+            "description": null,
+            "name": "special_features"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "last_update"
+          },
+          {
+            "data_type": "tsvector",
+            "description": null,
+            "name": "fulltext"
+          },
+          {
+            "data_type": "year",
+            "description": null,
+            "name": "release_year"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.film>",
+        "label": "Table",
+        "name": "film",
+        "pk": [
+          "film_id"
+        ],
+        "schema_name": "public"
+      }
+    ],
+    "custom_analyses.fetch_tables_from_custom_analyses__empty": [],
+    "custom_analyses.fetch_tables_from_custom_analyses__unknown": [],
+    "custom_analyses.find_analysis_by_name": {
+      "id": "<analysis:Top rented films>",
+      "name": "Top rented films"
+    },
+    "custom_analyses.get_custom_analysis_by_id": "<analysis:Top rented films>",
+    "custom_analyses.list_custom_analyses[admin]": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      },
+      {
+        "description": "Payment totals per staff member.",
+        "id": "<analysis:Revenue by staff>",
+        "name": "Revenue by staff",
+        "sql": "SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id"
+      }
+    ],
+    "custom_analyses.list_custom_analyses[none]": [],
+    "custom_analyses.list_custom_analyses[scoped]": [],
+    "pql_analyses.fetch_pql_analyses_by_ids": {
+      "<pql:Customer churn>": {
+        "description": "Predict which customers stop renting.",
+        "id": "<pql:Customer churn>",
+        "name": "Customer churn",
+        "pql": "PREDICT COUNT(rental.*, 30, days) = 0 FOR EACH customer.customer_id"
+      }
+    },
+    "pql_analyses.fetch_pql_analyses_by_ids__all": {
+      "<pql:Customer churn>": {
+        "description": "Predict which customers stop renting.",
+        "id": "<pql:Customer churn>",
+        "name": "Customer churn",
+        "pql": "PREDICT COUNT(rental.*, 30, days) = 0 FOR EACH customer.customer_id"
+      }
+    },
+    "pql_analyses.fetch_pql_analyses_by_ids__empty": {},
+    "pql_analyses.fetch_pql_analyses_by_ids__mixed": {
+      "<pql:Customer churn>": {
+        "description": "Predict which customers stop renting.",
+        "id": "<pql:Customer churn>",
+        "name": "Customer churn",
+        "pql": "PREDICT COUNT(rental.*, 30, days) = 0 FOR EACH customer.customer_id"
+      }
+    },
+    "pql_analyses.fetch_pql_analyses_by_ids__unknown": {},
+    "pql_analyses.find_pql_analysis_by_name": {
+      "id": "<pql:Customer churn>",
+      "name": "Customer churn"
+    },
+    "pql_analyses.get_pql_analysis_by_id": "<pql:Customer churn>",
+    "pql_analyses.list_pql_analyses": [
+      {
+        "description": "Predict which customers stop renting.",
+        "id": "<pql:Customer churn>",
+        "name": "Customer churn",
+        "pql": "PREDICT COUNT(rental.*, 30, days) = 0 FOR EACH customer.customer_id"
+      }
+    ],
+    "sql_attributes.count_sql_attributes_by_term_id": 2,
+    "sql_attributes.fetch_sql_attribute_counts[admin]": [
+      {
+        "count": 1,
+        "term_id": "<term:Customer>"
+      },
+      {
+        "count": 1,
+        "term_id": "<term:Payment>"
+      },
+      {
+        "count": 2,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_counts[none]": [],
+    "sql_attributes.fetch_sql_attribute_counts[scoped]": [
+      {
+        "count": 1,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_docs": [
+      {
+        "id": "<sqlattr:total revenue>",
+        "label": "SqlAttribute",
+        "name": "total revenue",
+        "source": "manual",
+        "text": "sql_attribute: total revenue, description: Sum of all payment amounts., term: Payment, sql: SELECT sum(amount) FROM payment"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_by_term_id": [
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Film count grouped by category, via the bridge table.",
+        "description_suggestion": null,
+        "expression": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "id": "<sqlattr:films per category>",
+        "modified": null,
+        "modified_by": null,
+        "name": "films per category",
+        "owner_id": null,
+        "source": "bridgeTable",
+        "sql": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      },
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Number of films in the catalog.",
+        "description_suggestion": null,
+        "expression": "SELECT count(film_id) FROM film",
+        "id": "<sqlattr:film count>",
+        "modified": null,
+        "modified_by": null,
+        "name": "film count",
+        "owner_id": null,
+        "source": "sql",
+        "sql": "SELECT count(film_id) FROM film",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_by_term_id__limit": [
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Number of films in the catalog.",
+        "description_suggestion": null,
+        "expression": "SELECT count(film_id) FROM film",
+        "id": "<sqlattr:film count>",
+        "modified": null,
+        "modified_by": null,
+        "name": "film count",
+        "owner_id": null,
+        "source": "sql",
+        "sql": "SELECT count(film_id) FROM film",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_by_term_id__skip": [
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Film count grouped by category, via the bridge table.",
+        "description_suggestion": null,
+        "expression": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "id": "<sqlattr:films per category>",
+        "modified": null,
+        "modified_by": null,
+        "name": "films per category",
+        "owner_id": null,
+        "source": "bridgeTable",
+        "sql": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_by_term_id__skip_past_end": [],
+    "sql_attributes.fetch_sql_attributes_by_term_id__term_Customer": [
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Total paid by each customer.",
+        "description_suggestion": null,
+        "expression": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "id": "<sqlattr:customer lifetime value>",
+        "modified": null,
+        "modified_by": null,
+        "name": "customer lifetime value",
+        "owner_id": null,
+        "source": "table",
+        "sql": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "tags": [],
+        "term_id": "<term:Customer>",
+        "term_name": "Customer"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_by_term_id__term_Payment": [
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Sum of all payment amounts.",
+        "description_suggestion": null,
+        "expression": "SELECT sum(amount) FROM payment",
+        "id": "<sqlattr:total revenue>",
+        "modified": null,
+        "modified_by": null,
+        "name": "total revenue",
+        "owner_id": null,
+        "source": "manual",
+        "sql": "SELECT sum(amount) FROM payment",
+        "tags": [],
+        "term_id": "<term:Payment>",
+        "term_name": "Payment"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_by_term_id__term_Track": [],
+    "sql_attributes.fetch_sql_attributes_by_term_id__unknown": [],
+    "sql_attributes.fetch_sql_attributes_by_term_id__zone_admin": [
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Film count grouped by category, via the bridge table.",
+        "description_suggestion": null,
+        "expression": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "id": "<sqlattr:films per category>",
+        "modified": null,
+        "modified_by": null,
+        "name": "films per category",
+        "owner_id": null,
+        "source": "bridgeTable",
+        "sql": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      },
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Number of films in the catalog.",
+        "description_suggestion": null,
+        "expression": "SELECT count(film_id) FROM film",
+        "id": "<sqlattr:film count>",
+        "modified": null,
+        "modified_by": null,
+        "name": "film count",
+        "owner_id": null,
+        "source": "sql",
+        "sql": "SELECT count(film_id) FROM film",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_by_term_id__zone_none": [],
+    "sql_attributes.fetch_sql_attributes_by_term_id__zone_scoped": [
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Number of films in the catalog.",
+        "description_suggestion": null,
+        "expression": "SELECT count(film_id) FROM film",
+        "id": "<sqlattr:film count>",
+        "modified": null,
+        "modified_by": null,
+        "name": "film count",
+        "owner_id": null,
+        "source": "sql",
+        "sql": "SELECT count(film_id) FROM film",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_with_sql": [
+      {
+        "description": "Sum of all payment amounts.",
+        "expression": "SELECT sum(amount) FROM payment",
+        "id": "<sqlattr:total revenue>",
+        "name": "total revenue",
+        "sql": "SELECT sum(amount) FROM payment",
+        "term_name": "Payment"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_with_sql__all": [
+      {
+        "description": "Film count grouped by category, via the bridge table.",
+        "expression": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "id": "<sqlattr:films per category>",
+        "name": "films per category",
+        "sql": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "term_name": "Film"
+      },
+      {
+        "description": "Number of films in the catalog.",
+        "expression": "SELECT count(film_id) FROM film",
+        "id": "<sqlattr:film count>",
+        "name": "film count",
+        "sql": "SELECT count(film_id) FROM film",
+        "term_name": "Film"
+      },
+      {
+        "description": "Sum of all payment amounts.",
+        "expression": "SELECT sum(amount) FROM payment",
+        "id": "<sqlattr:total revenue>",
+        "name": "total revenue",
+        "sql": "SELECT sum(amount) FROM payment",
+        "term_name": "Payment"
+      },
+      {
+        "description": "Total paid by each customer.",
+        "expression": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "id": "<sqlattr:customer lifetime value>",
+        "name": "customer lifetime value",
+        "sql": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "term_name": "Customer"
+      }
+    ],
+    "sql_attributes.fetch_sql_attributes_with_sql__empty": [],
+    "sql_attributes.fetch_sql_attributes_with_sql__unknown": [],
+    "sql_attributes.fetch_tables_from_sql_attributes": [
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of customer.",
+            "name": "customer_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "payment_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "rental_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "staff_id"
+          },
+          {
+            "data_type": "numeric",
+            "description": "Amount paid.",
+            "name": "amount"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "payment_date"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.payment>",
+        "label": "Table",
+        "name": "payment",
+        "pk": [
+          "payment_date",
+          "payment_id"
+        ],
+        "schema_name": "public"
+      }
+    ],
+    "sql_attributes.fetch_tables_from_sql_attributes__all": [
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of customer.",
+            "name": "customer_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "payment_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "rental_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "staff_id"
+          },
+          {
+            "data_type": "numeric",
+            "description": "Amount paid.",
+            "name": "amount"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "payment_date"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.payment>",
+        "label": "Table",
+        "name": "payment",
+        "pk": [
+          "payment_date",
+          "payment_id"
+        ],
+        "schema_name": "public"
+      },
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": "Primary key of film.",
+            "name": "film_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "language_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "original_language_id"
+          },
+          {
+            "data_type": "mpaa_rating",
+            "description": "MPAA rating; an enum.",
+            "name": "rating"
+          },
+          {
+            "data_type": "numeric",
+            "description": null,
+            "name": "rental_rate"
+          },
+          {
+            "data_type": "numeric",
+            "description": null,
+            "name": "replacement_cost"
+          },
+          {
+            "data_type": "smallint",
+            "description": null,
+            "name": "length"
+          },
+          {
+            "data_type": "smallint",
+            "description": null,
+            "name": "rental_duration"
+          },
+          {
+            "data_type": "text",
+            "description": "The film's title.",
+            "name": "title"
+          },
+          {
+            "data_type": "text",
+            "description": null,
+            "name": "description"
+          },
+          {
+            "data_type": "text[]",
+            "description": null,
+            "name": "special_features"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "last_update"
+          },
+          {
+            "data_type": "tsvector",
+            "description": null,
+            "name": "fulltext"
+          },
+          {
+            "data_type": "year",
+            "description": null,
+            "name": "release_year"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.film>",
+        "label": "Table",
+        "name": "film",
+        "pk": [
+          "film_id"
+        ],
+        "schema_name": "public"
+      },
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "category_id"
+          },
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "film_id"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "last_update"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.film_category>",
+        "label": "Table",
+        "name": "film_category",
+        "pk": [
+          "category_id",
+          "film_id"
+        ],
+        "schema_name": "public"
+      },
+      {
+        "columns": [
+          {
+            "data_type": "integer",
+            "description": null,
+            "name": "category_id"
+          },
+          {
+            "data_type": "text",
+            "description": null,
+            "name": "name"
+          },
+          {
+            "data_type": "timestamp with time zone",
+            "description": null,
+            "name": "last_update"
+          }
+        ],
+        "database_name": "pagila",
+        "description": "",
+        "id": "<table:pagila.public.category>",
+        "label": "Table",
+        "name": "category",
+        "pk": [
+          "category_id"
+        ],
+        "schema_name": "public"
+      }
+    ],
+    "sql_attributes.fetch_tables_from_sql_attributes__empty": [],
+    "sql_attributes.fetch_tables_from_sql_attributes__unknown": [],
+    "sql_attributes.find_attr_by_name": {
+      "id": "<sqlattr:total revenue>",
+      "name": "total revenue"
+    },
+    "sql_attributes.find_attr_by_name__absent": null,
+    "sql_attributes.find_attr_by_name__case": null,
+    "sql_attributes.find_attr_by_name__empty_name": null,
+    "sql_attributes.find_attr_by_name__exclude_other": {
+      "id": "<sqlattr:total revenue>",
+      "name": "total revenue"
+    },
+    "sql_attributes.find_attr_by_name__exclude_self": null,
+    "sql_attributes.get_full_sql_attribute_by_id": {
+      "certified": false,
+      "created": "<redacted>",
+      "created_by": null,
+      "description": "Sum of all payment amounts.",
+      "description_suggestion": null,
+      "expression": "SELECT sum(amount) FROM payment",
+      "id": "<sqlattr:total revenue>",
+      "modified": null,
+      "modified_by": null,
+      "name": "total revenue",
+      "owner_id": null,
+      "source": "manual",
+      "sql": "SELECT sum(amount) FROM payment",
+      "tags": [],
+      "term_id": "<term:Payment>",
+      "term_name": "Payment",
+      "zones": []
+    },
+    "sql_attributes.get_full_sql_attribute_by_id__all_zone_admin": [
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Film count grouped by category, via the bridge table.",
+        "description_suggestion": null,
+        "expression": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "id": "<sqlattr:films per category>",
+        "modified": null,
+        "modified_by": null,
+        "name": "films per category",
+        "owner_id": null,
+        "source": "bridgeTable",
+        "sql": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film",
+        "zones": [
+          {
+            "color": "#4f46e5",
+            "enabled": true,
+            "id": "<zone:Film domain>",
+            "name": "Film domain"
+          }
+        ]
+      },
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Number of films in the catalog.",
+        "description_suggestion": null,
+        "expression": "SELECT count(film_id) FROM film",
+        "id": "<sqlattr:film count>",
+        "modified": null,
+        "modified_by": null,
+        "name": "film count",
+        "owner_id": null,
+        "source": "sql",
+        "sql": "SELECT count(film_id) FROM film",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film",
+        "zones": [
+          {
+            "color": "#4f46e5",
+            "enabled": true,
+            "id": "<zone:Film domain>",
+            "name": "Film domain"
+          }
+        ]
+      },
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Sum of all payment amounts.",
+        "description_suggestion": null,
+        "expression": "SELECT sum(amount) FROM payment",
+        "id": "<sqlattr:total revenue>",
+        "modified": null,
+        "modified_by": null,
+        "name": "total revenue",
+        "owner_id": null,
+        "source": "manual",
+        "sql": "SELECT sum(amount) FROM payment",
+        "tags": [],
+        "term_id": "<term:Payment>",
+        "term_name": "Payment",
+        "zones": []
+      },
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Total paid by each customer.",
+        "description_suggestion": null,
+        "expression": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "id": "<sqlattr:customer lifetime value>",
+        "modified": null,
+        "modified_by": null,
+        "name": "customer lifetime value",
+        "owner_id": null,
+        "source": "table",
+        "sql": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "tags": [],
+        "term_id": "<term:Customer>",
+        "term_name": "Customer",
+        "zones": []
+      }
+    ],
+    "sql_attributes.get_full_sql_attribute_by_id__all_zone_none": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "sql_attributes.get_full_sql_attribute_by_id__all_zone_scoped": [
+      null,
+      null,
+      null,
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Number of films in the catalog.",
+        "description_suggestion": null,
+        "expression": "SELECT count(film_id) FROM film",
+        "id": "<sqlattr:film count>",
+        "modified": null,
+        "modified_by": null,
+        "name": "film count",
+        "owner_id": null,
+        "source": "sql",
+        "sql": "SELECT count(film_id) FROM film",
+        "tags": [],
+        "term_id": "<term:Film>",
+        "term_name": "Film",
+        "zones": [
+          {
+            "color": "#4f46e5",
+            "enabled": true,
+            "id": "<zone:Film domain>",
+            "name": "Film domain"
+          }
+        ]
+      }
+    ],
+    "sql_attributes.get_full_sql_attribute_by_id__unknown": null,
+    "sql_attributes.get_full_sql_attribute_by_id__zone_admin": {
+      "certified": false,
+      "created": "<redacted>",
+      "created_by": null,
+      "description": "Sum of all payment amounts.",
+      "description_suggestion": null,
+      "expression": "SELECT sum(amount) FROM payment",
+      "id": "<sqlattr:total revenue>",
+      "modified": null,
+      "modified_by": null,
+      "name": "total revenue",
+      "owner_id": null,
+      "source": "manual",
+      "sql": "SELECT sum(amount) FROM payment",
+      "tags": [],
+      "term_id": "<term:Payment>",
+      "term_name": "Payment",
+      "zones": []
+    },
+    "sql_attributes.get_full_sql_attribute_by_id__zone_none": null,
+    "sql_attributes.get_full_sql_attribute_by_id__zone_scoped": null,
+    "sql_attributes.get_sql_attribute_by_id": "<sqlattr:total revenue>",
+    "sql_attributes.list_sql_attributes": [
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Film count grouped by category, via the bridge table.",
+        "description_suggestion": null,
+        "expression": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "id": "<sqlattr:films per category>",
+        "modified": null,
+        "modified_by": null,
+        "name": "films per category",
+        "owner_id": null,
+        "source": "bridgeTable",
+        "sql": "SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name",
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      },
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Number of films in the catalog.",
+        "description_suggestion": null,
+        "expression": "SELECT count(film_id) FROM film",
+        "id": "<sqlattr:film count>",
+        "modified": null,
+        "modified_by": null,
+        "name": "film count",
+        "owner_id": null,
+        "source": "sql",
+        "sql": "SELECT count(film_id) FROM film",
+        "term_id": "<term:Film>",
+        "term_name": "Film"
+      },
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Sum of all payment amounts.",
+        "description_suggestion": null,
+        "expression": "SELECT sum(amount) FROM payment",
+        "id": "<sqlattr:total revenue>",
+        "modified": null,
+        "modified_by": null,
+        "name": "total revenue",
+        "owner_id": null,
+        "source": "manual",
+        "sql": "SELECT sum(amount) FROM payment",
+        "term_id": "<term:Payment>",
+        "term_name": "Payment"
+      },
+      {
+        "certified": false,
+        "created": "<redacted>",
+        "created_by": null,
+        "description": "Total paid by each customer.",
+        "description_suggestion": null,
+        "expression": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "id": "<sqlattr:customer lifetime value>",
+        "modified": null,
+        "modified_by": null,
+        "name": "customer lifetime value",
+        "owner_id": null,
+        "source": "table",
+        "sql": "SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id",
+        "term_id": "<term:Customer>",
+        "term_name": "Customer"
+      }
+    ]
+  }
+}
