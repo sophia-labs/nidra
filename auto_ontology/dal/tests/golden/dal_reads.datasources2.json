@@ -1,0 +1,827 @@
+{
+  "errors": {},
+  "results": {
+    "custom_analyses.count_custom_analyses__d2_search": 1,
+    "custom_analyses.count_custom_analyses__d2_search_none": 0,
+    "custom_analyses.count_custom_analyses__d2_zone_admin": 2,
+    "custom_analyses.count_custom_analyses__d2_zone_none": 0,
+    "custom_analyses.count_custom_analyses__d2_zone_scoped": 0,
+    "custom_analyses.fetch_database_name_for_analysis": "pagila",
+    "custom_analyses.fetch_database_name_for_analysis__d2_each0": "pagila",
+    "custom_analyses.fetch_database_name_for_analysis__d2_each1": "pagila",
+    "custom_analyses.fetch_database_name_for_analysis__d2_unknown": null,
+    "custom_analyses.find_analysis_by_name__d2_absent": null,
+    "custom_analyses.find_analysis_by_name__d2_case": null,
+    "custom_analyses.find_analysis_by_name__d2_empty": null,
+    "custom_analyses.find_analysis_by_name__d2_exclude_other": {
+      "id": "<analysis:Top rented films>",
+      "name": "Top rented films"
+    },
+    "custom_analyses.find_analysis_by_name__d2_exclude_self": null,
+    "custom_analyses.find_analysis_by_sql__d2_absent": null,
+    "custom_analyses.find_analysis_by_sql__d2_exact": {
+      "id": "<analysis:Top rented films>",
+      "name": "Top rented films"
+    },
+    "custom_analyses.find_analysis_by_sql__d2_exclude_self": null,
+    "custom_analyses.find_analysis_by_sql__d2_whitespace": null,
+    "custom_analyses.get_custom_analysis_by_id__d2_unknown": null,
+    "custom_analyses.list_custom_analyses__d2_blank_search": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      },
+      {
+        "description": "Payment totals per staff member.",
+        "id": "<analysis:Revenue by staff>",
+        "name": "Revenue by staff",
+        "sql": "SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_limit": [
+      {
+        "description": "Payment totals per staff member.",
+        "id": "<analysis:Revenue by staff>",
+        "name": "Revenue by staff",
+        "sql": "SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_limit0": [],
+    "custom_analyses.list_custom_analyses__d2_past_end": [],
+    "custom_analyses.list_custom_analyses__d2_search_none": [],
+    "custom_analyses.list_custom_analyses__d2_search_upper": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_skip": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_underscore": [],
+    "custom_analyses.list_custom_analyses__d2_wildcard": [],
+    "custom_analyses.list_custom_analyses__d2_zone_admin_search": [
+      {
+        "description": "Films ordered by rental count.",
+        "id": "<analysis:Top rented films>",
+        "name": "Top rented films",
+        "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+      }
+    ],
+    "custom_analyses.list_custom_analyses__d2_zone_none_search": [],
+    "custom_analyses.list_custom_analyses__d2_zone_scoped_search": [],
+    "datasources.fetch_all_tables_without_term__d2_chinook": [
+      {
+        "description": null,
+        "id": "<table:chinook.main.Album>",
+        "name": "Album",
+        "schema_name": "main"
+      },
+      {
+        "description": null,
+        "id": "<table:chinook.main.Artist>",
+        "name": "Artist",
+        "schema_name": "main"
+      },
+      {
+        "description": null,
+        "id": "<table:chinook.main.Customer>",
+        "name": "Customer",
+        "schema_name": "main"
+      },
+      {
+        "description": null,
+        "id": "<table:chinook.main.Employee>",
+        "name": "Employee",
+        "schema_name": "main"
+      },
+      {
+        "description": null,
+        "id": "<table:chinook.main.Genre>",
+        "name": "Genre",
+        "schema_name": "main"
+      },
+      {
+        "description": null,
+        "id": "<table:chinook.main.Invoice>",
+        "name": "Invoice",
+        "schema_name": "main"
+      },
+      {
+        "description": null,
+        "id": "<table:chinook.main.InvoiceLine>",
+        "name": "InvoiceLine",
+        "schema_name": "main"
+      },
+      {
+        "description": null,
+        "id": "<table:chinook.main.MediaType>",
+        "name": "MediaType",
+        "schema_name": "main"
+      },
+      {
+        "description": null,
+        "id": "<table:chinook.main.Playlist>",
+        "name": "Playlist",
+        "schema_name": "main"
+      },
+      {
+        "description": null,
+        "id": "<table:chinook.main.PlaylistTrack>",
+        "name": "PlaylistTrack",
+        "schema_name": "main"
+      }
+    ],
+    "datasources.fetch_all_tables_without_term__d2_pagila": [
+      {
+        "description": null,
+        "id": "<table:pagila.analytics.category_rollup>",
+        "name": "category_rollup",
+        "schema_name": "analytics"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.analytics.film_performance>",
+        "name": "film_performance",
+        "schema_name": "analytics"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.analytics.top_films>",
+        "name": "top_films",
+        "schema_name": "analytics"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.actor>",
+        "name": "actor",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.actor_info>",
+        "name": "actor_info",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.address>",
+        "name": "address",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.category>",
+        "name": "category",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.city>",
+        "name": "city",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.country>",
+        "name": "country",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.customer_list>",
+        "name": "customer_list",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.film_actor>",
+        "name": "film_actor",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.film_category>",
+        "name": "film_category",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.film_list>",
+        "name": "film_list",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.inventory>",
+        "name": "inventory",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.language>",
+        "name": "language",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.nicer_but_slower_film_list>",
+        "name": "nicer_but_slower_film_list",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.rental_by_category>",
+        "name": "rental_by_category",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.sales_by_film_category>",
+        "name": "sales_by_film_category",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.sales_by_store>",
+        "name": "sales_by_store",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.staff>",
+        "name": "staff",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.staff_list>",
+        "name": "staff_list",
+        "schema_name": "public"
+      },
+      {
+        "description": null,
+        "id": "<table:pagila.public.store>",
+        "name": "store",
+        "schema_name": "public"
+      }
+    ],
+    "datasources.fetch_all_tables_without_term__d2_unknown": [],
+    "datasources.fetch_bridge_table_candidates__d2_chinook": [
+      {
+        "description": null,
+        "fk_pairs": [
+          {
+            "source_column": "PlaylistId",
+            "target_column": "PlaylistId",
+            "target_schema": "main",
+            "target_table": "Playlist",
+            "target_table_id": "<table:chinook.main.Playlist>"
+          },
+          {
+            "source_column": "TrackId",
+            "target_column": "TrackId",
+            "target_schema": "main",
+            "target_table": "Track",
+            "target_table_id": "<table:chinook.main.Track>"
+          }
+        ],
+        "schema_name": "main",
+        "table_id": "<table:chinook.main.PlaylistTrack>",
+        "table_name": "PlaylistTrack"
+      }
+    ],
+    "datasources.fetch_bridge_table_candidates__d2_unknown": [],
+    "datasources.fetch_col_table_contexts__d2_empty": {},
+    "datasources.fetch_col_table_contexts__d2_mixed": {
+      "<col:pagila.public.film.title>": {
+        "database_id": "<db:pagila>",
+        "database_name": "pagila",
+        "schema_id": "<schema:pagila.public>",
+        "schema_name": "public",
+        "table_id": "<table:pagila.public.film>",
+        "table_name": "film"
+      }
+    },
+    "datasources.fetch_col_table_contexts__d2_unknown": {},
+    "datasources.fetch_schema_ids_for_database__d2_chinook": [
+      "<schema:chinook.main>"
+    ],
+    "datasources.fetch_schema_ids_for_database__d2_unknown": [],
+    "datasources.fetch_tables_and_columns_by_node_ids__d2_column": [
+      "pagila",
+      [],
+      [
+        {
+          "column_name": "customer_id",
+          "data_type": "integer",
+          "database_name": "pagila",
+          "description": "Primary key of customer.",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "sample_values": null,
+          "table_name": "rental",
+          "table_schema": "public"
+        }
+      ]
+    ],
+    "datasources.fetch_tables_and_columns_by_node_ids__d2_empty": [
+      "",
+      [],
+      []
+    ],
+    "datasources.fetch_tables_and_columns_by_node_ids__d2_overlap": [
+      "pagila",
+      [
+        {
+          "column_name": "customer_id",
+          "data_type": "integer",
+          "database_name": "pagila",
+          "description": "Primary key of customer.",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "sample_values": null,
+          "table_name": "rental",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "description",
+          "data_type": "text",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.description>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "film_id",
+          "data_type": "integer",
+          "database_name": "pagila",
+          "description": "Primary key of film.",
+          "id": "<col:pagila.public.film.film_id>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "fulltext",
+          "data_type": "tsvector",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.fulltext>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "language_id",
+          "data_type": "integer",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.language_id>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "last_update",
+          "data_type": "timestamp with time zone",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.last_update>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "length",
+          "data_type": "smallint",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.length>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "original_language_id",
+          "data_type": "integer",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.original_language_id>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "rating",
+          "data_type": "mpaa_rating",
+          "database_name": "pagila",
+          "description": "MPAA rating; an enum.",
+          "id": "<col:pagila.public.film.rating>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "release_year",
+          "data_type": "year",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.release_year>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "rental_duration",
+          "data_type": "smallint",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.rental_duration>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "rental_rate",
+          "data_type": "numeric",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.rental_rate>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "replacement_cost",
+          "data_type": "numeric",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.replacement_cost>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "special_features",
+          "data_type": "text[]",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.special_features>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "title",
+          "data_type": "text",
+          "database_name": "pagila",
+          "description": "The film's title.",
+          "id": "<col:pagila.public.film.title>",
+          "sample_values": null,
+          "table_name": "film",
+          "table_schema": "public"
+        }
+      ],
+      [
+        {
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.film>",
+          "table_name": "film",
+          "table_schema": "public",
+          "table_type": "base table"
+        }
+      ]
+    ],
+    "datasources.fetch_tables_and_columns_by_node_ids__d2_table": [
+      "pagila",
+      [
+        {
+          "column_name": "customer_id",
+          "data_type": "integer",
+          "database_name": "pagila",
+          "description": "Primary key of customer.",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "sample_values": null,
+          "table_name": "rental",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "inventory_id",
+          "data_type": "integer",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.rental.inventory_id>",
+          "sample_values": null,
+          "table_name": "rental",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "last_update",
+          "data_type": "timestamp with time zone",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.rental.last_update>",
+          "sample_values": null,
+          "table_name": "rental",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "rental_date",
+          "data_type": "timestamp with time zone",
+          "database_name": "pagila",
+          "description": "When the rental started.",
+          "id": "<col:pagila.public.rental.rental_date>",
+          "sample_values": null,
+          "table_name": "rental",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "rental_id",
+          "data_type": "integer",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.rental.rental_id>",
+          "sample_values": null,
+          "table_name": "rental",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "return_date",
+          "data_type": "timestamp with time zone",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.rental.return_date>",
+          "sample_values": null,
+          "table_name": "rental",
+          "table_schema": "public"
+        },
+        {
+          "column_name": "staff_id",
+          "data_type": "integer",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.rental.staff_id>",
+          "sample_values": null,
+          "table_name": "rental",
+          "table_schema": "public"
+        }
+      ],
+      [
+        {
+          "database_name": "pagila",
+          "description": null,
+          "id": "<table:pagila.public.rental>",
+          "table_name": "rental",
+          "table_schema": "public",
+          "table_type": "base table"
+        }
+      ]
+    ],
+    "datasources.fetch_tables_and_columns_by_node_ids__d2_track": [
+      "chinook",
+      [
+        {
+          "column_name": "AlbumId",
+          "data_type": "INTEGER",
+          "database_name": "chinook",
+          "description": null,
+          "id": "<col:chinook.main.Track.AlbumId>",
+          "sample_values": null,
+          "table_name": "Track",
+          "table_schema": "main"
+        },
+        {
+          "column_name": "Bytes",
+          "data_type": "INTEGER",
+          "database_name": "chinook",
+          "description": null,
+          "id": "<col:chinook.main.Track.Bytes>",
+          "sample_values": null,
+          "table_name": "Track",
+          "table_schema": "main"
+        },
+        {
+          "column_name": "Composer",
+          "data_type": "NVARCHAR(220)",
+          "database_name": "chinook",
+          "description": null,
+          "id": "<col:chinook.main.Track.Composer>",
+          "sample_values": null,
+          "table_name": "Track",
+          "table_schema": "main"
+        },
+        {
+          "column_name": "GenreId",
+          "data_type": "INTEGER",
+          "database_name": "chinook",
+          "description": null,
+          "id": "<col:chinook.main.Track.GenreId>",
+          "sample_values": null,
+          "table_name": "Track",
+          "table_schema": "main"
+        },
+        {
+          "column_name": "MediaTypeId",
+          "data_type": "INTEGER",
+          "database_name": "chinook",
+          "description": null,
+          "id": "<col:chinook.main.Track.MediaTypeId>",
+          "sample_values": null,
+          "table_name": "Track",
+          "table_schema": "main"
+        },
+        {
+          "column_name": "Milliseconds",
+          "data_type": "INTEGER",
+          "database_name": "chinook",
+          "description": null,
+          "id": "<col:chinook.main.Track.Milliseconds>",
+          "sample_values": null,
+          "table_name": "Track",
+          "table_schema": "main"
+        },
+        {
+          "column_name": "Name",
+          "data_type": "NVARCHAR(200)",
+          "database_name": "chinook",
+          "description": "The track's title.",
+          "id": "<col:chinook.main.Track.Name>",
+          "sample_values": null,
+          "table_name": "Track",
+          "table_schema": "main"
+        },
+        {
+          "column_name": "TrackId",
+          "data_type": "INTEGER",
+          "database_name": "chinook",
+          "description": null,
+          "id": "<col:chinook.main.Track.TrackId>",
+          "sample_values": null,
+          "table_name": "Track",
+          "table_schema": "main"
+        },
+        {
+          "column_name": "UnitPrice",
+          "data_type": "NUMERIC(10,2)",
+          "database_name": "chinook",
+          "description": null,
+          "id": "<col:chinook.main.Track.UnitPrice>",
+          "sample_values": null,
+          "table_name": "Track",
+          "table_schema": "main"
+        }
+      ],
+      [
+        {
+          "database_name": "chinook",
+          "description": null,
+          "id": "<table:chinook.main.Track>",
+          "table_name": "Track",
+          "table_schema": "main",
+          "table_type": "base table"
+        }
+      ]
+    ],
+    "datasources.fetch_tables_and_columns_by_node_ids__d2_unknown": [
+      "",
+      [],
+      []
+    ],
+    "pql_analyses.count_pql_analyses": 1,
+    "pql_analyses.count_pql_analyses__d2_search": 1,
+    "pql_analyses.count_pql_analyses__d2_search_none": 0,
+    "pql_analyses.find_pql_analysis_by_name__d2_absent": null,
+    "pql_analyses.find_pql_analysis_by_name__d2_exclude_other": {
+      "id": "<pql:Customer churn>",
+      "name": "Customer churn"
+    },
+    "pql_analyses.find_pql_analysis_by_name__d2_exclude_self": null,
+    "pql_analyses.find_pql_analysis_by_pql": {
+      "id": "<pql:Customer churn>",
+      "name": "Customer churn"
+    },
+    "pql_analyses.find_pql_analysis_by_pql__d2_absent": null,
+    "pql_analyses.find_pql_analysis_by_pql__d2_exclude_self": null,
+    "pql_analyses.get_pql_analysis_by_id__d2_unknown": null,
+    "pql_analyses.list_pql_analyses__d2_limit": [
+      {
+        "description": "Predict which customers stop renting.",
+        "id": "<pql:Customer churn>",
+        "name": "Customer churn",
+        "pql": "PREDICT COUNT(rental.*, 30, days) = 0 FOR EACH customer.customer_id"
+      }
+    ],
+    "pql_analyses.list_pql_analyses__d2_past_end": [],
+    "pql_analyses.list_pql_analyses__d2_search": [
+      {
+        "description": "Predict which customers stop renting.",
+        "id": "<pql:Customer churn>",
+        "name": "Customer churn",
+        "pql": "PREDICT COUNT(rental.*, 30, days) = 0 FOR EACH customer.customer_id"
+      }
+    ],
+    "pql_analyses.list_pql_analyses__d2_search_none": [],
+    "pql_analyses.list_pql_analyses__d2_skip": [],
+    "pql_analyses.list_pql_analyses__d2_wildcard": [],
+    "sql_attributes.count_sql_attributes_by_term_id__d2_Customer": 1,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_Payment": 1,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_Track": 0,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_unknown": 0,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_zone_admin": 2,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_zone_none": 0,
+    "sql_attributes.count_sql_attributes_by_term_id__d2_zone_scoped": 1,
+    "sql_attributes.fetch_sql_attribute_counts__d2_admin_empty_terms": [],
+    "sql_attributes.fetch_sql_attribute_counts__d2_admin_terms": [
+      {
+        "count": 1,
+        "term_id": "<term:Customer>"
+      },
+      {
+        "count": 2,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_counts__d2_data_ids": [
+      {
+        "count": 1,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_counts__d2_none_empty_terms": [],
+    "sql_attributes.fetch_sql_attribute_counts__d2_none_terms": [],
+    "sql_attributes.fetch_sql_attribute_counts__d2_scoped_empty_terms": [],
+    "sql_attributes.fetch_sql_attribute_counts__d2_scoped_terms": [
+      {
+        "count": 1,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_counts__d2_terms_only": [
+      {
+        "count": 2,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_counts__d2_unknown_term": [],
+    "sql_attributes.fetch_sql_attribute_docs__d2_each0": [
+      {
+        "id": "<sqlattr:customer lifetime value>",
+        "label": "SqlAttribute",
+        "name": "customer lifetime value",
+        "source": "table",
+        "text": "sql_attribute: customer lifetime value, description: Total paid by each customer., term: Customer, sql: SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_docs__d2_each1": [
+      {
+        "id": "<sqlattr:film count>",
+        "label": "SqlAttribute",
+        "name": "film count",
+        "source": "sql",
+        "text": "sql_attribute: film count, description: Number of films in the catalog., term: Film, sql: SELECT count(film_id) FROM film"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_docs__d2_each2": [
+      {
+        "id": "<sqlattr:films per category>",
+        "label": "SqlAttribute",
+        "name": "films per category",
+        "source": "bridgeTable",
+        "text": "sql_attribute: films per category, description: Film count grouped by category, via the bridge table., term: Film, sql: SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_docs__d2_each3": [
+      {
+        "id": "<sqlattr:total revenue>",
+        "label": "SqlAttribute",
+        "name": "total revenue",
+        "source": "manual",
+        "text": "sql_attribute: total revenue, description: Sum of all payment amounts., term: Payment, sql: SELECT sum(amount) FROM payment"
+      }
+    ],
+    "sql_attributes.fetch_sql_attribute_docs__d2_unknown": [],
+    "sql_attributes.find_attr_by_expression": null,
+    "sql_attributes.find_attr_by_expression__d2_absent": null,
+    "sql_attributes.find_attr_by_expression__d2_case_ws": null,
+    "sql_attributes.find_attr_by_expression__d2_empty": null,
+    "sql_attributes.find_attr_by_expression__d2_exclude_self": null,
+    "sql_attributes.find_attr_by_expression__d2_other_term": null,
+    "sql_attributes.find_attr_by_expression__d2_unknown_term": null,
+    "sql_attributes.get_sql_attribute_by_id__d2_each0": "<sqlattr:customer lifetime value>",
+    "sql_attributes.get_sql_attribute_by_id__d2_each1": "<sqlattr:film count>",
+    "sql_attributes.get_sql_attribute_by_id__d2_each2": "<sqlattr:films per category>",
+    "sql_attributes.get_sql_attribute_by_id__d2_each3": "<sqlattr:total revenue>",
+    "sql_attributes.get_sql_attribute_by_id__d2_unknown": null
+  }
+}
