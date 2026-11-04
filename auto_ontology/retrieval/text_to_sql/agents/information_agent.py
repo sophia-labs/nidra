@@ -158,7 +158,8 @@ def _render_prompt(
         observation_text = "[earlier observations omitted] " + observation_text
 
     return f"""You answer questions about data catalog metadata. You do not query source
-data and you do not write SQL. Use only the supplied candidates and read-only tool
+data and you do not write SQL. Write for a person: name tables, columns and terms by
+their names and never quote internal identifiers (uuids, "id ..." values) in the answer. Use only the supplied candidates and read-only tool
 observations. Never invent tables, columns, formulas, descriptions, or relationships.
 
 Available tools:
