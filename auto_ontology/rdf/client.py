@@ -186,6 +186,54 @@ class GardendClient:
             total += self.load("\n".join(buf) + "\n")
         return total
 
+    # -- MCP ------------------------------------------------------------------
+
+    _mcp_session: str | None = None
+
+    def mcp_call(self, tool: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        """Call one of gardend's MCP tools (``find`` is the one the VDB uses)."""
+        headers = {"accept": "application/json, text/event-stream"}
+        if self._mcp_session is None:
+            init = self._http.post(
+                "/mcp",
+                json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "auto-ontology", "version": "0"}}},
+                headers=headers,
+            )
+            self._mcp_session = init.headers.get("mcp-session-id") or ""
+            if self._mcp_session:
+                headers["mcp-session-id"] = self._mcp_session
+            self._http.post("/mcp", json={"jsonrpc": "2.0", "method": "notifications/initialized"}, headers=headers)
+        if self._mcp_session:
+            headers["mcp-session-id"] = self._mcp_session
+        response = self._http.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": tool, "arguments": arguments}},
+            headers=headers,
+        )
+        payload = None
+        for line in response.text.splitlines():
+            line = line.removeprefix("data: ").strip()
+            if line.startswith("{"):
+                try:
+                    payload = json.loads(line)
+                except ValueError:
+                    continue
+        if not payload or "error" in payload:
+            raise GardendError(f"mcp {tool}: {payload.get('error') if payload else response.text[:300]}")
+        result = payload.get("result") or {}
+        if result.get("isError"):
+            raise GardendError(f"mcp {tool}: {result}")
+        structured = result.get("structuredContent")
+        if structured is not None:
+            return structured
+        for item in result.get("content") or []:
+            if item.get("type") == "text":
+                try:
+                    return json.loads(item["text"])
+                except ValueError:
+                    return {"text": item["text"]}
+        return result
+
     def count(self) -> int:
         return int(self.scalar(f"SELECT (COUNT(*) AS ?n) WHERE {{ {wrap('?s ?p ?o')} }}", "n") or 0)
 
