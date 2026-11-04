@@ -54,15 +54,35 @@ def _child(target: str, kwargs: dict[str, Any], out: Path) -> None:
 
     module_name, fn_name = target.split(":")
     fn = getattr(importlib.import_module(module_name), fn_name)
-    ids_before = capture_dal_golden._fixture_ids()
-    id_map = capture_dal_golden.build_id_map()
-    inv = {token: real for real, token in id_map.items()}
+    # Both runs share one Postgres copy (reads without a port fall through to it),
+    # the postgres run first. The rdf run would then look the fixture up *after*
+    # the write (a deleted row is "not found"), so the postgres run records the
+    # pre-write ids and tokens and the rdf run reuses them.
+    pre = out.with_name(out.name.rsplit("-", 1)[0] + ".pre")
+    if os.environ.get("CATALOG_READ_BACKEND", "postgres") != "rdf" or not pre.is_file():
+        ids_before = capture_dal_golden._fixture_ids()
+        inv = {token: real for real, token in capture_dal_golden.build_id_map().items()}
+        pre.write_text(json.dumps({"ids": ids_before, "inv": inv}, default=str))
+    else:
+        saved = json.loads(pre.read_text())
+        ids_before, inv = saved["ids"], saved["inv"]
     result = fn(**_resolve_tokens(kwargs, inv))
     # The fixture ids are looked up by name; a write may rename or delete what
     # they name, so the capture keeps the pre-write ids. Tokens for rows the
     # write created come from the post-write id map, identically on both sides.
     capture_dal_golden._fixture_ids = lambda: ids_before
-    cap = capture_dal_golden.capture_all()
+    try:
+        cap = capture_dal_golden.capture_all()
+    except Exception as exc:  # noqa: BLE001
+        # WD_TOLERANT=1: a write that deletes what the capture itself looks up (a whole
+        # database) makes capture_all raise; compare what the driver dumped instead.
+        if not os.environ.get("WD_TOLERANT"):
+            raise
+
+        class cap:  # noqa: N801
+            results: dict = {}
+            errors = {"capture_all": type(exc).__name__}
+
     payload = {
         "backend": os.environ.get("CATALOG_READ_BACKEND", "postgres"),
         "returned": capture_dal_golden.normalise(result, capture_dal_golden.build_id_map()),
