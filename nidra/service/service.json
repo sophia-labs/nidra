@@ -2,11 +2,30 @@
   "serviceId": "nidra",
   "displayName": "Nidra",
   "command": "node",
-  "args": ["main.mjs"],
-  "requires": { "node": "22.19" },
+  "args": [
+    "main.mjs"
+  ],
+  "requires": {
+    "node": "22.19"
+  },
   "workingDir": ".",
   "healthPath": "/health",
   "proxyMount": "/services/nidra",
   "autostart": false,
-  "env": [{ "name": "NODE_ENV", "value": "production" }]
+  "memberAccess": "all",
+  "mcp": {
+    "path": "/mcp",
+    "graphs": [
+      "nidra"
+    ],
+    "toolPrefix": "nidra_",
+    "timeoutMs": 120000
+  },
+  "env": [
+    {
+      "name": "NODE_ENV",
+      "value": "production"
+    }
+  ],
+  "agentMemory": true
 }
