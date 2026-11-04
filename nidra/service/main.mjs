@@ -406,7 +406,8 @@ class AskRecorder {
       seconds: Math.round((Date.now() - this.started) / 100) / 10,
       // The engine answers "LLM failed to produce a response." as a result when its model calls all failed.
       ok: Boolean(this.result) && !this.error && !/^LLM failed to produce a response/.test(String(answer.response || '')),
-      error: this.error || (this.result ? null : this.stopped ? 'Stopped before an answer' : 'No answer came back'),
+      error: this.error || (!this.result ? (this.stopped ? 'Stopped before an answer' : 'No answer came back')
+        : /^LLM failed to produce a response/.test(String(answer.response || '')) ? 'The model did not answer (every call to it failed)' : null),
     }
   }
 }
