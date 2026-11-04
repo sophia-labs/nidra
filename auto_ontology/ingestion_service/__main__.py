@@ -62,6 +62,15 @@ async def lifespan(app: FastAPI):
     if not _rdf():
         require_current_schema()
 
+    else:
+
+        # Sophia Labs fork: the catalog graph is created on first start.
+
+        from auto_ontology.rdf.client import client as _gardend
+
+
+        _gardend().ensure_graph("Nidra catalog")
+
     # uvicorn owns SIGINT/SIGTERM; each scheduler exposes a stop() that unwinds
     # its in-flight wait promptly on shutdown. Schedulers are stored on
     # app.state so the router can trigger them on demand.

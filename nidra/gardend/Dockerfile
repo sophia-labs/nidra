@@ -24,7 +24,7 @@ RUN M=/fastembed/models--intfloat--multilingual-e5-small && S=$M/snapshots/${E5_
 FROM ${GARDEND_IMAGE} AS release
 
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates libstdc++6 libgomp1 \
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl libstdc++6 libgomp1 \
  && rm -rf /var/lib/apt/lists/*
 COPY --from=release /usr/local/bin/gardend /usr/local/bin/gardend
 COPY --from=release /usr/local/lib/gardend /usr/local/lib/gardend
@@ -33,6 +33,7 @@ COPY --from=deps /libonnxruntime.so /usr/local/lib/libonnxruntime.so
 COPY --from=deps /ONNXRUNTIME-LICENSE /usr/local/share/licenses/ONNXRUNTIME-LICENSE
 COPY --from=deps /fastembed /opt/fastembed
 COPY --from=deps /E5-README.md /usr/local/share/licenses/MULTILINGUAL-E5-SMALL-README.md
+COPY entrypoint.sh /usr/local/bin/nidra-gardend
 ENV GARDEN_PROFILE_DIR=/data/profile \
     GARDEN_PDFIUM_LIB=/usr/local/lib/gardend/libpdfium.so \
     GARDEN_LOOPBACK_HOST=0.0.0.0 \
@@ -45,4 +46,4 @@ ENV GARDEN_PROFILE_DIR=/data/profile \
     FASTEMBED_CACHE_DIR=/opt/fastembed
 EXPOSE 8086
 VOLUME /data
-ENTRYPOINT ["/usr/local/bin/gardend"]
+ENTRYPOINT ["/usr/local/bin/nidra-gardend"]

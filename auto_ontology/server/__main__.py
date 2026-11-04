@@ -64,6 +64,15 @@ async def lifespan(_app: FastAPI):
     if not _rdf():
         require_current_schema()
 
+    else:
+
+        # Sophia Labs fork: the catalog graph is created on first start.
+
+        from auto_ontology.rdf.client import client as _gardend
+
+
+        _gardend().ensure_graph("Nidra catalog")
+
     # Kick off the chat worker pool's initial warm spawn at boot. The pool
     # itself is lazy on first use, but eagerly initialising here means the
     # very first chat request doesn't pay a cold start.
