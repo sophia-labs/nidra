@@ -19,7 +19,9 @@
 # affiliated with NVIDIA.
 services:
   gardend:
-    image: ${GARDEND_IMAGE:-gardend:cell-ad8f4dd985f4}
+    image: ${GARDEND_IMAGE:-nidra-gardend:latest}
+    build:
+      context: ./nidra/gardend
     container_name: nidra-gardend
     restart: unless-stopped
     command: ["serve", "--profile", "/data/profile", "--port", "8086"]
