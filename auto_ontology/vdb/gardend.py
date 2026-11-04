@@ -5,7 +5,10 @@
 filtered k-NN. Here the same records become triples on their catalog row
 (``dcterms:description`` carries the embed text, ``urn:ao:vdb#metadata`` the
 record's metadata as JSON, ``urn:ao:vdb#collection`` the collection name), and
-retrieval is gardend's ``find`` tool: every entity verbalized into one sentence
+retrieval is gardend's ``find`` tool (under ``NIDRA_WRITES=commit`` the three
+predicates are ledger ops on the same subjects, so a replay or a rebuild of the
+fold keeps them: the ledger owns every catalog row there, and a row's index
+triples go with it): every entity verbalized into one sentence
 and embedded locally with multilingual-e5-small, searched by meaning and by
 words. Nothing here calls an embedding endpoint, so the ``EMBED_*`` triplet is
 not needed on this backend; ``Retriever`` passes the query text instead of a
@@ -24,7 +27,7 @@ import os
 from typing import Any, Iterable
 
 from auto_ontology.rdf.client import GardendError, client, iri, lit, values, wrap
-from auto_ontology.rdf.vocab import BASE, DCT_DESCRIPTION, parse_row_iri, row_iri_single
+from auto_ontology.rdf.vocab import BASE, DCT_DESCRIPTION, class_iri, parse_row_iri, row_iri_single
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +106,24 @@ def _flatten(records: Iterable[Any]) -> Iterable[dict[str, Any]]:
             yield record
 
 
+def _ledger_mode() -> bool:
+    from auto_ontology.rdf import writes
+
+    return writes.write_mode() == "commit"
+
+
+def _index_ops(kind: str, subject: str, by_predicate: dict[str, list[Any]]) -> list[dict[str, Any]]:
+    """``add``/``remove`` ops for one index subject: its class is its row's table
+    (``urn:ao:<table>``), or ``urn:ao:vdb`` for a record with no catalog row."""
+    table, _ = parse_row_iri(subject)
+    cls = class_iri(table)
+    return [
+        {"op": kind, "subject": subject, "class": cls, "predicate": predicate, "values": list(terms)}
+        for predicate, terms in by_predicate.items()
+        if terms
+    ]
+
+
 class GardendVDB:
     """One collection of embedded records, held in the catalog graph."""
 
@@ -132,24 +153,41 @@ class GardendVDB:
         return f"{BASE}vdb/{self.collection}/{node_id or abs(hash(json.dumps(metadata, sort_keys=True, default=str)))}"
 
     def write_to_index(self, records: list, batch_size: int = 500, **kwargs: Any) -> int:
+        from auto_ontology.rdf import writes
+
+        ledger = writes.write_mode() == "commit"
         lines: list[str] = []
+        ops: list[dict[str, Any]] = []
         written = 0
         for record in _flatten(records):
             metadata = {k: v for k, v in (record.get("metadata") or {}).items() if k != "embedding"}
             text = record.get("text") or record.get("content") or metadata.get("content")
             if not text:
                 continue
-            subject = iri(self._subject_for(metadata))
-            meta_json = json.dumps(metadata, default=str, ensure_ascii=False)
-            lines.append(f"{subject} {iri(P_TEXT)} {lit(str(text))} .")
-            lines.append(f"{subject} {iri(P_METADATA)} {lit({'collection': self.collection, 'metadata': metadata}) } .")
-            lines.append(f"{subject} {iri(P_COLLECTION)} {lit(self.collection)} .")
+            meta = {"collection": self.collection, "metadata": metadata}
+            if ledger:
+                # The same three values the load below writes, added (a catalog row's
+                # description mirror and its index text share dcterms:description).
+                subject_iri = self._subject_for(metadata)
+                ops.extend(
+                    _index_ops("add", subject_iri, {P_TEXT: [writes.term(str(text))], P_METADATA: [writes.term(meta)], P_COLLECTION: [writes.term(self.collection)]})
+                )
+            else:
+                subject = iri(self._subject_for(metadata))
+                lines.append(f"{subject} {iri(P_TEXT)} {lit(str(text))} .")
+                lines.append(f"{subject} {iri(P_METADATA)} {lit(meta)} .")
+                lines.append(f"{subject} {iri(P_COLLECTION)} {lit(self.collection)} .")
             written += 1
             if len(lines) >= batch_size * 3:
                 self._client.load("\n".join(lines) + "\n")
                 lines = []
+            if len(ops) >= batch_size * 3:
+                writes.commit(ops)
+                ops = []
         if lines:
             self._client.load("\n".join(lines) + "\n")
+        if ops:
+            writes.commit(ops)
         logger.info("GardendVDB.write_to_index: %d record(s) into %s", written, self.collection)
         return written
 
@@ -166,7 +204,24 @@ class GardendVDB:
             )
             or 0
         )
-        if count:
+        if count and _ledger_mode():
+            # The ledger owns these values: remove exactly the ones stored (as the
+            # DELETE below removes every value of the three predicates there).
+            from auto_ontology.rdf import writes
+
+            found = self._client.select_raw(
+                f"SELECT ?s ?p ?o WHERE {{ GRAPH {g} {{ ?s {iri(P_COLLECTION)} ?c . FILTER(?c = {lit(self.collection)}) {extra} "
+                f"?s ?p ?o . FILTER(?p IN ({iri(P_TEXT)}, {iri(P_METADATA)}, {iri(P_COLLECTION)})) }} }}"
+            )
+            by_subject: dict[str, dict[str, list[Any]]] = {}
+            for r in found:
+                if r["o"].startswith("_:"):
+                    continue
+                by_subject.setdefault(r["s"][1:-1], {}).setdefault(r["p"][1:-1], []).append(writes.nt_term(r["o"]))
+            ops = [op for subject, preds in by_subject.items() for op in _index_ops("remove", subject, preds)]
+            if ops:
+                writes.commit(ops)
+        elif count:
             self._client.update(
                 f"DELETE {{ GRAPH {g} {{ ?s {iri(P_TEXT)} ?t . ?s {iri(P_METADATA)} ?m . ?s {iri(P_COLLECTION)} ?c }} }} "
                 f"WHERE {{ GRAPH {g} {{ ?s {iri(P_COLLECTION)} ?c . FILTER(?c = {lit(self.collection)}) {extra} "

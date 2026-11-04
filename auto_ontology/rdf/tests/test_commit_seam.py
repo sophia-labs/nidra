@@ -380,6 +380,47 @@ def test_replace_moves_a_sparql_loaded_graph_into_the_ledger():
     assert report["equal"] is True and report["triples"] == len(_triples(moved))
 
 
+# -- live: the vector index -----------------------------------------------------------
+
+
+def _live_replay(c: GardendClient) -> None:
+    response = c._http.post(f"/emporium/fold/{c.graph_id}/ao/replay", json={"into": "live"})
+    assert response.status_code == 200, response.text[:300]
+
+
+@pytest.mark.parametrize("mode_graph", MODES, indirect=True)
+def test_the_vector_index_lives_with_its_row_and_a_delete_takes_only_its_values(mode_graph):
+    """The index's triples sit on the catalog row (``find`` matches the row by them).
+    Under commit the ledger owns the row, so the index writes are ledger ops too: a
+    live replay keeps them. Deleting the record removes the three predicates' values
+    (all of dcterms:description, as the SPARQL delete always did) and nothing else."""
+    from auto_ontology.vdb.gardend import P_COLLECTION, P_METADATA, P_TEXT, GardendVDB
+
+    mode, c = mode_graph
+    row = {"id": "vdb-col-1", "table_id": "vdb-tbl-1", "name": "title", "description": "The film's title"}
+    W.insert_rows("catalog_column", [row])
+    subject = row_iri_single("catalog_column", "vdb-col-1")
+    name_before = _values(c, subject, prop_iri("catalog_column", "name"))
+    vdb = GardendVDB(collection_name="columns")
+    record = {"text": "title: the film's title", "metadata": {"id": "vdb-col-1", "label": "Column", "database_name": "pagila"}}
+    assert vdb.write_to_index([record]) == 1
+    indexed = {p: _values(c, subject, p) for p in (P_TEXT, P_METADATA, P_COLLECTION)}
+    assert '"title: the film\'s title"' in indexed[P_TEXT] and '"The film\'s title"' in indexed[P_TEXT]
+    assert indexed[P_COLLECTION] == ['"columns"'] and len(indexed[P_METADATA]) == 1
+    if mode == "commit":
+        before = _triples(c)
+        _live_replay(c)
+        assert _triples(c) == before, "a replay dropped what the index wrote"
+        assert _oracle(c)["equal"] is True
+    assert vdb.delete_by_id("vdb-col-1") == 1
+    for p in (P_TEXT, P_METADATA, P_COLLECTION):
+        assert _values(c, subject, p) == [], p
+    assert _values(c, subject, prop_iri("catalog_column", "name")) == name_before
+    if mode == "commit":
+        _live_replay(c)
+        assert _values(c, subject, P_COLLECTION) == [] and _oracle(c)["equal"] is True
+
+
 # -- live: the import, compensated ------------------------------------------------------
 
 
