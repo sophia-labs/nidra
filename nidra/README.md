@@ -114,18 +114,22 @@ fails, one write retracts what the import created and sets what it changed back
 to its prior values, and the error is raised. The ledger keeps the import and
 its undo as lineage. (Under `sparql` the same compensation runs as SPARQL.)
 
+**The vector index** (`auto_ontology/vdb/gardend.py`) hangs its text, metadata
+and collection triples on the catalog rows, so `find` matches a row by them.
+Under `commit` they are ledger ops on those rows (`add` beside the row's own
+values; a delete `remove`s exactly the stored values), so a live replay or a fold
+rebuild keeps them. Its text predicate is `dcterms:description`, the same as the
+description mirror: a delete takes every description value of the row, as the
+SPARQL delete always did. This needs gardend's W7d fold (an `add` beside a `set`
+on one predicate).
+
 **What stays on SPARQL, and why:** subjects the ledger does not own.
-- The vector index rows (`auto_ontology/vdb/gardend.py`): its text, metadata and
-  collection triples hang on catalog subjects but are not catalog columns; the
-  fold leaves them alone (a live replay would drop them: re-index after one).
-  Note that its text predicate is `dcterms:description`, the same as the
-  description mirror.
 - The Nidra service's own records (`nidra/service/main.mjs`): questions
   (`urn:nidra:question/`), certifications (`urn:nidra:certification/`) and
   being registrations, which link to catalog rows but are not rows.
-- After a commit `retract`, the triples left on the retracted subject (vector
-  index) and the links to it from non-catalog subjects (question records) are
-  removed by one SPARQL update, as SPARQL mode's delete always did.
+- After a commit `retract`, any triples left on the retracted subject and the
+  links to it from non-catalog subjects (question records) are removed by one
+  SPARQL update, as SPARQL mode's delete always did.
 - `rdf.export --load --replace` in commit mode clears the graph by SPARQL, then
   commits the retraction of every catalog row it held with the new rows, then
   rebuilds the sink from the ledger (`replay` into `live`).
