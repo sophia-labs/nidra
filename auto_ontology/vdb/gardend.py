@@ -67,6 +67,9 @@ class GardendVDB:
     """One collection of embedded records, held in the catalog graph."""
 
     embeds_itself = True
+    #: The retriever builds filters as a flat dict for this store
+    #: ({"label": "Column" | [...], "database_name": ..., "schema_name": ...}).
+    metadata_filter_format = "dict"
 
     def __init__(self, *, collection_name: str, database_name: str | None = None, reset: bool = False, **_: Any) -> None:
         self.collection = collection_name
@@ -155,9 +158,13 @@ class GardendVDB:
     def retrieval(self, queries: list, top_k: int = 10, **kwargs: Any) -> list[list[dict]]:
         """k-NN by *text* (``kwargs["texts"]``); the vectors in ``queries`` are ignored."""
         texts = kwargs.get("texts") or []
-        where = dict(kwargs.get("where") or {})
+        raw_where = kwargs.get("where") or {}
+        where = dict(raw_where) if isinstance(raw_where, dict) else {}
+        if raw_where and not isinstance(raw_where, dict):
+            logger.warning("GardendVDB.retrieval: ignoring non-dict filter %r", str(raw_where)[:120])
         label = where.pop("label", None)
-        types = [_find_type(LABEL_TABLE[label])] if label in LABEL_TABLE else None
+        labels = label if isinstance(label, list) else ([label] if label else [])
+        types = [_find_type(LABEL_TABLE[lab]) for lab in labels if lab in LABEL_TABLE] or None
         # Over-fetch: find ranks every entity of the graph, and rows of other
         # collections or filtered-out metadata are dropped below.
         k = _FIND_MAX
