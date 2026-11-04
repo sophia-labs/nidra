@@ -84,11 +84,24 @@ def _apply(target_name: str) -> None:
                 raise AttributeError(f"{port_name}.{name} ports a function {target_name} does not have")
             if not hasattr(port, name):
                 continue
-            setattr(target, name, getattr(port, name))
+            original = getattr(target, name)
+            replacement = getattr(port, name)
+            setattr(target, name, replacement)
+            _rebind(name, original, replacement)
             _APPLIED.add((target_name, port_name, name))
             key = target_name.rsplit(".", 1)[1]
             if name not in INSTALLED.setdefault(key, []):
                 INSTALLED[key].append(name)
+
+
+def _rebind(name: str, original, replacement) -> None:
+    """A module that did ``from target import name`` before the port landed
+    holds the original object; point it at the port too."""
+    for mod_name, mod in list(sys.modules.items()):
+        if not mod_name.startswith("auto_ontology.") or mod_name.startswith("auto_ontology.dal_rdf") or mod is None:
+            continue
+        if getattr(mod, name, None) is original:
+            setattr(mod, name, replacement)
 
 
 class _PortFinder(importlib.abc.MetaPathFinder):
