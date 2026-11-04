@@ -98,6 +98,12 @@ def prepare_conversation(
     source: str,
 ) -> PreparedConversation:
     """Verify/create a conversation, load prior turns, then persist the user turn."""
+    from auto_ontology.rdf.patch import enabled as _rdf
+
+    if _rdf():
+        raise ConversationAccessError(
+            "conversation_id is not supported on the gardend backend yet: omit it for a stateless question"
+        )
 
     conversation_str = str(conversation_id)
     analytics_id = str(uuid.uuid4())
@@ -166,6 +172,10 @@ def persist_assistant_result(
     sql_code: str | None,
 ) -> None:
     """Persist one final assistant turn and complete its analytics row."""
+    from auto_ontology.rdf.patch import enabled as _rdf
+
+    if _rdf():
+        return None
 
     conversation_str = str(conversation_id)
     with psycopg.connect(get_postgres_connection_string(), connect_timeout=3) as conn:

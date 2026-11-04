@@ -1,0 +1,82 @@
+# Nidra: NVIDIA Auto Ontology's engine on gardend, with no Postgres.
+#
+#   docker compose -f compose.nidra.yaml up -d --build
+#
+# Two ways to run it:
+#  - standalone (default): the `gardend` service below holds the catalog, the
+#    glossary and the vector index (gardend's `find`, embedded locally).
+#  - attached to your own Sophia app: leave `gardend` out
+#    (`--scale gardend=0`) and point GARDEND_URL at the app's loopback API,
+#    http://host.docker.internal:7674, with a member token from
+#    `gardend token create --grant session-all`. The catalog then lives in
+#    your own graph, backed up and browsed like any other.
+#
+# Sources are the databases you ask questions about (Chinook, a SQLite sample,
+# ships in ./nidra/data). Inference is any OpenAI-compatible endpoint (the
+# DEFAULT_MODELS_* triplet in .env); no embedding endpoint is needed.
+#
+# Nidra is built on NVIDIA Auto Ontology (Apache-2.0). Sophia Labs is not
+# affiliated with NVIDIA.
+services:
+  gardend:
+    image: ${GARDEND_IMAGE:-gardend:cell-ad8f4dd985f4}
+    container_name: nidra-gardend
+    restart: unless-stopped
+    command: ["serve", "--profile", "/data/profile", "--port", "8086"]
+    user: "0:0"
+    environment:
+      GARDEN_LOOPBACK_TOKEN: ${GARDEND_TOKEN}
+      GARDEN_LOOPBACK_HOST: 0.0.0.0
+      GARDEN_SPARQL_MAX_ROWS: "200000"
+      GARDEN_NO_UPDATE_CHECK: "1"
+    ports:
+      - "${GARDEND_PORT:-7691}:8086"
+    volumes:
+      - nidra_gardend:/data
+
+  auto-ontology:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nidra-engine:latest
+    container_name: nidra-engine
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      CATALOG_READ_BACKEND: rdf
+      AO_RDF_STRICT: ${AO_RDF_STRICT:-1}
+      GARDEND_URL: ${GARDEND_URL:-http://gardend:8086}
+      GARDEND_TOKEN: ${GARDEND_TOKEN}
+      GARDEND_GRAPH_ID: ${GARDEND_GRAPH_ID:-nidra}
+      INGESTION_SERVICE_URL: http://ingestion-service:3002
+      CONNECTION_STRINGS: ${CONNECTION_STRINGS:-sqlite:////data/chinook.sqlite}
+    volumes:
+      - ./nidra/data:/data:ro
+    depends_on:
+      - gardend
+      - ingestion-service
+
+  ingestion-service:
+    image: nidra-engine:latest
+    container_name: nidra-ingestion
+    restart: unless-stopped
+    command: ["ingestion_service"]
+    env_file:
+      - .env
+    environment:
+      CATALOG_READ_BACKEND: rdf
+      AO_RDF_STRICT: ${AO_RDF_STRICT:-1}
+      GARDEND_URL: ${GARDEND_URL:-http://gardend:8086}
+      GARDEND_TOKEN: ${GARDEND_TOKEN}
+      GARDEND_GRAPH_ID: ${GARDEND_GRAPH_ID:-nidra}
+      CONNECTION_STRINGS: ${CONNECTION_STRINGS:-sqlite:////data/chinook.sqlite}
+    volumes:
+      - ./nidra/data:/data:ro
+    depends_on:
+      - gardend
+
+volumes:
+  nidra_gardend:

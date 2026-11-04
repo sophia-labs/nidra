@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import logging
 
+import os
+
 import psycopg
 from psycopg.rows import dict_row
 
@@ -33,6 +35,12 @@ def get_user_role(user_id: str) -> str | None:
     raising, so a transient Postgres hiccup fails closed instead of
     granting elevated access.
     """
+    from auto_ontology.rdf.patch import enabled as _rdf
+
+    if _rdf():
+        # Sophia Labs fork: identity comes from the front door (Sophia's
+        # gateway or the app); every caller gets AO_DEFAULT_ROLE (admin).
+        return os.environ.get("AO_DEFAULT_ROLE", "admin")
     try:
         with psycopg.connect(
             get_postgres_connection_string(), connect_timeout=3

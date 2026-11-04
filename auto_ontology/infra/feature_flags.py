@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import logging
 
+import os
+
 import psycopg
 
 from auto_ontology.infra.postgres import FRONTEND_SCHEMA, get_postgres_connection_string
@@ -46,7 +48,17 @@ MAX_SQL_QUERY_TIMEOUT_SECONDS = 3600
 
 
 def _read_configuration_row(key: str) -> tuple[object, ...] | None:
-    """Return the ``(value,)`` row for *key*, or ``None`` if it is absent."""
+    """Return the ``(value,)`` row for *key*, or ``None`` if it is absent.
+
+    Sophia Labs fork: without a frontend database (CATALOG_READ_BACKEND=rdf)
+    a flag is the environment variable ``AO_FLAG_<KEY>`` (upper-cased), e.g.
+    ``AO_FLAG_SEMANTIC_COMPILATION_ENABLED=true``; unset means absent.
+    """
+    from auto_ontology.rdf.patch import enabled as _rdf
+
+    if _rdf():
+        value = os.environ.get(f"AO_FLAG_{key.upper()}")
+        return (value,) if value is not None else None
     with psycopg.connect(get_postgres_connection_string(), connect_timeout=3) as conn:
         with conn.cursor() as cur:
             cur.execute(

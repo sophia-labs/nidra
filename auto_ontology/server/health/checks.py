@@ -21,6 +21,12 @@ from auto_ontology.dal.connections import verify_connectivity
 from auto_ontology.dal.schema_version import schema_state
 
 
+def _rdf() -> bool:
+    from auto_ontology.rdf.patch import enabled
+
+    return enabled()
+
+
 def check_store() -> dict[str, str]:
     """Probe the pooled connection the application actually uses.
 
@@ -29,6 +35,14 @@ def check_store() -> dict[str, str]:
     process can get a usable connection out of its pool — and the pool is what
     every request depends on.
     """
+    if _rdf():
+        try:
+            from auto_ontology.rdf.client import client
+
+            client().count()
+            return {"status": "ok", "store": "gardend"}
+        except Exception as exc:  # noqa: BLE001
+            return {"status": "error", "detail": (str(exc) or type(exc).__name__)[:200]}
     try:
         verify_connectivity()
         return {"status": "ok"}
@@ -43,6 +57,8 @@ def check_schema() -> dict[str, str]:
     catches the case that gate cannot: a schema that changes under an already
     running process — a migration applied mid-flight, a table dropped by hand.
     """
+    if _rdf():
+        return {"status": "ok", "detail": "no migrations on the gardend backend"}
     state = schema_state()
     if state.current:
         return {"status": "ok", "revision": state.applied or ""}

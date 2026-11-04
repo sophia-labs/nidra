@@ -14,6 +14,9 @@ from __future__ import annotations
 
 import logging
 
+import json
+import os
+
 import psycopg
 from psycopg.rows import dict_row
 
@@ -22,12 +25,25 @@ from auto_ontology.infra.postgres import FRONTEND_SCHEMA, get_postgres_connectio
 logger = logging.getLogger(__name__)
 
 
+def _rdf() -> bool:
+    from auto_ontology.rdf.patch import enabled
+
+    return enabled()
+
+
 def fetch_acronyms() -> list[dict[str, str]]:
     """Return acronyms as ``[{"name": ..., "description": ...}, ...]``.
 
     Shape matches ``AgentState.acronyms`` / the dicts
     consumed by ``rules_to_text`` in the text-to-SQL pipeline.
     """
+    if _rdf():
+        # Sophia Labs fork: AO_ACRONYMS is a JSON list of {name, description}.
+        try:
+            return [dict(a) for a in json.loads(os.environ.get("AO_ACRONYMS") or "[]")]
+        except ValueError:
+            logger.exception("AO_ACRONYMS is not JSON; continuing with empty list")
+            return []
     try:
         with psycopg.connect(
             get_postgres_connection_string(), connect_timeout=3
@@ -52,6 +68,8 @@ def is_visualization_enabled() -> bool:
     DB hiccup both count as enabled — the feature is on by default and a
     transient read failure shouldn't silently suppress every chart.
     """
+    if _rdf():
+        return os.environ.get("AO_VISUALIZATION_ENABLED", "true").lower() != "false"
     try:
         with psycopg.connect(
             get_postgres_connection_string(), connect_timeout=3
@@ -75,6 +93,8 @@ def fetch_custom_prompts() -> str:
     The agent embeds this verbatim into the system prompt
     (see ``auto_ontology.retrieval.text_to_sql.main._build_state``).
     """
+    if _rdf():
+        return os.environ.get("AO_CUSTOM_PROMPTS", "")
     try:
         with psycopg.connect(
             get_postgres_connection_string(), connect_timeout=3
