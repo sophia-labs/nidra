@@ -250,6 +250,10 @@ def persist_result_message(
 
 def create_stateless_analytics(*, user_id: str, question: str, source: str) -> str:
     """Create analytics for an authenticated one-shot request."""
+    from auto_ontology.rdf.patch import enabled as _rdf
+
+    if _rdf():
+        return None  # analytics are not recorded on the gardend backend yet
 
     analytics_id = str(uuid.uuid4())
     with psycopg.connect(get_postgres_connection_string(), connect_timeout=3) as conn:
