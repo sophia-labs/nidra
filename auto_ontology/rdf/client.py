@@ -10,8 +10,9 @@ from __future__ import annotations
 import json
 import os
 import re
+from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator
 
 import httpx
 
@@ -119,6 +120,17 @@ class GardendError(RuntimeError):
     pass
 
 
+#: Called before every read. ``rdf.writes`` registers one that flushes the ops a
+#: collecting block (``write_transaction`` under ``NIDRA_WRITES=commit``) still
+#: holds, so a read inside the block sees the block's earlier writes.
+READ_HOOKS: list = []
+
+
+def _before_read() -> None:
+    for hook in READ_HOOKS:
+        hook()
+
+
 class GardendClient:
     """One graph on one gardend, reached with one bearer token."""
 
@@ -155,16 +167,23 @@ class GardendClient:
             if "already" not in str(exc).lower() and "exists" not in str(exc).lower():
                 raise
 
-    def select(self, sparql: str) -> list[dict[str, Any]]:
+    def select_raw(self, sparql: str) -> list[dict[str, str]]:
+        """Rows with their terms in N-Triples syntax, unparsed."""
+        _before_read()
         payload = self._post("/api/sparql/query", {"graphId": self.graph_id, "sparql": sparql})
-        rows = payload.get("rows") or []
-        return [{k: parse_term(v) for k, v in row.items()} for row in rows]
+        return payload.get("rows") or []
+
+    def select(self, sparql: str) -> list[dict[str, Any]]:
+        return [{k: parse_term(v) for k, v in row.items()} for row in self.select_raw(sparql)]
 
     def scalar(self, sparql: str, var: str) -> Any:
         rows = self.select(sparql)
         return rows[0].get(var) if rows else None
 
     def update(self, sparql: str) -> None:
+        """A SPARQL update. ao rows are written through ``rdf.writes.commit`` (the
+        seam); this stays for sparql-mode rendering and for subjects the ledger
+        does not own (the vector index, fixtures, ``CLEAR`` in sparql mode)."""
         self._post("/api/sparql/update", {"graphId": self.graph_id, "sparql": sparql})
 
     def load(self, data: str, format: str = "ntriples") -> int:
@@ -192,6 +211,7 @@ class GardendClient:
 
     def mcp_call(self, tool: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Call one of gardend's MCP tools (``find`` is the one the VDB uses)."""
+        _before_read()
         headers = {"accept": "application/json, text/event-stream"}
         if self._mcp_session is None:
             init = self._http.post(
@@ -246,3 +266,15 @@ def client() -> GardendClient:
     if _client is None:
         _client = GardendClient()
     return _client
+
+
+@contextmanager
+def use_client(c: GardendClient) -> Iterator[GardendClient]:
+    """Route ``client()`` (and so every read and ``rdf.writes.commit``) to ``c`` in the block."""
+    global _client
+    previous = _client
+    _client = c
+    try:
+        yield c
+    finally:
+        _client = previous

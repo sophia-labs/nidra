@@ -117,14 +117,14 @@ def create_zone(*, name: str, description: str | None, color: str, item_ids: lis
     if _zone_name_exists(name, item_ids=item_ids):
         raise ValueError(f"Zone with name {name!r} already exists")
     zone = writes.apply_defaults("zone", {"name": name, "description": description, "color": color})
-    # The zone and its targets are one INSERT DATA.
-    lines = writes.row_triples("zone", zone)
+    # The zone and its targets are one write.
+    ops = writes.row_ops("zone", zone)
     ordered: list[str] = []
     if item_ids:
         targets, ordered = _link_rows(zone["id"], item_ids)
         for target in targets:
-            lines.extend(writes.row_triples("zone_target", writes.apply_defaults("zone_target", target)))
-    client().update(f"INSERT DATA {{ GRAPH {iri(writes.data_graph_iri())} {{ {' '.join(lines)} }} }}")
+            ops.extend(writes.row_ops("zone_target", writes.apply_defaults("zone_target", target)))
+    writes.commit(ops)
     result = format_zone(
         {c: zone.get(c) for c in ("id", "name", "description", "color", "enabled")}, items=[], enabled=True
     )

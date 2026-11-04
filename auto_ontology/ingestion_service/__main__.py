@@ -71,6 +71,11 @@ async def lifespan(app: FastAPI):
 
         _gardend().ensure_graph("Nidra catalog")
 
+        # NIDRA_WRITES=commit: the gardend must have the ledger; refuse to start otherwise.
+        from auto_ontology.rdf.writes import startup_check
+
+        startup_check()
+
     # uvicorn owns SIGINT/SIGTERM; each scheduler exposes a stop() that unwinds
     # its in-flight wait promptly on shutdown. Schedulers are stored on
     # app.state so the router can trigger them on demand.

@@ -74,10 +74,13 @@ A write port keeps the upstream name, signature, return value and side effects
 (what rows exist afterwards, with which values), including `ON CONFLICT`
 semantics, `RETURNING` ids and the embed hooks (`embed_*` calls stay as they
 are: the vector store is gardend too). Reads inside a write use the DAL
-functions (already ported) or `select_rows`. `write_transaction()` cannot roll
-back on this backend; port it as a no-op context manager where asked, and keep
-each function's writes to as few update requests as possible (one `INSERT DATA`
-for a batch, never one request per row in a loop of thousands).
+functions (already ported) or `select_rows`. Every write is ops sent by
+`writes.commit` (build them with `row_ops` / `update_ops` / `delete_ops`; never
+compose SPARQL update strings): under `NIDRA_WRITES=commit` they go to the ledger,
+under `sparql` they are rendered to one SPARQL update. `write_transaction()`
+collects a block into one request under commit and is a no-op under sparql; keep
+each function's writes to as few `commit` calls as possible (one per batch, never
+one per row in a loop of thousands).
 
 **Port modules** are named `<dalmodule>__writes.py` (targets
 `auto_ontology.dal.<dalmodule>`), or carry `TARGET = "auto_ontology.catalog.store.rows"`

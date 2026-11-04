@@ -89,7 +89,7 @@ def _candidates(tag_id: str, kind: str) -> list[str]:
 def tag_attributes_of_tagged_columns(tag_id: str) -> tuple[int, int]:
     """Copy *tag_id* from tagged columns onto the attributes built from them, once each."""
     applied: list[int] = []
-    inserts: list[str] = []
+    inserts: list[W.Op] = []
     flags: dict[str, dict[str, dict[str, Any]]] = {}
     for kind, column in (("column_attribute", "column_attribute_id"), ("sql_attribute", "sql_attribute_id")):
         found = _candidates(tag_id, kind)
@@ -107,7 +107,7 @@ def tag_attributes_of_tagged_columns(tag_id: str) -> tuple[int, int]:
         new = [a for a in found if a not in already]
         for a in new:
             stored = W.apply_defaults("tag_target", {"tag_id": tag_id, column: row_id(a)})
-            inserts.extend(W.row_triples("tag_target", stored))
+            inserts.extend(W.row_ops("tag_target", stored))
         applied.append(len(new))
         flags[kind] = {a: {"pii_processed": True} for a in found}
     apply_cells(flags, inserts)

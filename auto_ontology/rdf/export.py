@@ -79,6 +79,42 @@ def export_all(tables: list[str] | None = None) -> Iterator[str]:
         logger.info("%s: %d triples", name, n)
 
 
+def load(lines: list[str], *, replace: bool = False) -> int:
+    """Seed the current graph with Direct-Mapping N-Triples.
+
+    ``NIDRA_WRITES=sparql``: ``/api/rdf/load`` (``replace`` clears the graph first).
+    ``NIDRA_WRITES=commit``: every ao subject must be ledger-owned, so the rows go
+    through the commit seam as ``set`` ops (``writes.ntriples_ops``). ``replace``
+    reads the ao rows present, clears the graph, commits their retraction together
+    with the new rows, then rebuilds the sink from the ledger (``replay`` into
+    ``live``, the rule after a SPARQL ``CLEAR``).
+    """
+    from auto_ontology.rdf import writes
+    from auto_ontology.rdf.client import client, wrap
+
+    c = client()
+    graph = f"<urn:mnemosyne:local:graph:{c.graph_id}:user:rdf>"
+    if writes.write_mode() != "commit":
+        if replace:
+            # Loaded triples live in the graph's authored-RDF named graph; a
+            # variable GRAPH target is refused in local authority mode.
+            c.update(f"CLEAR SILENT GRAPH {graph}")
+        return c.load_lines(lines)
+    ops: list[dict] = []
+    if replace:
+        tables = {class_iri(t.name): t.name for t in METADATA.sorted_tables}
+        present = c.select(f"SELECT DISTINCT ?s ?c WHERE {{ {wrap('?s a ?c')} }}")
+        ops = [writes.retract_op(tables[r["c"]], r["s"]) for r in present if r["c"] in tables]
+        c.update(f"CLEAR SILENT GRAPH {graph}")
+    ops.extend(writes.ntriples_ops(lines))
+    writes.commit(ops)
+    if replace:
+        response = c._http.post(f"/emporium/fold/{c.graph_id}/ao/replay", json={"into": "live"})
+        if response.status_code != 200:
+            raise RuntimeError(f"replay into live: HTTP {response.status_code}: {response.text[:300]}")
+    return len(lines)
+
+
 def main(argv: list[str]) -> int:
     logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stderr)
     if "--load" in argv:
@@ -86,11 +122,7 @@ def main(argv: list[str]) -> int:
 
         c = client()
         c.ensure_graph()
-        if "--replace" in argv:
-            # Loaded triples live in the graph's authored-RDF named graph; a
-            # variable GRAPH target is refused in local authority mode.
-            c.update(f"CLEAR SILENT GRAPH <urn:mnemosyne:local:graph:{c.graph_id}:user:rdf>")
-        total = c.load_lines(export_all())
+        total = load(list(export_all()), replace="--replace" in argv)
         logger.info("loaded %d triples into %s/%s (%d quads now)", total, c.url, c.graph_id, c.count())
         return 0
     for line in export_all():

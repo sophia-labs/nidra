@@ -74,10 +74,10 @@ def create_rule(
             "created_by": created_by,
         },
     )
-    lines = writes.row_triples("rule", rule)
+    ops = writes.row_ops("rule", rule)
     for position, tag_id in enumerate(tags):
-        lines.extend(writes.row_triples("rule__tag", {"rule_id": rule["id"], "tag_id": tag_id, "position": position}))
-    client().update(f"INSERT DATA {{ GRAPH {iri(writes.data_graph_iri())} {{ {' '.join(lines)} }} }}")
+        ops.extend(writes.row_ops("rule__tag", {"rule_id": rule["id"], "tag_id": tag_id, "position": position}))
+    writes.commit(ops)
     return rule["id"]
 
 

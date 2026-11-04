@@ -10,24 +10,27 @@ which is already a ported DAL read.
 
 Import shape, level by level (database, schema, table, column, terms, column
 attributes, SQL attributes, custom analyses): one read finds the rows a batch
-names (``imported_id`` OR ``id``), then one update request writes the batch
-(stamps for adopted rows, ``INSERT DATA`` for new ones). A link table is one
-``INSERT DATA`` (idempotent, like ``ON CONFLICT DO NOTHING``).
+names (``imported_id`` OR ``id``), then one write (``rdf.writes.commit``) sets
+the batch (stamps for adopted rows, whole rows for new ones). A link table is
+one write (re-setting an existing link changes nothing, like ``ON CONFLICT DO
+NOTHING``).
 
-Where the missing transaction bites (``write_transaction`` is a no-op here, a
-request is atomic but a sequence is not):
+Whole-import rollback is **compensated**, not transactional. Upstream's import is
+one transaction; here each stage is its own write (under ``NIDRA_WRITES=commit``
+one ledger frame, atomic by itself), because a later stage reads what an earlier
+one wrote (the SQL stage parses against the catalog the import just wrote) and a
+ledger transaction's frames are invisible to reads until it commits. So:
 
-* Upstream's whole import is one transaction. Here every id reference that can
-  be checked from the document alone (foreign keys, joins, a SQL attribute's
-  term, a column attribute's column) is checked **before the first write**
-  (``_preflight``), so a malformed document leaves nothing behind, as upstream.
-* A SQL statement that fails to parse is only discovered after the catalog,
-  terms and column attributes are written (it is parsed against the catalog the
-  import just wrote). Upstream rolls everything back; here those earlier stages
-  stay. The SQL stage itself is parsed in full first and written in one request,
-  so a parse failure leaves no half-written SQL attributes or analyses.
-* ``replace`` deletes (one batch per kind) before the rest is written, so a
-  crash between the two leaves the deletes done.
+* every id reference that can be checked from the document alone (foreign keys,
+  joins, a SQL attribute's term, a column attribute's column) is checked
+  **before the first write** (``_preflight``): a malformed document writes nothing;
+* ``writes.compensating()`` records, before each write, the prior state of every
+  subject it touches; if a later stage fails (a statement that does not parse),
+  one compensating write retracts every subject the import created and sets every
+  subject it changed back to its prior values, then the error is raised. The
+  graph is back where it was; the ledger keeps the import and its undo as lineage;
+* a crash of the process between stages (no exception to catch) leaves the
+  earlier stages written, as before.
 """
 from __future__ import annotations
 
@@ -37,7 +40,8 @@ from typing import TYPE_CHECKING, Any, Iterable
 from auto_ontology.dal_rdf._common import P, client, iri, lit, select_rows, values, wrap
 from auto_ontology.rdf.client import RDF_JSON
 from auto_ontology.rdf.vocab import class_iri, prop_iri, ref_iri, row_id, row_iri_single
-from auto_ontology.rdf.writes import apply_defaults, data_graph_iri, delete_rows, delete_subjects, row_triples
+from auto_ontology.rdf import writes
+from auto_ontology.rdf.writes import apply_defaults, data_graph_iri, delete_rows, delete_subjects
 from auto_ontology.semantic.constants import (
     SEMANTIC_SOURCE,
     SQL_ATTR_SOURCE_BRIDGE,
@@ -76,15 +80,9 @@ def _g() -> str:
     return iri(data_graph_iri())
 
 
-def _insert_op(lines: list[str]) -> str:
-    return f"INSERT DATA {{ GRAPH {_g()} {{ {' '.join(lines)} }} }}" if lines else ""
-
-
-def _run(*ops: str) -> None:
-    """Several operations in one update request (SPARQL ``;``), skipping empties."""
-    ops = tuple(o for o in ops if o)
-    if ops:
-        client().update(" ; ".join(ops))
+def _run(ops: list[writes.Op]) -> None:
+    """One stage's (or batch's) ops as ONE write (``rdf.writes.commit``)."""
+    writes.commit(ops)
 
 
 def _rows(table: str, ids: Iterable[str]) -> list[str]:
@@ -467,13 +465,13 @@ def _found_yaml_ids(table: str, ids: list[str]) -> set[str]:
 
 def _plan_batch(
     table: str, items: list[tuple[str, dict[str, Any]]]
-) -> tuple[dict[str, tuple[str, bool]], list[str]]:
-    """``({yaml_id: (live_id, created)}, triples to write)`` for a same-table batch.
+) -> tuple[dict[str, tuple[str, bool]], list[writes.Op]]:
+    """``({yaml_id: (live_id, created)}, ops to write)`` for a same-table batch.
 
     Matches on ``imported_id`` **or** the live ``id``; a row adopted by ``id`` has
     its ``imported_id`` stamped if it had none; the rest are created (defaults
     applied, so the uuid ids are decided here). Nothing is written: the caller
-    writes the triples, alone or merged with the rest of its stage.
+    writes the ops, alone or merged with the rest of its stage.
     """
     if not items:
         return {}, []
@@ -492,7 +490,7 @@ def _plan_batch(
             existing.setdefault(row["id"], row["id"])
 
     result: dict[str, tuple[str, bool]] = {}
-    lines: list[str] = []
+    lines: list[writes.Op] = []
     stamped: set[str] = set()
     to_create: list[tuple[str, dict[str, Any]]] = []
     for imported_id, create_props in deduped.items():
@@ -504,17 +502,17 @@ def _plan_batch(
         # Stamp only when unset (overwriting would relabel a row another payload owns).
         if rows_by_id[live_id]["imported_id"] is None and live_id not in stamped:
             stamped.add(live_id)
-            lines.extend(row_triples(table, {"id": live_id, "imported_id": imported_id}, columns=["imported_id"]))
+            lines.extend(writes.column_ops(table, row_iri_single(table, live_id), "imported_id", imported_id, clear=False))
     for imported_id, props in to_create:
         stored = apply_defaults(table, {**props, "imported_id": imported_id})
-        lines.extend(row_triples(table, stored))
+        lines.extend(writes.row_ops(table, stored))
         result[imported_id] = (stored["id"], True)
     return result, lines
 
 
 def _resolve_entities_batch(table: str, items: list[tuple[str, dict[str, Any]]]) -> dict[str, tuple[str, bool]]:
-    result, lines = _plan_batch(table, items)
-    _run(_insert_op(lines))
+    result, ops = _plan_batch(table, items)
+    _run(ops)
     return result
 
 
@@ -542,10 +540,10 @@ def _link(table: str, rows: list[dict[str, Any]], *, one_per: str | None = None)
             taken.add(r[one_per])
             kept.append(r)
         rows = kept
-    lines: list[str] = []
+    ops: list[writes.Op] = []
     for r in rows:
-        lines.extend(row_triples(table, r))
-    _run(_insert_op(list(dict.fromkeys(lines))))
+        ops.extend(writes.row_ops(table, r))
+    _run(ops)
 
 
 def _one_per_target(table: str, column: str) -> str:
@@ -902,17 +900,11 @@ def _import_joins(document: AutoOntologyModelDocument, id_map: dict[str, str]) -
         return
     # ON CONFLICT DO UPDATE SET join_columns: the last row of a duplicate pair wins.
     latest = {(r["source_table_id"], r["target_table_id"]): r for r in rows}
-    subjects = [
-        iri(row_iri_for("table__join", {"source_table_id": s, "target_table_id": t})) for (s, t) in latest
-    ]
-    lines: list[str] = []
-    for r in latest.values():
-        lines.extend(row_triples("table__join", r))
-    delete = (
-        f"DELETE {{ GRAPH {_g()} {{ ?s {P.table__join.join_columns} ?v }} }} "
-        f"WHERE {{ GRAPH {_g()} {{ ?s {P.table__join.join_columns} ?v . FILTER(?s IN ({', '.join(subjects)})) }} }}"
-    )
-    _run(delete, _insert_op(lines))
+    ops: list[writes.Op] = []
+    for (s, t), r in latest.items():
+        # every column set (a NULL clears): the pair upserts, join_columns replaced whole
+        ops.extend(writes.update_ops("table__join", row_iri_for("table__join", {"source_table_id": s, "target_table_id": t}), r))
+    _run(ops)
 
 
 def row_iri_for(table: str, pk: dict[str, str]) -> str:
@@ -1074,15 +1066,10 @@ def _import_semantic_fks(document: AutoOntologyModelDocument, id_map: dict[str, 
         return
     # ON CONFLICT DO UPDATE SET use_in_join_paths: replace the flag, insert the rest.
     latest = {(r["column_id"], r["attribute_id"]): r for r in rows}
-    subjects = [iri(row_iri_for("column__semantic_fk", {"column_id": c, "attribute_id": a})) for (c, a) in latest]
-    lines: list[str] = []
-    for r in latest.values():
-        lines.extend(row_triples("column__semantic_fk", r))
-    delete = (
-        f"DELETE {{ GRAPH {_g()} {{ ?s {P.column__semantic_fk.use_in_join_paths} ?v }} }} "
-        f"WHERE {{ GRAPH {_g()} {{ ?s {P.column__semantic_fk.use_in_join_paths} ?v . FILTER(?s IN ({', '.join(subjects)})) }} }}"
-    )
-    _run(delete, _insert_op(lines))
+    ops: list[writes.Op] = []
+    for (c, a), r in latest.items():
+        ops.extend(writes.update_ops("column__semantic_fk", row_iri_for("column__semantic_fk", {"column_id": c, "attribute_id": a}), r))
+    _run(ops)
 
 
 class _SqlBatch:
@@ -1105,7 +1092,7 @@ class _SqlBatch:
             )
             for r in sorted(rows, key=lambda r: r["s"], reverse=True):
                 self.sql_ids[r["t"]] = row_id(r["s"])
-        self.lines: list[str] = []
+        self.lines: list[writes.Op] = []
         self._refs: dict[tuple[str, str, str], list[list[str]]] = {}
 
     def _node_id(self, node) -> str:
@@ -1118,7 +1105,7 @@ class _SqlBatch:
             if text not in self.sql_ids:
                 spec_props = registry.projected(Labels.SQL, node.get_properties())
                 stored = apply_defaults("sql_query", spec_props)
-                self.lines.extend(row_triples("sql_query", stored))
+                self.lines.extend(writes.row_ops("sql_query", stored))
                 self.sql_ids[text] = stored["id"]
             return self.sql_ids[text]
         # Table / Column / SqlAttribute / CustomAnalysis nodes here always exist and
@@ -1143,15 +1130,14 @@ class _SqlBatch:
             values_ = {spec.source_column: source_id, spec.target_column: target_id}
             payload = {k: v for k, v in properties.items() if k in spec.property_columns}
             if not payload:
-                self.lines.extend(row_triples(spec.table.name, values_))
+                self.lines.extend(writes.row_ops(spec.table.name, values_))
             elif "refs" in payload and spec.table.name in ("column__join", "column__union"):
                 self._refs.setdefault((spec.table.name, source_id, target_id), []).append(list(payload["refs"]))
             else:
-                self.lines.extend(row_triples(spec.table.name, {**values_, **payload}))
+                self.lines.extend(writes.row_ops(spec.table.name, {**values_, **payload}))
 
-    def operations(self, extra_lines: list[str]) -> list[str]:
-        """The update operations: refs accumulate (append, de-duplicate) on conflict."""
-        ops: list[str] = []
+    def operations(self, extra_lines: list[writes.Op]) -> list[writes.Op]:
+        """The stage's ops: refs accumulate (append, de-duplicate) on conflict."""
         lines = list(extra_lines) + self.lines
         for (table, src, tgt), incoming in self._refs.items():
             subject = row_iri_for(table, {"source_column_id": src, "target_column_id": tgt})
@@ -1165,12 +1151,11 @@ class _SqlBatch:
             for refs in incoming:
                 state = list(refs) if state is None else sorted(set(state + refs))
             if existing is not None:
-                ops.append(f"DELETE WHERE {{ GRAPH {_g()} {{ <{subject}> {iri(prop_iri(table, 'refs'))} ?v }} }}")
-                lines.extend(row_triples(table, {"source_column_id": src, "target_column_id": tgt, "refs": state}, columns=["refs"]))
+                # the list column rewritten whole: one `set values[]` (rdf:JSON + members)
+                lines.extend(writes.update_ops(table, subject, {"refs": state}))
             else:
-                lines.extend(row_triples(table, {"source_column_id": src, "target_column_id": tgt, "refs": state}))
-        ops.append(_insert_op(list(dict.fromkeys(lines))))
-        return ops
+                lines.extend(writes.row_ops(table, {"source_column_id": src, "target_column_id": tgt, "refs": state}))
+        return lines
 
 
 def _cached_dialects_and_schemas(cache: dict, database_name: str | None):
@@ -1244,7 +1229,7 @@ def _import_sql_attributes(
     )
     db_names = _database_names_for_terms(newly_created_terms)
     batch = _SqlBatch(attr.sql for _s, attr in grouped if attr_results[attr.id][1])
-    link_lines: list[str] = []
+    link_lines: list[writes.Op] = []
     for source, attr in grouped:
         live_attr_id, was_created = attr_results[attr.id]
         if not was_created:
@@ -1265,7 +1250,7 @@ def _import_sql_attributes(
             schema_cache=schema_cache,
             extra_props={"expression": attr.sql, "source": source},
         )
-        link_lines.extend(row_triples("sql_attribute__term", {"attribute_id": live_attr_id, "term_id": live_term_id}))
+        link_lines.extend(writes.row_ops("sql_attribute__term", {"attribute_id": live_attr_id, "term_id": live_term_id}))
         if embed_buffer is not None:
             embed_buffer.semantic_rows.append(
                 build_sql_attribute_semantic_row(
@@ -1277,7 +1262,7 @@ def _import_sql_attributes(
                     database_name=database_name,
                 ),
             )
-    _run(*batch.operations(plan_lines + link_lines))
+    _run(batch.operations(plan_lines + link_lines))
 
 
 def _import_custom_analyses(
@@ -1342,7 +1327,7 @@ def _import_custom_analyses(
                     database_name=database_name,
                 ),
             )
-    _run(*batch.operations(plan_lines))
+    _run(batch.operations(plan_lines))
 
 
 def apply_import_model(
@@ -1351,8 +1336,8 @@ def apply_import_model(
     replace: bool,
     embed_buffer: ImportEmbedBuffer | None = None,
 ) -> dict[str, Any]:
-    """Apply a validated model document (see the module docstring for the
-    no-rollback limits)."""
+    """Apply a validated model document (see the module docstring: a failed
+    import is compensated, not rolled back)."""
     id_map: dict[str, str] = {}
     column_meta: dict[str, Any] = {}
     created: dict[str, int] = {
@@ -1370,16 +1355,20 @@ def apply_import_model(
     schema_cache: dict = {}
 
     _preflight(document)
-    live_db_ids = _import_catalog(document, id_map, created, skipped, embed_buffer, column_meta)
-    if replace:
-        _delete_scoped_semantics_not_in_payload(document, live_db_ids)
-    _import_foreign_keys(document, id_map)
-    _import_joins(document, id_map)
-    _import_terms(document, id_map, created, skipped, embed_buffer)
-    _import_column_attributes(document, id_map, created, skipped, embed_buffer, column_meta)
-    _import_semantic_fks(document, id_map)
-    _import_sql_attributes(document, id_map, created, skipped, embed_buffer, term_names, schema_cache)
-    _import_custom_analyses(document, id_map, created, skipped, embed_buffer, schema_cache)
+    # Every stage is its own write; a failure in a later stage undoes the earlier
+    # ones by one compensating write (created subjects retracted, changed ones set
+    # back to their prior values). See the module docstring: "compensated".
+    with writes.compensating():
+        live_db_ids = _import_catalog(document, id_map, created, skipped, embed_buffer, column_meta)
+        if replace:
+            _delete_scoped_semantics_not_in_payload(document, live_db_ids)
+        _import_foreign_keys(document, id_map)
+        _import_joins(document, id_map)
+        _import_terms(document, id_map, created, skipped, embed_buffer)
+        _import_column_attributes(document, id_map, created, skipped, embed_buffer, column_meta)
+        _import_semantic_fks(document, id_map)
+        _import_sql_attributes(document, id_map, created, skipped, embed_buffer, term_names, schema_cache)
+        _import_custom_analyses(document, id_map, created, skipped, embed_buffer, schema_cache)
 
     summary: dict[str, Any] = {
         "database_ids": live_db_ids,

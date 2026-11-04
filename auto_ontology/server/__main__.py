@@ -73,6 +73,11 @@ async def lifespan(_app: FastAPI):
 
         _gardend().ensure_graph("Nidra catalog")
 
+        # NIDRA_WRITES=commit: the gardend must have the ledger; refuse to start otherwise.
+        from auto_ontology.rdf.writes import startup_check
+
+        startup_check()
+
     # Kick off the chat worker pool's initial warm spawn at boot. The pool
     # itself is lazy on first use, but eagerly initialising here means the
     # very first chat request doesn't pay a cold start.
@@ -93,6 +98,11 @@ def create_app() -> FastAPI:
     starting uvicorn.
     """
     app = FastAPI(title="Auto Ontology API", lifespan=lifespan)
+
+    # Sophia Labs fork: catalog writes carry the calling user as their witness.
+    from auto_ontology.rdf.writes import WitnessMiddleware
+
+    app.add_middleware(WitnessMiddleware)
 
     app.add_middleware(
         CORSMiddleware,

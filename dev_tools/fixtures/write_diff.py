@@ -115,11 +115,16 @@ def _copy_db(source: str, target: str) -> None:
 
 
 def _gardend_copy(graph_id: str) -> None:
-    from auto_ontology.rdf.client import GardendClient
+    """A fresh graph holding the fixture, written the way this process writes
+    (``NIDRA_WRITES``): loaded under ``sparql``, committed under ``commit`` (in
+    commit mode every ao subject must be ledger-owned)."""
+    from auto_ontology.rdf.client import GardendClient, use_client
+    from auto_ontology.rdf.export import load
 
     c = GardendClient(graph_id=graph_id)
     c.ensure_graph(f"write-diff {graph_id}")
-    c.load_lines(FIXTURE_NT.read_text().splitlines())
+    with use_client(c):
+        load(FIXTURE_NT.read_text().splitlines())
 
 
 def _refresh_fixture() -> None:
