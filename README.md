@@ -1,4 +1,31 @@
 <!--
+SPDX-FileCopyrightText: Copyright (c) 2026 Sophia Labs (modifications); Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES (original).
+SPDX-License-Identifier: Apache-2.0
+-->
+
+# Nidra
+
+**NVIDIA Auto Ontology's engine, made nice and truly a graph.** Nidra keeps Auto Ontology's catalog, glossary,
+SQL attributes and the text-to-SQL agent, and removes Postgres: the catalog lives in a [gardend](https://github.com/sophia-labs/gardend)
+graph (the Sophia engine, RDF + search + witnessed corrections + agents), and the vector index is gardend's own.
+NVIDIA's DAL golden captures (1,068 reads) pass identically against the graph.
+
+- **Site and download:** https://nidra.computer (two files: the engine source and the gardend image with the
+  embedding model baked in; runs on any machine with Docker)
+- **Run it:** [`nidra/README.md`](./nidra/README.md) (`docker compose -f compose.nidra.yaml up -d`)
+- **How it is built:** [`auto_ontology/rdf/README.md`](./auto_ontology/rdf/README.md) (the Direct Mapping, the ports,
+  the oracle), [`demos/`](./demos/) (parity with Auto Ontology, and beyond)
+- **What changed from upstream:** [`NIDRA-NOTICE.md`](./NIDRA-NOTICE.md); the upstream repository is
+  [NVIDIA/auto-ontology](https://github.com/NVIDIA/auto-ontology), fork point `cdaf61e`
+
+Nidra is built on NVIDIA Auto Ontology (Apache-2.0). Sophia Labs is not affiliated with NVIDIA. The engine in this
+repository is Apache License 2.0; gardend is a separate work under the PolyForm Noncommercial License 1.0.0.
+
+---
+
+*The original Auto Ontology README follows.*
+
+<!--
 SPDX-FileCopyrightText: Copyright (c) 2026, NVIDIA CORPORATION & AFFILIATES.
 All rights reserved.
 SPDX-License-Identifier: Apache-2.0
