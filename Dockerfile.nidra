@@ -1,0 +1,184 @@
+# Nidra in one image: NVIDIA Auto Ontology's engine on the Sophia engine (gardend), with the Sophia UI.
+#
+#   docker build -f Dockerfile.nidra -t ghcr.io/sophia-labs/nidra:latest .
+#   docker run -d --name nidra -p 127.0.0.1:8086:8086 -p 127.0.0.1:3001:3001 -v nidra:/data \
+#     -e OPENROUTER_API_KEY=sk-or-... ghcr.io/sophia-labs/nidra:latest
+#   docker exec nidra nidra url        # the link to open
+#
+# One container runs three processes under nidra/oneliner/run.sh: gardend (the catalog graph, `find`, the
+# UI and its Nidra service), the ingestion service (:3002, inside only) and the engine's API (:3001). Everything
+# that lasts is in /data. The compose path (compose.nidra.yaml) stays as the advanced option.
+#
+# The engine stages below are the root Dockerfile's (its builder unchanged, its runtime up to the permission
+# check: no migrations, there is no Postgres), so the two images share their layers; the gardend stages are
+# nidra/gardend/Dockerfile's. The Sophia UI is staged into nidra/oneliner/ui by
+# nidra/oneliner/stage-ui.sh before the build (it is a build output, not kept in git); without it the image
+# serves the APIs only.
+#
+# Nidra is built on NVIDIA Auto Ontology (Apache-2.0). Sophia Labs is not affiliated with NVIDIA.
+# This file is Sophia Labs' (see NIDRA-NOTICE.md); the engine stages are NVIDIA's, from the root Dockerfile.
+
+ARG PYTHON_VERSION=3.12
+ARG UV_VERSION=0.11.29
+ARG BASE_IMG=nvcr.io/nvidia/base/ubuntu
+ARG BASE_IMG_TAG=jammy-20250619
+# The gardend release image (Linux x86-64; the binary needs glibc 2.35, which jammy has).
+ARG GARDEND_IMAGE=816069160218.dkr.ecr.us-west-1.amazonaws.com/gardend-release:src-5870c0029629-ship
+ARG ORT_VERSION=1.28.3
+ARG E5_REVISION=614241f622f53c4eeff9890bdc4f31cfecc418b3
+ARG NODE_VERSION=22.23.4
+ARG NODE_SHA256=1805bcd35e6815559bd2eb97db438d3fdb0eb3a5e6a977b7c1badca76337e9ce
+
+############################
+# gardend's offline `find`: ONNX Runtime and the multilingual-e5-small model (as nidra/gardend/Dockerfile)
+############################
+FROM alpine:3.20 AS deps
+ARG ORT_VERSION
+ARG E5_REVISION
+RUN apk add --no-cache curl tar \
+ && curl -sSL -o /tmp/ort.tgz "https://github.com/microsoft/onnxruntime/releases/download/v${ORT_VERSION}/onnxruntime-linux-x64-${ORT_VERSION}.tgz" \
+ && mkdir -p /ort && tar -xzf /tmp/ort.tgz -C /ort --strip-components=1 \
+ && cp /ort/lib/libonnxruntime.so.${ORT_VERSION} /libonnxruntime.so && cp /ort/LICENSE /ONNXRUNTIME-LICENSE
+# hf-hub cache layout: refs/main names the revision, snapshots/<rev>/<file> holds the files.
+RUN M=/fastembed/models--intfloat--multilingual-e5-small && S=$M/snapshots/${E5_REVISION} \
+ && mkdir -p $M/refs $S/onnx && printf '%s' "${E5_REVISION}" > $M/refs/main \
+ && for f in onnx/model.onnx tokenizer.json config.json special_tokens_map.json tokenizer_config.json; do \
+      curl -sSL -o "$S/$f" "https://huggingface.co/intfloat/multilingual-e5-small/resolve/${E5_REVISION}/$f"; done \
+ && curl -sSL -o /E5-README.md "https://huggingface.co/intfloat/multilingual-e5-small/resolve/${E5_REVISION}/README.md"
+
+############################
+# Node.js, for the Nidra service gardend supervises (nidra/service/main.mjs: built-in modules only)
+############################
+FROM alpine:3.20 AS node
+ARG NODE_VERSION
+ARG NODE_SHA256
+RUN apk add --no-cache curl tar xz \
+ && curl -sSfL -o /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" \
+ && echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - \
+ && mkdir /n && tar -xJf /tmp/node.tar.xz -C /n --strip-components=1 \
+ && cp /n/bin/node /node && cp /n/LICENSE /NODE-LICENSE
+
+FROM ${GARDEND_IMAGE} AS release
+
+# The Sophia UI, when nidra/oneliner/stage-ui.sh has put it in nidra/oneliner/ui (else an empty folder).
+FROM alpine:3.20 AS ui
+COPY nidra/oneliner/ /src/
+RUN mkdir -p /ui && if [ -f /src/ui/index.html ]; then cp -a /src/ui/. /ui/; fi
+
+############################
+# The engine: the root Dockerfile's builder stage, and its runtime stage up to the permission check
+############################
+FROM $BASE_IMG:$BASE_IMG_TAG AS builder
+
+ARG UV_VERSION
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    UV_PYTHON_INSTALL_DIR=/opt/python
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        curl \
+        git \
+        libpq-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install uv without introducing a non-NVIDIA build stage.
+RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" \
+        -o /tmp/install-uv.sh \
+ && env UV_UNMANAGED_INSTALL=/usr/local/bin sh /tmp/install-uv.sh \
+ && rm /tmp/install-uv.sh
+
+WORKDIR /app
+
+# Copy lock + project metadata first to maximise layer caching.
+COPY pyproject.toml uv.lock .python-version ./
+COPY vendor/ vendor/
+
+# Resolve and install the dependency closure into /opt/venv.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --no-dev --no-install-project
+
+FROM $BASE_IMG:$BASE_IMG_TAG AS engine
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/opt/venv/bin:${PATH}" \
+    PORT=3001
+
+# The pinned base image predates later Ubuntu security fixes (libssl3, gpgv,
+# ...), so apply them before installing anything on top.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        libpq5 \
+        tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 1000 auto_ontology \
+ && useradd  --system --uid 1000 --gid auto_ontology --home /app --shell /usr/sbin/nologin auto_ontology
+
+WORKDIR /app
+
+COPY --from=builder /opt/python /opt/python
+COPY --from=builder /opt/venv /opt/venv
+COPY --chown=auto_ontology:auto_ontology auto_ontology/ ./auto_ontology/
+COPY --chown=auto_ontology:auto_ontology pyproject.toml ./
+# Fail the image build if the generated permission resource is absent or invalid.
+RUN python -c "from auto_ontology.server.users.permissions import permissions_for_role; assert 'group:read' in permissions_for_role('admin')"
+
+############################
+# Nidra: the engine plus gardend, its model, Node, the UI and the supervisor
+############################
+FROM engine AS nidra
+
+# gardend's runtime (libstdc++, libssl3 are in the base) and what ONNX Runtime and the supervisor use.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl libgomp1 \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY --from=release /usr/local/bin/gardend /usr/local/bin/gardend
+COPY --from=release /usr/local/lib/gardend /usr/local/lib/gardend
+COPY --from=release /usr/local/share/gardend /usr/local/share/gardend
+COPY --from=deps /libonnxruntime.so /usr/local/lib/libonnxruntime.so
+COPY --from=deps /fastembed /opt/fastembed
+COPY --from=node /node /usr/local/bin/node
+COPY --from=deps /ONNXRUNTIME-LICENSE /usr/local/share/licenses/ONNXRUNTIME-LICENSE
+COPY --from=deps /E5-README.md /usr/local/share/licenses/MULTILINGUAL-E5-SMALL-README.md
+COPY --from=node /NODE-LICENSE /usr/local/share/licenses/NODE-LICENSE
+
+# The sample source, copied to /data on first start; the Nidra service in attached mode; the UI, when staged.
+COPY nidra/data/chinook.sqlite /opt/nidra/chinook.sqlite
+COPY nidra/service/main.mjs /opt/nidra/services/nidra/main.mjs
+COPY nidra/oneliner/service.json /opt/nidra/services/nidra/service.json
+COPY --from=ui /ui/ /opt/nidra/ui/
+COPY --chmod=0755 nidra/oneliner/run.sh /usr/local/bin/nidra
+COPY nidra/oneliner/sitecustomize.py /opt/nidra/python/sitecustomize.py
+
+# License and attribution files (OSRB): see CONTAINER_THIRD_PARTY_NOTICES.md; Nidra's own in NIDRA-NOTICE.md.
+COPY LICENSE THIRD_PARTY_NOTICES.md CONTAINER_THIRD_PARTY_NOTICES.md OPEN_SOURCE_NOTICE NIDRA-NOTICE.md /licenses/
+
+ENV GARDEN_PDFIUM_LIB=/usr/local/lib/gardend/libpdfium.so \
+    GARDEN_LOCAL_CRDT_OPERATION_TIMEOUT_SECS=1800 \
+    GARDEN_SPARQL_MAX_ROWS=200000 \
+    GARDEN_NO_UPDATE_CHECK=1 \
+    RUST_LOG=info,tracing::span=warn \
+    PYTHONPATH=/opt/nidra/python \
+    ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.so \
+    FASTEMBED_CACHE_DIR=/opt/fastembed
+
+# Root inside the container, so a bind-mounted /data works whoever owns it on the host.
+USER root
+EXPOSE 3001 8086
+VOLUME /data
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
+    CMD curl -sf -m 3 http://127.0.0.1:8086/health >/dev/null && curl -sf -m 3 http://127.0.0.1:3001/api/health/live >/dev/null
+
+ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/nidra"]

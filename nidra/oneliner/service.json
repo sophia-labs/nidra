@@ -1,0 +1,17 @@
+{
+  "serviceId": "nidra",
+  "displayName": "Nidra",
+  "command": "node",
+  "args": ["main.mjs"],
+  "requires": { "node": "22.19" },
+  "workingDir": ".",
+  "healthPath": "/health",
+  "proxyMount": "/services/nidra",
+  "autostart": true,
+  "env": [
+    { "name": "NODE_ENV", "value": "production" },
+    { "name": "NIDRA_ENGINE", "value": "attached" },
+    { "name": "NIDRA_ENGINE_PORT", "value": "3001" },
+    { "name": "NIDRA_INGEST_PORT", "value": "3002" }
+  ]
+}

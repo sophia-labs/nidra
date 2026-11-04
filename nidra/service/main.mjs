@@ -1,0 +1,780 @@
+#!/usr/bin/env node
+// Nidra as a gardend service (docs/local-service-hosting.md in gardend).
+//
+// gardend starts this process when the profile enables it (`gardend service enable nidra`) and stops it on
+// `disable` or when it exits itself. This process:
+//  - brings up the engine (NVIDIA Auto Ontology's, on gardend) with `docker compose up -d`, the fork's
+//    compose.nidra.yaml with compose.sophia.yaml over it, against THIS gardend: the catalog, the glossary and the
+//    vector index live in one graph of the profile (NIDRA_GRAPH_ID, default `nidra`);
+//  - answers gardend's proxy at /services/nidra: /health, the engine's API under /api (the caller's identity
+//    added), and its own small API under /nidra (history, find, sources, ingest, settings);
+//  - keeps every question asked, with its answer, SQL and rows, in that graph (never in a browser);
+//  - is the engine's only door to gardend: a fence on loopback that forwards just the five calls the engine makes,
+//    for that one graph, with credentials the containers never see;
+//  - stops the containers when the service stops for good (disable, or gardend exits), not when it restarts.
+//
+// Credentials: gardend's own member token for this process (MNEMOSYNE_MCP_ACCESS_TOKEN: reads and `find`), and
+// an rdf-admin client token kept in the service env as NIDRA_GARDEND_RDF_TOKEN (SPARQL update and RDF load,
+// which a member may not do). Neither is printed, logged, or written anywhere by this file.
+//
+// Attached (NIDRA_ENGINE=attached, the one-container image `ghcr.io/sophia-labs/nidra`): the engine already runs
+// beside gardend (its supervisor, nidra/oneliner/run.sh, started it at 127.0.0.1:NIDRA_ENGINE_PORT and talks to
+// gardend directly); this process brings up nothing, keeps no fence and only proxies, records and reads. The model
+// settings are the container's environment, so the Settings screen shows them and cannot change them.
+//
+//   node main.mjs                 the service (gardend runs this)
+//   node main.mjs --reap <pid>    detached: stop the containers unless a new service process took over
+//   node main.mjs --write-settings   detached: read {profile, gardend, entries} on stdin, `gardend service env set`
+import http from 'node:http'
+import { spawn, spawnSync } from 'node:child_process'
+import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const HERE = path.dirname(fileURLToPath(import.meta.url))
+const env = process.env
+const SERVICE_ID = env.GARDEN_SERVICE_ID || 'nidra'
+const DATA_DIR = env.DATA_DIR || path.join(HERE, '.data')
+// DATA_DIR is <profile>/services/<id>; the profile's settings for this service are <profile>/services/<id>.env.
+const PROFILE = env.NIDRA_PROFILE_DIR || path.resolve(DATA_DIR, '..', '..')
+const AUTOSTART_FILE = path.join(PROFILE, 'services', `${SERVICE_ID}.autostart`)
+const PROJECT = env.NIDRA_PROJECT || 'sophia-nidra'
+const COMPOSE_FILES = [path.join(HERE, 'engine', 'compose.nidra.yaml'), path.join(HERE, 'compose.sophia.yaml')]
+const WRAPPER_PID = path.join(DATA_DIR, 'service.pid')
+const REAPER_PID = path.join(DATA_DIR, 'reaper.pid')
+const LOG_FILE = path.join(DATA_DIR, 'service.log')
+const DOCKER_PATH = ['/usr/local/bin', '/opt/homebrew/bin', '/Applications/Docker.app/Contents/Resources/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin']
+
+const GRAPH = env.NIDRA_GRAPH_ID || 'nidra'
+const ENGINE_PORT = Number(env.NIDRA_ENGINE_PORT || 7682)
+const INGEST_PORT = Number(env.NIDRA_INGEST_PORT || 7683)
+const FENCE_PORT = Number(env.NIDRA_FENCE_PORT || 7684)
+const IMAGE = env.NIDRA_ENGINE_IMAGE || 'nidra-engine:latest'
+const ATTACHED = env.NIDRA_ENGINE === 'attached'
+const SOURCES = env.CONNECTION_STRINGS || 'sqlite:////data/chinook.sqlite'
+const DEFAULT_ENDPOINT = 'https://openrouter.ai/api/v1'
+const DEFAULT_MODEL = 'anthropic/claude-sonnet-5.5'
+const SETTINGS = { endpoint: 'NIDRA_MODEL_ENDPOINT', model: 'NIDRA_MODEL', key: 'NIDRA_MODEL_KEY' }
+
+// The history vocabulary: one resource per question, in the graph's own RDF (the named graph gardend gives
+// SPARQL updates, as the engine's writes use), so Garden, SPARQL and `find` see it like any other entity.
+const NS = 'urn:nidra:'
+const Q = `${NS}Question`
+const P = name => `<${Q}#${name}>`
+const XSD = 'http://www.w3.org/2001/XMLSchema#'
+const RDF_JSON = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON'
+const SKOS_LABEL = 'http://www.w3.org/2004/02/skos/core#prefLabel'
+const dataGraph = () => `urn:mnemosyne:local:graph:${GRAPH}:user:rdf`
+
+fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 })
+
+function log(...words) {
+  const line = `${new Date().toISOString()} ${words.join(' ')}\n`
+  process.stderr.write(line)
+  try { fs.appendFileSync(LOG_FILE, line, { mode: 0o600 }) } catch {}
+}
+
+
+// ── the service ─────────────────────────────────────────────────────────────────────────────────────────
+
+async function serve() {
+  const port = Number(env.PORT)
+  const host = env.GARDEN_SERVICE_HOST || '127.0.0.1'
+  const gardend = (env.GARDEN_LOOPBACK_API_URL || '').replace(/\/+$/, '')
+  const internal = env.MNEMOSYNE_INTERNAL_SERVICE_SECRET || ''
+  if (!port || !gardend) {
+    log('nidra: PORT and GARDEN_LOOPBACK_API_URL come from gardend; run this as a gardend service')
+    process.exit(2)
+  }
+  const member = env.MNEMOSYNE_MCP_ACCESS_TOKEN || ''
+  const rdfToken = env.NIDRA_GARDEND_RDF_TOKEN || ''
+  const state = { state: 'starting', reason: 'starting', since: new Date().toISOString() }
+  const set = (next, reason) => {
+    if (state.state !== next || state.reason !== reason) log(`state ${next}: ${reason}`)
+    Object.assign(state, { state: next, reason, since: new Date().toISOString() })
+  }
+
+  if (!ATTACHED) takeOver()
+  const fence = ATTACHED ? null : await fenceSecret()
+  const store = new Gardend(gardend, member, rdfToken)
+
+  // The fence: the engine's containers reach this gardend only through it. Attached, the engine already talks to
+  // gardend itself, inside the one container.
+  const fenceServer = ATTACHED ? null : http.createServer((req, res) => fenceRequest(req, res, { gardend, member, rdfToken, fence, store }))
+  fenceServer?.on('error', error => set('error', `the fence could not listen on 127.0.0.1:${FENCE_PORT} (${error.code || error.message})`))
+  fenceServer?.listen(FENCE_PORT, '127.0.0.1')
+
+  const server = http.createServer((req, res) => {
+    route(req, res, { internal, state, store }).catch(error => {
+      log('request failed:', req.method, req.url?.split('?')[0], String(error?.message || error))
+      if (!res.headersSent) json(res, 500, { ok: false, error: String(error?.message || error) })
+      else res.destroy()
+    })
+  })
+  server.listen(port, host, () => log(`nidra: listening on ${host}:${port}; graph ${GRAPH}; engine on 127.0.0.1:${ENGINE_PORT}`))
+
+  let stopping = false
+  const stop = signal => {
+    if (stopping) return
+    stopping = true
+    if (ATTACHED) {
+      log(`nidra: ${signal}: stopping (the engine is its supervisor's to stop)`)
+    } else {
+      log(`nidra: ${signal}: stopping (the containers stop unless the service comes back)`)
+      // Detached, so gardend's SIGKILL of this process group 8 s from now does not reach it.
+      const child = spawn(process.execPath, [fileURLToPath(import.meta.url), '--reap', String(process.pid)], {
+        detached: true, stdio: 'ignore', env: reaperEnv(),
+      })
+      child.unref()
+    }
+    server.close()
+    fenceServer?.close()
+    setTimeout(() => process.exit(0), 200)
+  }
+  process.on('SIGTERM', () => stop('SIGTERM'))
+  process.on('SIGINT', () => stop('SIGINT'))
+
+  // Bring the engine up, then watch it.
+  const missing = []
+  if (!member) missing.push('gardend gave this service no token (MNEMOSYNE_MCP_ACCESS_TOKEN)')
+  if (!rdfToken) missing.push('NIDRA_GARDEND_RDF_TOKEN is not set: `gardend token create --label nidra-engine --grant rdf-admin --expires-days 365 --json`, its secret piped into `gardend service env set NIDRA_GARDEND_RDF_TOKEN --service nidra`')
+  if (!modelKey().value) missing.push(ATTACHED
+    ? 'no model key: run Nidra again with -e OPENROUTER_API_KEY=sk-or-… (or the DEFAULT_MODELS_* triplet of any OpenAI-compatible endpoint)'
+    : 'no model key: set one in Nidra’s Settings, or `gardend chat key set` (OpenRouter)')
+  if (missing.length) return set('error', missing.join('; '))
+  if (ATTACHED) return watchAttached(set, state, () => stopping)
+
+  set('starting', 'checking Docker')
+  const docker = await run('docker', ['info', '--format', '{{.ServerVersion}}'], { timeout: 20_000 })
+  if (docker.status !== 0) return set('error', 'Docker is not running (Nidra’s engine runs in Docker: open Docker Desktop, then restart Nidra)')
+  if ((await run('docker', ['image', 'inspect', '--format', '{{.Id}}', IMAGE], { timeout: 20_000 })).status !== 0)
+    return set('error', `the engine image ${IMAGE} is not loaded (docker load -i nidra-engine-<date>.tar.gz, or build it from the Nidra checkout: docker compose -f compose.nidra.yaml build auto-ontology)`)
+  set('starting', `checking graph ${GRAPH}`)
+  try {
+    if (!(await store.graphExists())) return set('error', `there is no graph ${GRAPH} in this Sophia yet (create it once: it holds Nidra’s catalog)`)
+  } catch (error) {
+    return set('error', `could not read graph ${GRAPH}: ${error.message}`)
+  }
+
+  const up = async () => {
+    set('starting', 'starting the engine containers')
+    for (let attempt = 1; attempt <= 3 && !stopping; attempt++) {
+      const result = await compose(['up', '-d', '--no-build', '--pull', 'never', '--remove-orphans'], composeEnv(fence))
+      if (result.status === 0) return true
+      log(`compose up failed (attempt ${attempt}): ${tail(result.stderr)}`)
+      if (attempt === 3) { set('error', `the engine containers did not start: ${tail(result.stderr, 300)}`); return false }
+      await sleep(3000)
+    }
+    return false
+  }
+  if (!(await up())) return
+  set('starting', 'waiting for the engine')
+  let misses = 0
+  const started = Date.now()
+  while (!stopping) {
+    const health = await engineHealth()
+    if (health.ok) {
+      misses = 0
+      if (state.state !== 'running') set('running', 'the engine answers')
+      state.engine = health.body
+    } else if (state.state === 'running') {
+      if (++misses >= 3) {
+        set('starting', 'the engine stopped answering; starting it again')
+        misses = 0
+        if (!(await up())) return
+      }
+    } else if (Date.now() - started > 240_000 && state.state === 'starting') {
+      set('error', `the engine did not answer within four minutes (${health.error}); see docker logs ${PROJECT}-engine`)
+    }
+    await sleep(state.state === 'running' ? 15_000 : 2_000)
+  }
+}
+
+/** Attached: the engine is started and restarted by the container's supervisor; this only reports what it sees. */
+async function watchAttached(set, state, stopping) {
+  set('starting', 'waiting for the engine')
+  while (!stopping()) {
+    const health = await engineHealth()
+    if (health.ok) {
+      if (state.state !== 'running') set('running', 'the engine answers')
+      state.engine = health.body
+    } else if (state.state === 'running') {
+      set('starting', `the engine stopped answering (${health.error})`)
+    }
+    await sleep(state.state === 'running' ? 15_000 : 2_000)
+  }
+}
+
+/** Only one service process per profile: end a pending reaper (after checking it is ours), record ourselves. */
+function takeOver() {
+  const pid = readPid(REAPER_PID)
+  if (pid && isOurs(pid, '--reap')) {
+    try { process.kill(pid, 'SIGTERM'); log(`nidra: ended the pending stop (pid ${pid}): the service is back`) } catch {}
+  }
+  fs.writeFileSync(WRAPPER_PID, `${process.pid}\n`, { mode: 0o600 })
+}
+
+/** The secret the containers present to the fence: random, owner-only, stable across restarts so a restart does not recreate the containers. */
+async function fenceSecret() {
+  const file = path.join(DATA_DIR, 'fence.secret')
+  try {
+    const value = fs.readFileSync(file, 'utf8').trim()
+    if (value.length >= 32) return value
+  } catch {}
+  const value = randomBytes(32).toString('hex')
+  fs.writeFileSync(file, `${value}\n`, { mode: 0o600 })
+  return value
+}
+
+function modelKey() {
+  if (env.NIDRA_MODEL_KEY) return { value: env.NIDRA_MODEL_KEY, from: 'nidra' }
+  if (env.OPENROUTER_API_KEY) return { value: env.OPENROUTER_API_KEY, from: 'openrouter' }
+  if (ATTACHED && env.DEFAULT_MODELS_API_KEY) return { value: env.DEFAULT_MODELS_API_KEY, from: 'nidra' }
+  return { value: '', from: null }
+}
+
+function modelSettings() {
+  // Attached, the supervisor has already turned the container's environment into the engine's triplet.
+  if (ATTACHED) return { endpoint: env.DEFAULT_MODELS_ENDPOINT || DEFAULT_ENDPOINT, model: env.DEFAULT_MODELS_MODEL || DEFAULT_MODEL }
+  return { endpoint: env.NIDRA_MODEL_ENDPOINT || DEFAULT_ENDPOINT, model: env.NIDRA_MODEL || DEFAULT_MODEL }
+}
+
+/** What `docker compose` sees: no token of gardend's, nothing of this process's environment but these. */
+function composeEnv(fence) {
+  const { endpoint, model } = modelSettings()
+  return {
+    PATH: DOCKER_PATH.join(':'),
+    HOME: env.HOME || '',
+    ...(env.DOCKER_HOST ? { DOCKER_HOST: env.DOCKER_HOST } : {}),
+    ...(env.DOCKER_CONTEXT ? { DOCKER_CONTEXT: env.DOCKER_CONTEXT } : {}),
+    ...(env.DOCKER_CONFIG ? { DOCKER_CONFIG: env.DOCKER_CONFIG } : {}),
+    GARDEND_URL: `http://host.docker.internal:${FENCE_PORT}`,
+    GARDEND_TOKEN: fence,
+    GARDEND_GRAPH_ID: GRAPH,
+    CONNECTION_STRINGS: SOURCES,
+    NIDRA_ENGINE_IMAGE: IMAGE,
+    NIDRA_PROJECT: PROJECT,
+    NIDRA_ENGINE_PORT: String(ENGINE_PORT),
+    NIDRA_INGEST_PORT: String(INGEST_PORT),
+    DEFAULT_MODELS_ENDPOINT: endpoint,
+    DEFAULT_MODELS_API_KEY: modelKey().value,
+    DEFAULT_MODELS_MODEL: model,
+    ...(env.NIDRA_LLM_MAX_INFLIGHT ? { NIDRA_LLM_MAX_INFLIGHT: env.NIDRA_LLM_MAX_INFLIGHT } : {}),
+  }
+}
+
+function reaperEnv() {
+  return { PATH: DOCKER_PATH.join(':'), HOME: env.HOME || '', DATA_DIR, NIDRA_PROFILE_DIR: PROFILE, GARDEN_SERVICE_ID: SERVICE_ID, NIDRA_PROJECT: PROJECT,
+    ...(env.DOCKER_HOST ? { DOCKER_HOST: env.DOCKER_HOST } : {}), ...(env.DOCKER_CONTEXT ? { DOCKER_CONTEXT: env.DOCKER_CONTEXT } : {}) }
+}
+
+function compose(args, composeEnvironment) {
+  return run('docker', ['compose', '-p', PROJECT, ...COMPOSE_FILES.flatMap(file => ['-f', file]), ...args], { env: composeEnvironment, timeout: 180_000 })
+}
+
+/** A command, without blocking the event loop (gardend asks /health meanwhile). */
+function run(command, args, { env: childEnv, timeout = 60_000 } = {}) {
+  return new Promise(resolve => {
+    let stdout = ''
+    let stderr = ''
+    let child
+    try {
+      child = spawn(command, args, { env: childEnv || { PATH: DOCKER_PATH.join(':'), HOME: env.HOME || '' }, stdio: ['ignore', 'pipe', 'pipe'] })
+    } catch (error) {
+      return resolve({ status: 1, stdout, stderr: String(error?.message || error) })
+    }
+    const timer = setTimeout(() => child.kill('SIGTERM'), timeout)
+    child.stdout.on('data', chunk => { stdout += chunk })
+    child.stderr.on('data', chunk => { stderr += chunk })
+    child.on('error', error => { stderr += String(error?.message || error) })
+    child.on('close', status => { clearTimeout(timer); resolve({ status: status ?? 1, stdout, stderr }) })
+  })
+}
+
+const tail = (text, max = 600) => String(text || '').trim().split('\n').slice(-4).join(' | ').slice(-max)
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+async function engineHealth() {
+  try {
+    const response = await fetch(`http://127.0.0.1:${ENGINE_PORT}/api/health`, { signal: AbortSignal.timeout(5000) })
+    const body = await response.json().catch(() => null)
+    return { ok: response.ok && body?.status === 'ok', body, error: `HTTP ${response.status}` }
+  } catch (error) {
+    return { ok: false, body: null, error: String(error?.cause?.code || error?.message || error) }
+  }
+}
+
+// ── gardend's proxy → this service ──────────────────────────────────────────────────────────────────────
+
+function believe(req, internal) {
+  const given = Buffer.from(String(req.headers['x-internal-service'] || ''))
+  const want = Buffer.from(internal)
+  return internal.length > 0 && given.length === want.length && timingSafeEqual(given, want)
+}
+
+async function route(req, res, { internal, state, store }) {
+  const url = new URL(req.url || '/', 'http://nidra.local')
+  if (url.pathname === '/health') {
+    return json(res, 200, { ok: state.state === 'running', state: state.state, reason: state.reason, since: state.since, graphId: GRAPH, engine: state.engine ?? null })
+  }
+  // Everything else comes through gardend's proxy, which alone knows the per-process secret.
+  if (!believe(req, internal)) return json(res, 403, { ok: false, error: 'reach Nidra through gardend (/services/nidra)' })
+  const caller = String(req.headers['x-user-id'] || 'owner').slice(0, 200)
+
+  if (url.pathname.startsWith('/api/')) {
+    if (state.state !== 'running') return json(res, 503, { ok: false, error: `Nidra's engine is ${state.state}: ${state.reason}` })
+    return engineProxy(req, res, url, caller, store)
+  }
+  if (url.pathname === '/nidra/history' && req.method === 'GET') {
+    const limit = Math.max(1, Math.min(200, Number(url.searchParams.get('limit')) || 50))
+    return json(res, 200, { items: await store.history(limit) })
+  }
+  if (url.pathname === '/nidra/find' && req.method === 'GET') {
+    const query = (url.searchParams.get('q') || '').trim()
+    if (!query) return json(res, 200, { hits: [] })
+    const types = (url.searchParams.get('types') || '').split(',').map(s => s.trim()).filter(Boolean)
+    const k = Math.max(1, Math.min(25, Number(url.searchParams.get('k')) || 25))
+    return json(res, 200, await store.find(query, types, k))
+  }
+  if (url.pathname === '/nidra/sources' && req.method === 'GET') {
+    return json(res, 200, { graphId: GRAPH, envSources: envSources(), databases: await store.databases() })
+  }
+  if (url.pathname === '/nidra/ingest' && req.method === 'POST') {
+    const body = await readJson(req)
+    const database = String(body?.database || '').trim()
+    if (!database) return json(res, 400, { ok: false, error: 'name the database to ingest' })
+    const response = await fetch(`http://127.0.0.1:${INGEST_PORT}/ingest`, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ database }), signal: AbortSignal.timeout(15_000),
+    })
+    return json(res, response.status, await response.json().catch(() => ({ status: response.statusText })))
+  }
+  if (url.pathname === '/nidra/settings' && req.method === 'GET') {
+    const key = modelKey()
+    return json(res, 200, { ...modelSettings(), keySet: Boolean(key.value), keyFrom: key.from })
+  }
+  if (url.pathname === '/nidra/settings' && req.method === 'PUT') {
+    if (ATTACHED) return json(res, 409, { ok: false, error: 'this Nidra takes its model from its container: start it again with -e OPENROUTER_API_KEY=… and -e NIDRA_MODEL=… (or run the installer again)' })
+    return putSettings(req, res)
+  }
+  return json(res, 404, { ok: false, error: `no ${req.method} ${url.pathname} here` })
+}
+
+/** The engine's API, as it is, with the caller gardend vouched for as the engine's user. Questions are recorded. */
+async function engineProxy(req, res, url, caller, store) {
+  const body = ['GET', 'HEAD'].includes(req.method || 'GET') ? undefined : await readBody(req)
+  const headers = { 'x-auto-ontology-user-id': caller }
+  for (const name of ['content-type', 'accept', 'last-event-id']) if (req.headers[name]) headers[name] = String(req.headers[name])
+  const abort = new AbortController()
+  res.on('close', () => { if (!res.writableFinished) abort.abort() })
+  const ask = url.pathname === '/api/chat/completions' && req.method === 'POST'
+  const started = Date.now()
+  let question = null
+  if (ask) { try { question = JSON.parse(body.toString('utf8')) } catch {} }
+  let upstream
+  try {
+    upstream = await fetch(`http://127.0.0.1:${ENGINE_PORT}${url.pathname}${url.search}`, { method: req.method, headers, body, signal: abort.signal, duplex: 'half' })
+  } catch (error) {
+    return json(res, 502, { ok: false, error: `the engine did not answer: ${error?.cause?.code || error.message}` })
+  }
+  const out = {}
+  for (const [name, value] of upstream.headers) if (!['content-length', 'content-encoding', 'transfer-encoding', 'connection'].includes(name)) out[name] = value
+  res.writeHead(upstream.status, out)
+  if (!upstream.body) return res.end()
+  const recorder = ask && typeof question?.question === 'string' && upstream.ok ? new AskRecorder(question, caller, started) : null
+  const reader = upstream.body.getReader()
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      recorder?.feed(value)
+      res.write(value)
+    }
+    res.end()
+  } catch (error) {
+    if (recorder && abort.signal.aborted) recorder.stopped = true
+    res.destroy()
+  } finally {
+    if (recorder) store.record(recorder.finish()).catch(error => log('could not record a question:', error.message))
+  }
+}
+
+/** Reads the engine's SSE as it passes and keeps what the question came to. */
+class AskRecorder {
+  constructor(request, caller, started) {
+    this.request = request
+    this.caller = caller
+    this.started = started
+    this.buffer = ''
+    this.decoder = new TextDecoder()
+    this.result = null
+    this.error = null
+    this.stopped = false
+  }
+  feed(chunk) {
+    this.buffer += this.decoder.decode(chunk, { stream: true })
+    let cut
+    while ((cut = this.buffer.indexOf('\n\n')) >= 0) {
+      const event = this.buffer.slice(0, cut)
+      this.buffer = this.buffer.slice(cut + 2)
+      const data = event.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n')
+      if (!data || data === '[DONE]') continue
+      try {
+        const parsed = JSON.parse(data)
+        if (parsed.type === 'result') this.result = parsed.answer ?? parsed
+        if (parsed.type === 'error') this.error = String(parsed.message || parsed.error || parsed.detail || 'the engine reported an error')
+      } catch {}
+    }
+  }
+  finish() {
+    const answer = this.result || {}
+    return {
+      id: randomUUID(),
+      question: String(this.request.question),
+      targetDb: typeof this.request.target_db === 'string' ? this.request.target_db : null,
+      answer: typeof answer.response === 'string' ? answer.response : null,
+      sql: typeof answer.sql_code === 'string' ? answer.sql_code : null,
+      rows: rowsOf(answer.sql_response_from_db),
+      thoughts: typeof answer.thoughts === 'string' ? answer.thoughts : null,
+      askedBy: this.caller,
+      askedAt: new Date(this.started).toISOString(),
+      seconds: Math.round((Date.now() - this.started) / 100) / 10,
+      // The engine answers "LLM failed to produce a response." as a result when its model calls all failed.
+      ok: Boolean(this.result) && !this.error && !/^LLM failed to produce a response/.test(String(answer.response || '')),
+      error: this.error || (!this.result ? (this.stopped ? 'Stopped before an answer' : 'No answer came back')
+        : /^LLM failed to produce a response/.test(String(answer.response || '')) ? 'The model did not answer (every call to it failed)' : null),
+    }
+  }
+}
+
+/** `sql_response_from_db` is a list of JSON strings, each a list of rows; the rows, at most 1000 of them. */
+function rowsOf(value) {
+  if (!Array.isArray(value)) return null
+  const rows = []
+  for (const part of value) {
+    let parsed = part
+    if (typeof part === 'string') { try { parsed = JSON.parse(part) } catch { continue } }
+    if (Array.isArray(parsed)) rows.push(...parsed.filter(row => row && typeof row === 'object'))
+  }
+  return rows.slice(0, 1000)
+}
+
+function envSources() {
+  return SOURCES.split(',').map(s => s.trim()).filter(Boolean).map(raw => {
+    const dialect = (raw.match(/^([a-z0-9+]+):/i)?.[1] || 'unknown').split('+')[0]
+    const redacted = raw.replace(/(\/\/)([^@/]+)@/, (_, slashes, auth) => `${slashes}${auth.split(':')[0]}:•••@`)
+    const label = dialect === 'sqlite' ? path.basename(raw.replace(/^sqlite:\/+/, '/')) : (raw.match(/\/([^/?]+)(\?|$)/)?.[1] || dialect)
+    return { label, dialect, redacted }
+  })
+}
+
+// ── settings, through gardend ───────────────────────────────────────────────────────────────────────────
+
+async function putSettings(req, res) {
+  const body = await readJson(req)
+  if (!body || typeof body !== 'object') return json(res, 400, { ok: false, error: 'send {endpoint?, model?, key?}' })
+  const entries = []
+  for (const field of ['endpoint', 'model', 'key']) {
+    if (body[field] === undefined || body[field] === null) continue
+    const value = String(body[field]).trim()
+    if (!value) continue
+    if (/[\r\n\0]/.test(value) || value.length > (field === 'key' ? 1000 : 300)) return json(res, 400, { ok: false, error: `${field}: one line, please` })
+    if (field === 'endpoint' && !/^https?:\/\/[^\s]+$/i.test(value)) return json(res, 400, { ok: false, error: 'endpoint: an http(s) URL of an OpenAI-compatible API' })
+    entries.push([SETTINGS[field], value])
+  }
+  if (!entries.length) return json(res, 400, { ok: false, error: 'nothing to change' })
+  const gardendBin = findGardend()
+  if (!gardendBin) return json(res, 500, { ok: false, error: 'could not find the gardend command to write the settings with' })
+  // Detached: each `gardend service env set` restarts this service through gardend's API, which ends this
+  // process group; the writer must outlive it. The values travel on its stdin, never its arguments.
+  const child = spawn(process.execPath, [fileURLToPath(import.meta.url), '--write-settings'], {
+    detached: true, stdio: ['pipe', 'ignore', 'ignore'], env: { PATH: DOCKER_PATH.join(':'), HOME: env.HOME || '', DATA_DIR },
+  })
+  child.stdin.end(JSON.stringify({ profile: PROFILE, service: SERVICE_ID, gardend: gardendBin, entries }))
+  child.unref()
+  log(`settings: writing ${entries.map(([name]) => name).join(', ')} through gardend (values not logged)`)
+  return json(res, 202, { accepted: entries.map(([name]) => name), restarting: true })
+}
+
+function findGardend() {
+  const candidates = [
+    env.NIDRA_GARDEND_BIN,
+    path.resolve(HERE, '..', '..', '..', 'MacOS', 'gardend'), // Sophia.app: Contents/Resources/services/nidra
+    path.resolve(HERE, '..', '..', 'gardend'), // a gardend release: services/nidra beside the binary
+  ].filter(Boolean)
+  for (const candidate of candidates) if (fs.existsSync(candidate)) return candidate
+  for (const dir of DOCKER_PATH) if (fs.existsSync(path.join(dir, 'gardend'))) return path.join(dir, 'gardend')
+  return null
+}
+
+async function writeSettings() {
+  const input = await new Promise(resolve => {
+    let text = ''
+    process.stdin.setEncoding('utf8')
+    process.stdin.on('data', chunk => { text += chunk })
+    process.stdin.on('end', () => resolve(text))
+  })
+  const { profile, service, gardend, entries } = JSON.parse(input)
+  for (const [name, value] of entries) {
+    const result = spawnSync(gardend, ['service', 'env', 'set', name, '--service', service, '--profile', profile], {
+      input: `${value}\n`, encoding: 'utf8', stdio: ['pipe', 'ignore', 'pipe'], timeout: 120_000,
+    })
+    log(`settings: ${name} ${result.status === 0 ? 'written' : `not written (${tail(result.stderr, 200)})`}`)
+  }
+}
+
+// ── stopping for good ───────────────────────────────────────────────────────────────────────────────────
+
+async function reap(spawner) {
+  fs.writeFileSync(REAPER_PID, `${process.pid}\n`, { mode: 0o600 })
+  let cancelled = false
+  process.on('SIGTERM', () => { cancelled = true; process.exit(0) })
+  // `disable` writes `off` before it stops the service: stop the containers now. Otherwise (a restart, or gardend
+  // going away) wait: a service process that comes back ends this one first.
+  const disabled = (() => { try { return fs.readFileSync(AUTOSTART_FILE, 'utf8').trim() === 'off' } catch { return false } })()
+  if (!disabled) await sleep(20_000)
+  const current = readPid(WRAPPER_PID)
+  if (cancelled || (current && current !== spawner && isOurs(current, 'main.mjs'))) return cleanup()
+  log(`nidra: the service is ${disabled ? 'disabled' : 'gone'}; stopping the engine containers`)
+  const result = spawnSync('docker', ['compose', '-p', PROJECT, 'stop', '-t', '10'], { env: process.env, encoding: 'utf8', timeout: 120_000 })
+  log(`nidra: containers ${result.status === 0 ? 'stopped' : `not stopped (${tail(result.stderr, 200)})`}`)
+  cleanup()
+
+  function cleanup() {
+    try { if (readPid(REAPER_PID) === process.pid) fs.unlinkSync(REAPER_PID) } catch {}
+  }
+}
+
+function readPid(file) {
+  try { const pid = Number(fs.readFileSync(file, 'utf8').trim()); return Number.isInteger(pid) && pid > 1 ? pid : null } catch { return null }
+}
+
+/** Is `pid` a live process running this file (with `marker` in its command line)? Never signal a pid we did not check. */
+function isOurs(pid, marker) {
+  try { process.kill(pid, 0) } catch { return false }
+  const result = spawnSync('ps', ['-p', String(pid), '-o', 'command='], { encoding: 'utf8' })
+  const command = (result.stdout || '').trim()
+  return command.includes(fileURLToPath(import.meta.url)) && command.includes(marker)
+}
+
+// ── the fence: the engine's only door to gardend ────────────────────────────────────────────────────────
+
+async function fenceRequest(req, res, { gardend, member, rdfToken, fence, store }) {
+  try {
+    const given = Buffer.from(String(req.headers.authorization || '').replace(/^Bearer\s+/i, ''))
+    const want = Buffer.from(fence)
+    if (given.length !== want.length || !timingSafeEqual(given, want)) return json(res, 401, { ok: false, error: 'not the Nidra engine' })
+    const url = new URL(req.url || '/', 'http://fence.local')
+    if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'the fence forwards POSTs only' })
+    const raw = await readBody(req, 64 * 1024 * 1024)
+    let body
+    try { body = JSON.parse(raw.toString('utf8')) } catch { return json(res, 400, { ok: false, error: 'JSON bodies only' }) }
+
+    if (url.pathname === '/mcp') {
+      const calls = Array.isArray(body) ? body : [body]
+      for (const call of calls) {
+        const method = String(call?.method || '')
+        const allowed = method === 'initialize' || method.startsWith('notifications/')
+          || (method === 'tools/call' && call?.params?.name === 'find' && call?.params?.arguments?.graphId === GRAPH)
+        if (!allowed) return json(res, 403, { jsonrpc: '2.0', id: call?.id ?? null, error: { code: -32003, message: `the Nidra fence forwards only find on graph ${GRAPH}` } })
+      }
+      const headers = { authorization: `Bearer ${member}`, 'content-type': 'application/json', accept: String(req.headers.accept || 'application/json, text/event-stream') }
+      if (req.headers['mcp-session-id']) headers['mcp-session-id'] = String(req.headers['mcp-session-id'])
+      return forward(res, `${gardend}/mcp`, headers, raw)
+    }
+    if (body?.graphId !== GRAPH) return json(res, 403, { ok: false, error: `the Nidra fence forwards graph ${GRAPH} only` })
+    if (url.pathname === '/api/graphs') {
+      // The engine's ensure_graph: the graph is created once at install; say it exists (the words its client expects).
+      return (await store.graphExists())
+        ? json(res, 409, { ok: false, error: `graph ${GRAPH} already exists` })
+        : json(res, 403, { ok: false, error: `graph ${GRAPH} does not exist; create it in Sophia (the engine may not)` })
+    }
+    if (!['/api/sparql/query', '/api/sparql/update', '/api/rdf/load'].includes(url.pathname))
+      return json(res, 403, { ok: false, error: `the Nidra fence does not forward ${url.pathname}` })
+    return forward(res, `${gardend}${url.pathname}`, { authorization: `Bearer ${rdfToken}`, 'content-type': 'application/json' }, raw)
+  } catch (error) {
+    log('fence: request failed:', String(error?.message || error))
+    if (!res.headersSent) json(res, 502, { ok: false, error: 'the fence could not reach gardend' })
+  }
+}
+
+async function forward(res, target, headers, body) {
+  const upstream = await fetch(target, { method: 'POST', headers, body })
+  const out = {}
+  for (const name of ['content-type', 'mcp-session-id', 'cache-control']) {
+    const value = upstream.headers.get(name)
+    if (value) out[name] = value
+  }
+  res.writeHead(upstream.status, out)
+  if (!upstream.body) return res.end()
+  const reader = upstream.body.getReader()
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    res.write(value)
+  }
+  res.end()
+}
+
+// ── this service's own reads and writes of the graph ────────────────────────────────────────────────────
+
+class Gardend {
+  constructor(base, member, rdfToken) {
+    this.base = base
+    this.member = member
+    this.rdfToken = rdfToken
+    this.session = null
+  }
+  async post(pathname, body, token) {
+    const response = await fetch(`${this.base}${pathname}`, {
+      method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(60_000),
+    })
+    const payload = await response.json().catch(() => null)
+    if (!response.ok || payload?.ok === false) throw new Error(`${pathname}: HTTP ${response.status}: ${String(payload?.error || payload?.message || '').slice(0, 300)}`)
+    return payload
+  }
+  async select(sparql) {
+    const payload = await this.post('/api/sparql/query', { graphId: GRAPH, sparql }, this.rdfToken || this.member)
+    return (payload.rows || []).map(row => Object.fromEntries(Object.entries(row).map(([key, term]) => [key, parseTerm(term)])))
+  }
+  async update(sparql) {
+    await this.post('/api/sparql/update', { graphId: GRAPH, sparql }, this.rdfToken)
+  }
+  async graphExists() {
+    const response = await fetch(`${this.base}/api/graphs`, { headers: { authorization: `Bearer ${this.member}` }, signal: AbortSignal.timeout(20_000) })
+    const payload = await response.json().catch(() => null)
+    if (!response.ok) throw new Error(`/api/graphs: HTTP ${response.status}`)
+    const list = Array.isArray(payload) ? payload : payload?.graphs || payload?.data || []
+    return list.some(graph => (graph?.graphId || graph?.graph_id || graph?.id) === GRAPH)
+  }
+  async record(item) {
+    const s = `<${NS}question/${item.id}>`
+    const triples = [
+      `${s} a <${Q}>`,
+      `${s} <${SKOS_LABEL}> ${lit(item.question)}`,
+      `${s} ${P('question')} ${lit(item.question)}`,
+      `${s} ${P('askedBy')} ${lit(item.askedBy)}`,
+      `${s} ${P('askedAt')} "${item.askedAt}"^^<${XSD}dateTime>`,
+      `${s} ${P('ok')} "${item.ok}"^^<${XSD}boolean>`,
+    ]
+    if (item.seconds !== null) triples.push(`${s} ${P('seconds')} "${item.seconds}"^^<${XSD}decimal>`)
+    for (const field of ['answer', 'sql', 'thoughts', 'error', 'targetDb']) if (item[field]) triples.push(`${s} ${P(field)} ${lit(item[field])}`)
+    if (item.rows) triples.push(`${s} ${P('rows')} ${lit(JSON.stringify(item.rows))}^^<${RDF_JSON}>`)
+    await this.update(`INSERT DATA { GRAPH <${dataGraph()}> { ${triples.join(' .\n')} . } }`)
+    log(`history: recorded a question (${item.ok ? 'answered' : 'unanswered'}, ${item.seconds}s)`)
+  }
+  async history(limit) {
+    const fields = ['question', 'answer', 'sql', 'rows', 'thoughts', 'targetDb', 'askedBy', 'askedAt', 'ok', 'error', 'seconds']
+    const rows = await this.select(`SELECT ?s ${fields.map(f => `?${f}`).join(' ')} WHERE { GRAPH ?g { ?s a <${Q}> ; ${P('question')} ?question ; ${P('askedAt')} ?askedAt .
+      ${fields.filter(f => !['question', 'askedAt'].includes(f)).map(f => `OPTIONAL { ?s ${P(f)} ?${f} }`).join('\n      ')} } } ORDER BY DESC(?askedAt) LIMIT ${limit}`)
+    return rows.map(row => ({
+      id: String(row.s).slice(`${NS}question/`.length),
+      question: row.question ?? '', answer: row.answer ?? null, sql: row.sql ?? null,
+      rows: Array.isArray(row.rows) ? row.rows : null, thoughts: row.thoughts ?? null, targetDb: row.targetDb ?? null,
+      askedBy: row.askedBy ?? null, askedAt: row.askedAt instanceof Date ? row.askedAt.toISOString() : String(row.askedAt ?? ''),
+      ok: row.ok === true, error: row.error ?? null, seconds: typeof row.seconds === 'number' ? row.seconds : null,
+    }))
+  }
+  async databases() {
+    const T = name => `<urn:ao:${name}>`
+    const rows = await this.select(`SELECT ?db ?name ?dialect ?pulled (COUNT(DISTINCT ?t) AS ?tables) (COUNT(DISTINCT ?c) AS ?columns) WHERE { GRAPH ?g {
+      ?db a ${T('catalog_database')} ; <urn:ao:catalog_database#name> ?name .
+      OPTIONAL { ?db <urn:ao:catalog_database#dialect> ?dialect }
+      OPTIONAL { ?db <urn:ao:catalog_database#pulled> ?pulled }
+      OPTIONAL { ?s <urn:ao:catalog_schema#ref-database_id> ?db . ?t <urn:ao:catalog_table#ref-schema_id> ?s .
+                 OPTIONAL { ?c <urn:ao:catalog_column#ref-table_id> ?t } } } }
+      GROUP BY ?db ?name ?dialect ?pulled ORDER BY ?name`)
+    return rows.map(row => ({
+      name: row.name, dialect: row.dialect ?? null,
+      pulled: row.pulled instanceof Date ? row.pulled.toISOString() : row.pulled ? String(row.pulled) : null,
+      tables: Number(row.tables) || 0, columns: Number(row.columns) || 0,
+    }))
+  }
+  async mcp(body) {
+    const headers = { authorization: `Bearer ${this.member}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream' }
+    if (this.session) headers['mcp-session-id'] = this.session
+    const response = await fetch(`${this.base}/mcp`, { method: 'POST', headers, body: JSON.stringify(body), signal: AbortSignal.timeout(60_000) })
+    const session = response.headers.get('mcp-session-id')
+    if (session) this.session = session
+    const text = await response.text()
+    let payload = null
+    for (const line of text.split('\n')) {
+      const candidate = line.replace(/^data:\s*/, '').trim()
+      if (candidate.startsWith('{')) { try { payload = JSON.parse(candidate) } catch {} }
+    }
+    return { status: response.status, payload }
+  }
+  async find(query, types, k) {
+    if (!this.session) {
+      await this.mcp({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'nidra-service', version: '1' } } })
+      await this.mcp({ jsonrpc: '2.0', method: 'notifications/initialized' })
+    }
+    const args = { graphId: GRAPH, query, k, ...(types.length ? { types } : {}) }
+    let { payload, status } = await this.mcp({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'find', arguments: args } })
+    if (status === 404 || status === 400) { // a session gardend forgot: start again once
+      this.session = null
+      return this.find(query, types, k)
+    }
+    if (!payload || payload.error) throw new Error(`find: ${payload?.error?.message || `HTTP ${status}`}`)
+    const result = payload.result || {}
+    if (result.isError) throw new Error(`find: ${(result.content || []).map(c => c.text).join(' ').slice(0, 300)}`)
+    let found = result.structuredContent
+    if (!found) for (const item of result.content || []) if (item.type === 'text') { try { found = JSON.parse(item.text) } catch {} }
+    return { hits: Array.isArray(found?.hits) ? found.hits : [] }
+  }
+}
+
+// ── small parts ─────────────────────────────────────────────────────────────────────────────────────────
+
+const ESCAPES = { '\\': '\\\\', '"': '\\"', '\n': '\\n', '\r': '\\r', '\t': '\\t' }
+function lit(value) {
+  return `"${String(value).replace(/[\\"\n\r\t]/g, ch => ESCAPES[ch])}"`
+}
+
+const TERM = /^(?:<([^>]*)>|(_:\S+)|"((?:[^"\\]|\\.)*)"(?:\^\^<([^>]*)>|@([A-Za-z0-9-]+))?)$/s
+const UNESCAPE = { n: '\n', r: '\r', t: '\t', '"': '"', '\\': '\\', b: '\b', f: '\f' }
+function parseTerm(term) {
+  if (term === null || term === undefined) return null
+  const match = TERM.exec(String(term))
+  if (!match) return term
+  if (match[1] !== undefined) return match[1]
+  if (match[2] !== undefined) return match[2]
+  const lexical = match[3].replace(/\\(u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|.)/g, (_, code) =>
+    code.length > 1 ? String.fromCodePoint(parseInt(code.slice(1), 16)) : UNESCAPE[code] ?? code)
+  const datatype = match[4]
+  if (!datatype) return lexical
+  if (datatype === `${XSD}boolean`) return lexical === 'true'
+  if (/#(integer|int|long|short|nonNegativeInteger|decimal|double|float)$/.test(datatype)) return Number(lexical)
+  if (datatype === `${XSD}dateTime`) return new Date(lexical)
+  if (datatype === RDF_JSON) { try { return JSON.parse(lexical) } catch { return lexical } }
+  return lexical
+}
+
+function readBody(req, max = 4 * 1024 * 1024) {
+  return new Promise((resolve, reject) => {
+    const chunks = []
+    let size = 0
+    req.on('data', chunk => {
+      size += chunk.length
+      if (size > max) { reject(new Error('request too large')); req.destroy() } else chunks.push(chunk)
+    })
+    req.on('end', () => resolve(Buffer.concat(chunks)))
+    req.on('error', reject)
+  })
+}
+
+async function readJson(req) {
+  try { return JSON.parse((await readBody(req, 64 * 1024)).toString('utf8')) } catch { return null }
+}
+
+function json(res, status, value) {
+  const body = JSON.stringify(value)
+  res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
+  res.end(body)
+}
+
+// Last, so every class and constant above is initialized before any of it runs.
+const mode = process.argv[2]
+if (mode === '--reap') await reap(Number(process.argv[3]))
+else if (mode === '--write-settings') await writeSettings()
+else await serve()

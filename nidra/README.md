@@ -9,7 +9,38 @@ affiliated with NVIDIA.
 
 ## Run it
 
-From the download (two files) or this checkout:
+One command (macOS or Linux, with Docker running):
+
+    curl -fsSL https://nidra.computer/install.sh | sh
+
+On Windows, in PowerShell:
+
+    irm https://nidra.computer/install.ps1 | iex
+
+Both ask for an OpenRouter key (or take `OPENROUTER_API_KEY` from the
+environment), start one container and print the link to open. Or run the
+container yourself:
+
+    docker run -d --name nidra --restart unless-stopped \
+      -p 127.0.0.1:8086:8086 -p 127.0.0.1:3001:3001 -v nidra:/data \
+      -e OPENROUTER_API_KEY=sk-or-... ghcr.io/sophia-labs/nidra
+    docker exec nidra nidra url     # the link to open (it holds the key)
+
+`ghcr.io/sophia-labs/nidra` (`Dockerfile.nidra`) holds the engine, gardend with
+its embedding model, and the Sophia UI with the Nidra screens; everything that
+lasts is in the `/data` volume. Model settings: `OPENROUTER_API_KEY` alone
+means Claude Sonnet through OpenRouter; `NIDRA_MODEL` picks another model;
+`DEFAULT_MODELS_ENDPOINT`, `DEFAULT_MODELS_API_KEY` and `DEFAULT_MODELS_MODEL`
+name any OpenAI-compatible endpoint instead. `CONNECTION_STRINGS` names your
+own databases (below). `NIDRA_URL` is the address printed in the link (default
+`http://localhost:8086`).
+
+To build the image: `nidra/oneliner/stage-ui.sh` (copies the built Sophia UI
+into `nidra/oneliner/ui`), then `docker build -f Dockerfile.nidra -t
+ghcr.io/sophia-labs/nidra .`
+
+**The advanced way, with compose** (the engine and gardend as separate
+containers, from the download or this checkout):
 
     docker load -i nidra-gardend-<date>.tar.gz  # the Sophia engine image, with the embedding model baked in
     tar xzf nidra-local-<date>.tar.gz && cd nidra-local-<date>
@@ -20,7 +51,8 @@ From the download (two files) or this checkout:
 
 The engine answers on :3001 (its API is the upstream FastAPI surface; the
 front door that authenticates and routes is Sophia's gateway or your Sophia
-app, which forwards `x-auto-ontology-user-id`). Ask a question:
+app, which forwards `x-auto-ontology-user-id`; the engine has no login of its own, so keep
+:3001 on 127.0.0.1, as the commands above do). Ask a question:
 
     curl -s -X POST http://127.0.0.1:3001/api/chat/completions \
       -H 'content-type: application/json' -H 'x-auto-ontology-user-id: me' \
@@ -47,5 +79,8 @@ graph you want the catalog in. Turn `find` on for that graph with
   `dev_tools/fixtures/write_diff.py`.
 - `auto_ontology/vdb/gardend.py`: the vector store on gardend's `find`.
 - `nidra/gardend/`: the gardend release image plus ONNX Runtime.
+- `Dockerfile.nidra`, `nidra/oneliner/`: the one-container image (`run.sh`
+  supervises gardend, the ingestion service and the engine; the Nidra service
+  `nidra/service/main.mjs` runs attached behind gardend) and the installers.
 - `nidra/closure.sh`: the proof that nothing of the engine's state is in
   Postgres: seed the fixture with Postgres unreachable, replay the golden.
