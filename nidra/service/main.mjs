@@ -17,6 +17,11 @@
 // an rdf-admin client token kept in the service env as NIDRA_GARDEND_RDF_TOKEN (SPARQL update and RDF load,
 // which a member may not do). Neither is printed, logged, or written anywhere by this file.
 //
+// Attached (NIDRA_ENGINE=attached, the one-container image `ghcr.io/sophia-labs/nidra`): the engine already runs
+// beside gardend (its supervisor, nidra/oneliner/run.sh, started it at 127.0.0.1:NIDRA_ENGINE_PORT and talks to
+// gardend directly); this process brings up nothing, keeps no fence and only proxies, records and reads. The model
+// settings are the container's environment, so the Settings screen shows them and cannot change them.
+//
 //   node main.mjs                 the service (gardend runs this)
 //   node main.mjs --reap <pid>    detached: stop the containers unless a new service process took over
 //   node main.mjs --write-settings   detached: read {profile, gardend, entries} on stdin, `gardend service env set`
@@ -46,6 +51,7 @@ const ENGINE_PORT = Number(env.NIDRA_ENGINE_PORT || 7682)
 const INGEST_PORT = Number(env.NIDRA_INGEST_PORT || 7683)
 const FENCE_PORT = Number(env.NIDRA_FENCE_PORT || 7684)
 const IMAGE = env.NIDRA_ENGINE_IMAGE || 'nidra-engine:latest'
+const ATTACHED = env.NIDRA_ENGINE === 'attached'
 const SOURCES = env.CONNECTION_STRINGS || 'sqlite:////data/chinook.sqlite'
 const DEFAULT_ENDPOINT = 'https://openrouter.ai/api/v1'
 const DEFAULT_MODEL = 'anthropic/claude-sonnet-5.5'
@@ -89,14 +95,15 @@ async function serve() {
     Object.assign(state, { state: next, reason, since: new Date().toISOString() })
   }
 
-  takeOver()
-  const fence = await fenceSecret()
+  if (!ATTACHED) takeOver()
+  const fence = ATTACHED ? null : await fenceSecret()
   const store = new Gardend(gardend, member, rdfToken)
 
-  // The fence: the engine's containers reach this gardend only through it.
-  const fenceServer = http.createServer((req, res) => fenceRequest(req, res, { gardend, member, rdfToken, fence, store }))
-  fenceServer.on('error', error => set('error', `the fence could not listen on 127.0.0.1:${FENCE_PORT} (${error.code || error.message})`))
-  fenceServer.listen(FENCE_PORT, '127.0.0.1')
+  // The fence: the engine's containers reach this gardend only through it. Attached, the engine already talks to
+  // gardend itself, inside the one container.
+  const fenceServer = ATTACHED ? null : http.createServer((req, res) => fenceRequest(req, res, { gardend, member, rdfToken, fence, store }))
+  fenceServer?.on('error', error => set('error', `the fence could not listen on 127.0.0.1:${FENCE_PORT} (${error.code || error.message})`))
+  fenceServer?.listen(FENCE_PORT, '127.0.0.1')
 
   const server = http.createServer((req, res) => {
     route(req, res, { internal, state, store }).catch(error => {
@@ -111,14 +118,18 @@ async function serve() {
   const stop = signal => {
     if (stopping) return
     stopping = true
-    log(`nidra: ${signal}: stopping (the containers stop unless the service comes back)`)
-    // Detached, so gardend's SIGKILL of this process group 8 s from now does not reach it.
-    const child = spawn(process.execPath, [fileURLToPath(import.meta.url), '--reap', String(process.pid)], {
-      detached: true, stdio: 'ignore', env: reaperEnv(),
-    })
-    child.unref()
+    if (ATTACHED) {
+      log(`nidra: ${signal}: stopping (the engine is its supervisor's to stop)`)
+    } else {
+      log(`nidra: ${signal}: stopping (the containers stop unless the service comes back)`)
+      // Detached, so gardend's SIGKILL of this process group 8 s from now does not reach it.
+      const child = spawn(process.execPath, [fileURLToPath(import.meta.url), '--reap', String(process.pid)], {
+        detached: true, stdio: 'ignore', env: reaperEnv(),
+      })
+      child.unref()
+    }
     server.close()
-    fenceServer.close()
+    fenceServer?.close()
     setTimeout(() => process.exit(0), 200)
   }
   process.on('SIGTERM', () => stop('SIGTERM'))
@@ -128,8 +139,11 @@ async function serve() {
   const missing = []
   if (!member) missing.push('gardend gave this service no token (MNEMOSYNE_MCP_ACCESS_TOKEN)')
   if (!rdfToken) missing.push('NIDRA_GARDEND_RDF_TOKEN is not set: `gardend token create --label nidra-engine --grant rdf-admin --expires-days 365 --json`, its secret piped into `gardend service env set NIDRA_GARDEND_RDF_TOKEN --service nidra`')
-  if (!modelKey().value) missing.push('no model key: set one in Nidra’s Settings, or `gardend chat key set` (OpenRouter)')
+  if (!modelKey().value) missing.push(ATTACHED
+    ? 'no model key: run Nidra again with -e OPENROUTER_API_KEY=sk-or-… (or the DEFAULT_MODELS_* triplet of any OpenAI-compatible endpoint)'
+    : 'no model key: set one in Nidra’s Settings, or `gardend chat key set` (OpenRouter)')
   if (missing.length) return set('error', missing.join('; '))
+  if (ATTACHED) return watchAttached(set, state, () => stopping)
 
   set('starting', 'checking Docker')
   const docker = await run('docker', ['info', '--format', '{{.ServerVersion}}'], { timeout: 20_000 })
@@ -177,6 +191,21 @@ async function serve() {
   }
 }
 
+/** Attached: the engine is started and restarted by the container's supervisor; this only reports what it sees. */
+async function watchAttached(set, state, stopping) {
+  set('starting', 'waiting for the engine')
+  while (!stopping()) {
+    const health = await engineHealth()
+    if (health.ok) {
+      if (state.state !== 'running') set('running', 'the engine answers')
+      state.engine = health.body
+    } else if (state.state === 'running') {
+      set('starting', `the engine stopped answering (${health.error})`)
+    }
+    await sleep(state.state === 'running' ? 15_000 : 2_000)
+  }
+}
+
 /** Only one service process per profile: end a pending reaper (after checking it is ours), record ourselves. */
 function takeOver() {
   const pid = readPid(REAPER_PID)
@@ -201,10 +230,13 @@ async function fenceSecret() {
 function modelKey() {
   if (env.NIDRA_MODEL_KEY) return { value: env.NIDRA_MODEL_KEY, from: 'nidra' }
   if (env.OPENROUTER_API_KEY) return { value: env.OPENROUTER_API_KEY, from: 'openrouter' }
+  if (ATTACHED && env.DEFAULT_MODELS_API_KEY) return { value: env.DEFAULT_MODELS_API_KEY, from: 'nidra' }
   return { value: '', from: null }
 }
 
 function modelSettings() {
+  // Attached, the supervisor has already turned the container's environment into the engine's triplet.
+  if (ATTACHED) return { endpoint: env.DEFAULT_MODELS_ENDPOINT || DEFAULT_ENDPOINT, model: env.DEFAULT_MODELS_MODEL || DEFAULT_MODEL }
   return { endpoint: env.NIDRA_MODEL_ENDPOINT || DEFAULT_ENDPOINT, model: env.NIDRA_MODEL || DEFAULT_MODEL }
 }
 
@@ -321,7 +353,10 @@ async function route(req, res, { internal, state, store }) {
     const key = modelKey()
     return json(res, 200, { ...modelSettings(), keySet: Boolean(key.value), keyFrom: key.from })
   }
-  if (url.pathname === '/nidra/settings' && req.method === 'PUT') return putSettings(req, res)
+  if (url.pathname === '/nidra/settings' && req.method === 'PUT') {
+    if (ATTACHED) return json(res, 409, { ok: false, error: 'this Nidra takes its model from its container: start it again with -e OPENROUTER_API_KEY=… and -e NIDRA_MODEL=… (or run the installer again)' })
+    return putSettings(req, res)
+  }
   return json(res, 404, { ok: false, error: `no ${req.method} ${url.pathname} here` })
 }
 

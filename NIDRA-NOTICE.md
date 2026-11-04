@@ -18,7 +18,11 @@ SPDX header; the full list is `git diff --name-only cdaf61e`. In summary:
   switch for the ingestion service.
 - Test tooling: per-lane golden captures (`dev_tools/fixtures/golden_extra/`), the write-grading harness
   (`dev_tools/fixtures/write_diff.py`, `write_cases/`), the fixture export, and `nidra/closure.sh`.
-- Packaging: `compose.nidra.yaml`, `nidra/` (README, bundle script, gardend image build with ONNX Runtime).
+- Packaging: `compose.nidra.yaml`, `nidra/` (README, bundle script, gardend image build with ONNX Runtime, the
+  Nidra service, the one-container image `Dockerfile.nidra` with `nidra/oneliner/` and its installers).
 
-The Sophia engine (gardend) is a separate work, not included here, licensed under the PolyForm Noncommercial License
-1.0.0 by Sophia Labs; Nidra talks to it over HTTP. ONNX Runtime (MIT) is added to its container image at build time.
+The Sophia engine (gardend) is a separate work, not included in this source, licensed under the PolyForm
+Noncommercial License 1.0.0 by Sophia Labs; Nidra talks to it over HTTP. ONNX Runtime (MIT) is added to its container
+image at build time. The one-container image (`Dockerfile.nidra`) also carries, each under its own license: the
+gardend binary (`/usr/local/share/gardend/`), ONNX Runtime, the multilingual-e5-small model (MIT) and Node.js (MIT)
+(`/usr/local/share/licenses/`), and the Sophia UI (`/opt/nidra/ui/`, its notices in `third-party/`).
