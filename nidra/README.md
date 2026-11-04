@@ -11,7 +11,7 @@ affiliated with NVIDIA.
 
 From the download (two files) or this checkout:
 
-    docker load -i nidra-gardend-<date>.tar     # the Sophia engine image (skip if you build it: nidra/gardend)
+    docker load -i nidra-gardend-<date>.tar.gz  # the Sophia engine image, with the embedding model baked in
     tar xzf nidra-local-<date>.tar.gz && cd nidra-local-<date>
     cp .env.example .env                         # set DEFAULT_MODELS_* (any OpenAI-compatible chat model;
                                                  # OpenRouter works) and GARDEND_TOKEN; no embedding endpoint
