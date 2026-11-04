@@ -19,7 +19,17 @@ from sqlalchemy import select
 from auto_ontology.dal.schema import METADATA
 from auto_ontology.dal.session import store
 from auto_ontology.rdf.client import iri, lit
-from auto_ontology.rdf.vocab import RDF_TYPE, class_iri, prop_iri, ref_iri, row_iri
+from auto_ontology.rdf.vocab import (
+    DCT_DESCRIPTION,
+    DESCRIPTION_COLUMNS,
+    LABEL_COLUMNS,
+    RDF_TYPE,
+    SKOS_PREF_LABEL,
+    class_iri,
+    prop_iri,
+    ref_iri,
+    row_iri,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +57,10 @@ def export_table(table_name: str) -> Iterator[str]:
                 continue
             prop = prop_iri(table_name, column)
             yield _triple(subject, prop, lit(value))
+            if column in LABEL_COLUMNS and isinstance(value, str) and value:
+                yield _triple(subject, SKOS_PREF_LABEL, lit(value))
+            if column in DESCRIPTION_COLUMNS and isinstance(value, str) and value:
+                yield _triple(subject, DCT_DESCRIPTION, lit(value))
             if isinstance(value, list):
                 for member in value:
                     yield _triple(subject, prop, lit(member))

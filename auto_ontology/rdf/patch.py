@@ -47,17 +47,22 @@ def install() -> dict[str, list[str]]:
         if info.name.startswith("_"):
             continue
         port = importlib.import_module(f"auto_ontology.dal_rdf.{info.name}")
-        target = importlib.import_module(f"auto_ontology.dal.{info.name}")
+        # A port module names its target with TARGET (a dotted module path), or
+        # by its file name: ``terms.py`` → ``auto_ontology.dal.terms``, and
+        # ``terms__writes.py`` → the same target (several files, one module).
+        target_name = getattr(port, "TARGET", None) or f"auto_ontology.dal.{info.name.split('__')[0]}"
+        target = importlib.import_module(target_name)
+        module_key = target_name.rsplit(".", 1)[1]
         names = getattr(port, "PORTS", None) or [
             n for n, f in vars(port).items()
             if inspect.isfunction(f) and f.__module__ == port.__name__ and not n.startswith("_")
         ]
         for name in names:
             if not hasattr(target, name):
-                raise AttributeError(f"dal_rdf.{info.name}.{name} ports a function the DAL does not have")
+                raise AttributeError(f"dal_rdf.{info.name}.{name} ports a function {target_name} does not have")
             setattr(target, name, getattr(port, name))
-        ported_by_module[info.name] = set(names)
-        INSTALLED[info.name] = sorted(names)
+        ported_by_module.setdefault(module_key, set()).update(names)
+        INSTALLED.setdefault(module_key, []).extend(sorted(names))
     if strict:
         import auto_ontology.dal as dal_pkg
 

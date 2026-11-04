@@ -15,6 +15,12 @@ from urllib.parse import quote, unquote
 
 BASE = "urn:ao:"
 XSD = "http://www.w3.org/2001/XMLSchema#"
+SKOS_PREF_LABEL = "http://www.w3.org/2004/02/skos/core#prefLabel"
+DCT_DESCRIPTION = "http://purl.org/dc/terms/description"
+# Columns whose value is also written as a standard label/description, so
+# gardend's entity index (`find`) verbalizes every catalog row.
+LABEL_COLUMNS = ("name",)
+DESCRIPTION_COLUMNS = ("description",)
 RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 
