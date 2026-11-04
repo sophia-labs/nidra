@@ -2,6 +2,8 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Modified by Sophia Labs for Nidra, 2026-11-03 (see NIDRA-NOTICE.md).
+
 """Snapshot every DAL read against the graph fixture, for the Postgres port.
 
 The refactor replaces ~5,000 lines of SQL with SQL while keeping every

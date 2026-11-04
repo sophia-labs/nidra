@@ -2,6 +2,8 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Modified by Sophia Labs for Nidra, 2026-11-03 (see NIDRA-NOTICE.md).
+
 """Auto Ontology data access layer, organised by topic.
 
 Each module is the single source of truth for a domain:

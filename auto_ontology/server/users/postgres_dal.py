@@ -2,6 +2,8 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Modified by Sophia Labs for Nidra, 2026-11-03 (see NIDRA-NOTICE.md).
+
 """PostgreSQL-backed lookup of a user's role (Better Auth ``user`` table).
 
 PostgreSQL is the single source of truth for whether a user is an ``admin``

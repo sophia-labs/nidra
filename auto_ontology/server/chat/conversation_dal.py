@@ -2,6 +2,8 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Modified by Sophia Labs for Nidra, 2026-11-03 (see NIDRA-NOTICE.md).
+
 """Postgres persistence and bounded history loading for chat conversations."""
 
 from __future__ import annotations

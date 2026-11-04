@@ -2,6 +2,8 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Modified by Sophia Labs for Nidra, 2026-11-03 (see NIDRA-NOTICE.md).
+
 """The two readiness checks, shared by both services.
 
 The API server and the ingestion service depend on the same Postgres and the

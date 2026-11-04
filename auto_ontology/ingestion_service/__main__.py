@@ -2,6 +2,8 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Modified by Sophia Labs for Nidra, 2026-11-03 (see NIDRA-NOTICE.md).
+
 """Ingestion service.
 
 Serves a FastAPI app exposing ingest and delete-ingest endpoints, and runs two

@@ -2,6 +2,8 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Modified by Sophia Labs for Nidra, 2026-11-03 (see NIDRA-NOTICE.md).
+
 """Read user-configured acronyms and custom prompts from the Auto Ontology metadata DB.
 
 The frontend manages these via Prisma (`acronyms` and `prompts` tables in the
