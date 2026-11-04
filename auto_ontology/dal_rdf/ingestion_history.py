@@ -13,7 +13,7 @@ from auto_ontology.rdf.writes import insert_row, update_row
 logger = logging.getLogger(__name__)
 
 TARGET = "auto_ontology.ingestion_service.history"
-PORTS = ["record_run_start", "record_run_finish", "get_last_successful_run"]
+PORTS = ["record_run_start", "record_run_finish", "get_last_successful_run", "get_last_failure_if_most_recent"]
 _TABLE = "semantic_compilation_history"
 
 
@@ -52,4 +52,26 @@ def get_last_successful_run() -> str | None:
         return rows[0]["f"].isoformat() if rows else None
     except Exception:  # noqa: BLE001
         logger.exception("get_last_successful_run failed")
+        return None
+
+
+def _latest_finished(status: str):
+    rows = client().select(
+        f"SELECT ?f WHERE {{ {wrap(f'?s {P.semantic_compilation_history.finished_at} ?f ; {P.semantic_compilation_history.status} ?o . FILTER(?o = \"{status}\")')} }} ORDER BY DESC(?f) LIMIT 1"
+    )
+    return rows[0]["f"] if rows else None
+
+
+def get_last_failure_if_most_recent() -> str | None:
+    """The last failed pass, only if more recent than the last successful one."""
+    try:
+        failure = _latest_finished(RUN_FAILED)
+        if failure is None:
+            return None
+        success = _latest_finished(RUN_SUCCEEDED)
+        if success is not None and failure <= success:
+            return None
+        return failure.isoformat()
+    except Exception:  # noqa: BLE001
+        logger.exception("Failed to read last failed semantic compilation run")
         return None
