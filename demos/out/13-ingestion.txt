@@ -1,0 +1,37 @@
+# 13-ingestion: ingest a source: POST /ingest on the ingestion service
+run at 2026-11-03T20:33:22-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: The ingestion service catalogues a connected source (tables, columns, keys, embeddings) and re-sweeps it on a schedule.
+claim source: README.md § Software Components (ingestion worker :3002); nidra/README.md (INGEST_INTERVAL_HOURS)
+
+before: chinook 11 tables, 64 columns; 30 FK rows in the catalog
+
+## docker exec nidra-ingestion: POST http://localhost:3002/ingest {"database": "chinook"}
+reply: 202 {"status":"accepted"}
+finished after 2.1s: 2026-11-04 04:33:26,846 INFO ingestion_service.ingest: Data ingestion finished successfully for database chinook — 11 table(s), 64 column(s), 75 embedding row(s) in 0.7s
+  2026-11-04 04:33:26,349 INFO auto_ontology.catalog.diff: Columns to add in schema main: 0
+  2026-11-04 04:33:26,357 INFO auto_ontology.catalog.write: Updated schema main to db.
+  2026-11-04 04:33:26,361 INFO auto_ontology.catalog.write: Deleting schemas: []
+  2026-11-04 04:33:26,361 INFO auto_ontology.catalog.write: Time took to update schemas:0.132340669631958
+  2026-11-04 04:33:26,410 INFO auto_ontology.catalog.write: Adding FKs.
+  2026-11-04 04:33:26,489 INFO auto_ontology.catalog.write: Adding PKs.
+  2026-11-04 04:33:26,617 INFO auto_ontology.catalog.sql_parse: Starting to parse 0 queries.
+  2026-11-04 04:33:26,617 INFO auto_ontology.catalog.sql_parse: Time took to parse and insert queries: 0.0001513957977294922
+  2026-11-04 04:33:26,617 INFO auto_ontology.catalog.sql_parse: Finished inserting the queries into the graph.
+  2026-11-04 04:33:26,617 INFO ingestion_service.ingest: PII detection skipped for database chinook (disabled in settings)
+  2026-11-04 04:33:26,845 INFO auto_ontology.vdb.gardend: GardendVDB.write_to_index: 75 record(s) into data_objects_layer
+  2026-11-04 04:33:26,845 INFO ingestion_service.ingest: Tabular ingest result: 75 rows written to pgvector
+  2026-11-04 04:33:26,846 INFO ingestion_service.ingest: Data ingestion finished successfully for database chinook — 11 table(s), 64 column(s), 75 embedding row(s) in 0.7s
+  2026-11-04 04:33:26,849 INFO auto_ontology.server.rules.service: No rules to re-apply
+CHECK PASS: ingest accepted and finished successfully
+after: chinook 11 tables, 64 columns; 30 FK rows
+CHECK PASS: Chinook catalogued as 11 tables and 64 columns
+CHECK PASS: re-ingest is a diff: every table and column keeps its id (nothing re-minted)
+CHECK PASS: foreign keys unchanged
+
+## the same for Pagila
+reply: 202 {"status":"accepted"}; outcome: 2026-11-04 04:33:28,743 ERROR ingestion_service.ingest: Ingest skipped: no loaded connector for database pagila
+NOTE: the ingestion service cannot sweep Pagila: its CONNECTION_STRINGS names Chinook only (demo 02), so POST /ingest for pagila is accepted (202) and then skipped: Ingest skipped: no loaded connector for database pagila
+
+checks: 4/4 passed
+elapsed: 8.1s
+STATUS: works — Chinook ingests; Pagila has no connector in the ingestion service

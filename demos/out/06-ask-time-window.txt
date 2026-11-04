@@ -1,0 +1,36 @@
+# 06-ask-time-window: NL question: a time window
+run at 2026-11-03T20:23:12-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Date filters from plain language.
+claim source: README.md § Key Features; docs/mcp.md ("what about last month?")
+
+
+## chinook: What was the total invoice revenue in the first quarter of 2023?
+ground truth (chinook, run directly on the source): SELECT round(sum(Total),2) FROM Invoice WHERE InvoiceDate >= '2023-01-01' AND InvoiceDate < '2023-04-01'
+  -> [('112.86',)]
+engine: http://127.0.0.1:3001
+question: What was the total invoice revenue in the first quarter of 2023?
+http 200 · 25 SSE events · [DONE] seen · 49.1s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response → question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response
+answer: LLM failed to produce a response.
+CHECK FAIL: chinook [live engine] What was the total invoice revenue in the first quarter of 2023?: no rows came back
+
+## pagila: How many rentals were made on May 25 and May 26, 2022, together?
+ground truth (pagila, run directly on the source): SELECT count(*) FROM rental WHERE rental_date >= '2022-05-25' AND rental_date < '2022-05-27'
+  -> [('306',)]
+engine: http://127.0.0.1:3011
+question: How many rentals were made on May 25 and May 26, 2022, together?
+http 200 · 34 SSE events · [DONE] seen · 58.9s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response → question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → execute_sql_query → check_empty_like_result → check_value_repair → format_and_respond
+sql: SELECT COUNT(*) AS rental_count FROM pagila.public.rental AS r WHERE r.rental_date >= TIMESTAMP '2022-05-25 00:00:00' AND r.rental_date < TIMESTAMP '2022-05-27 00:00:00'
+rows (1, first 10):
+[
+  {
+    "rental_count": 306
+  }
+]
+answer: This counts the total number of rentals that started on May 25 and May 26, 2022, combined. It uses the Rental table and filters on the rental date so that every rental from the start of May 25 through the end of May 26 is included. The result is a single total count.
+CHECK PASS: pagila [side engine] How many rentals were made on May 25 and May 26, 2022, together?: expected 306
+
+checks: 1/2 passed; failed: chinook [live engine] What was the total invoice revenue in the first quarter of 2023?: no rows came back
+elapsed: 108.4s
+STATUS: partial

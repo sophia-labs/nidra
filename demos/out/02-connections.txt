@@ -1,0 +1,51 @@
+# 02-connections: connections: list, source, test
+run at 2026-11-03T20:56:17-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Connections come from the UI/API (stored on the catalog row, or in Vault) or from CONNECTION_STRINGS.
+claim source: README.md § Connections Management; skills/nvidia-ontology-setup § Connect a source
+
+
+## what the live engine is connected to
+GET /api/connections (200):
+{
+  "data": [],
+  "count": 0
+}
+GET /api/connections/source (200):
+true
+CHECK PASS: both connection reads answer
+The live engine's CONNECTION_STRINGS (from the fork's .env) names one source: sqlite:////data/chinook.sqlite.
+Pagila's catalog is in the graph (seeded by dev_tools/fixtures/seed_graph_fixture.py), but no connection can run its SQL.
+
+## POST /api/connections/test: Pagila with the .env credentials (nothing is stored)
+test pagila (200):
+{
+  "success": true,
+  "schemas": []
+}
+CHECK PASS: Pagila connection test passes from inside the engine container
+
+## POST /api/connections/test: the same with a wrong password (expect the driver's error, HTTP 422)
+test pagila, bad password (422):
+{
+  "detail": "Connection test failed: couldn't get a connection after 30.00 sec"
+}
+CHECK PASS: a bad credential is refused with 422
+NOTE: the 422 carries a connection-pool timeout after 30 s, not the driver's authentication error the setup skill promises
+
+## why the demos do not POST /api/connections for Pagila on the live engine
+1. UI connections shadow CONNECTION_STRINGS for SQL execution (auto_ontology/connectors/registry.py get_connectors:
+   env strings are read only when no UI connection exists), and the structured connection form has no
+   SQLite type (connection_string_factory.py), so adding Pagila would take Chinook away from the engine.
+2. DELETE /api/connections/{db} also asks the ingestion service to reset that database's catalog
+   (service.delete_connection -> trigger_reset -> /ingest/delete), so undoing it would delete Pagila's
+   hand-authored semantic layer from ao-catalog.
+3. Without Vault the password would be stored in plaintext on the catalog row, i.e. in the graph.
+NOTE: the ingestion service reads the other precedence (CONNECTION_STRINGS first, ingestion_service/connections.py), so the two services can disagree about which sources exist
+
+Instead the Pagila questions run on a side engine (http://127.0.0.1:3011, demos/lib/side-engine.sh): the same code and the same
+graph, with CONNECTION_STRINGS naming both Pagila and Chinook.
+CHECK PASS: side engine with both sources is up at http://127.0.0.1:3011
+
+checks: 4/4 passed
+elapsed: 30.8s
+STATUS: partial — list/source/test work; creating Pagila on the live engine would shadow Chinook, so it runs on a side engine

@@ -1,0 +1,59 @@
+# 07-ask-glossary-term: NL question that needs a glossary term
+run at 2026-11-03T20:23:12-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Ground: agents get trusted business meaning (terms, synonyms, reviewed SQL attributes).
+claim source: README.md (Ground); docs/mcp.md (search_terms, get_term_sql_attributes)
+
+
+## pagila: How many patrons are there?
+ground truth (pagila, run directly on the source): SELECT count(*) FROM customer
+  -> [('599',)]
+engine: http://127.0.0.1:3011
+question: How many patrons are there?
+http 200 · 31 SSE events · [DONE] seen · 56.0s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → reconstruct_sql → validate_sql_query → unconstructable_sql_response → question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response
+answer: LLM failed to produce a response.
+CHECK FAIL: pagila [side engine] 'patrons' is a synonym of the term Customer: no rows came back
+
+## pagila: Which patron has the highest customer lifetime value, and what is it?
+ground truth (pagila, run directly on the source): SELECT c.first_name || ' ' || c.last_name, sum(p.amount) FROM payment p JOIN customer c USING (customer_id) GROUP BY 1 ORDER BY 2 DESC LIMIT 1
+  -> [('RUTH MARTINEZ', '23.95')]
+engine: http://127.0.0.1:3011
+question: Which patron has the highest customer lifetime value, and what is it?
+http 200 · 38 SSE events · [DONE] seen · 116.2s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response → question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → reconstruct_sql → validate_sql_query → execute_sql_query → check_empty_like_result → check_value_repair → format_and_respond
+sql: SELECT c."FirstName" || ' ' || c."LastName" AS patron_name, SUM(i."Total") AS lifetime_value FROM "Customer" AS c INNER JOIN "Invoice" AS i ON c."CustomerId" = i."CustomerId" GROUP BY c."CustomerId", c."FirstName", c."LastName" ORDER BY lifetime_value DESC, patron_name ASC LIMIT 1
+rows (1, first 10):
+[
+  {
+    "patron_name": "Helena Holý",
+    "lifetime_value": 49.62
+  }
+]
+answer: This finds the patron with the highest customer lifetime value and reports that value. It sums the invoice totals from the Invoice table for each customer in the Customer table, across all dates, and only customers with at least one invoice are considered. The results are grouped by customer, ordered from highest to lowest lifetime value with patron name as the tie-breaker, and only the top patron is returned.
+CHECK FAIL: pagila [side engine] 'customer lifetime value' is a SQL attribute of Customer: expected RUTH MARTINEZ 23.95
+
+## chinook: How many songs are longer than five minutes?
+ground truth (chinook, run directly on the source): SELECT count(*) FROM Track WHERE Milliseconds > 300000
+  -> [('1069',)]
+engine: http://127.0.0.1:3001
+question: How many songs are longer than five minutes?
+http 200 · 22 SSE events · [DONE] seen · 49.8s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → execute_sql_query → check_empty_like_result → check_value_repair → format_and_respond
+sql: SELECT COUNT("TrackId") AS song_count FROM "Track" WHERE "Milliseconds" > 300000
+rows (1, first 10):
+[
+  {
+    "song_count": 1069
+  }
+]
+answer: This counts the songs (tracks) whose length is greater than five minutes, which is 300,000 milliseconds. It uses the Track table and its Milliseconds column, with a strict greater-than filter so tracks of exactly five minutes are not included. The result is a single number with no grouping or ordering.
+CHECK PASS: chinook [live engine] 'song' is a synonym of the term Track: expected 1069
+
+## did the glossary reach the agent?
+- 'How many patrons are there?': thoughts mention glossary/term/synonym: True
+- 'Which patron has the highest customer lifetime value, and what is it?': thoughts mention glossary/term/synonym: True
+- 'How many songs are longer than five minutes?': thoughts mention glossary/term/synonym: False
+
+checks: 1/3 passed; failed: pagila [side engine] 'patrons' is a synonym of the term Customer: no rows came back; pagila [side engine] 'customer lifetime value' is a SQL attribute of Customer: expected RUTH MARTINEZ 23.95
+elapsed: 222.4s
+STATUS: partial

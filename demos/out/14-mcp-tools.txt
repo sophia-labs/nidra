@@ -1,0 +1,86 @@
+# 14-mcp-tools: the nine MCP tools, through the routes they wrap
+run at 2026-11-03T20:34:04-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Expose: serve context to any agent harness through MCP (nine read tools, OAuth sign-in).
+claim source: docs/mcp.md § Tools; mcp/auto_ontology_mcp/tools.py, chat.py, readiness.py
+
+
+## the OAuth front door
+GET :3001/.well-known/oauth-authorization-server -> 404
+127.0.0.1:3000 (Next.js web app / authorization server) listening: False
+127.0.0.1:3003 (auto-ontology-mcp) listening: False
+NOTE: the OAuth MCP front door is not wired in Nidra yet: no Next.js gateway (no authorization server, no /.well-known/oauth-authorization-server), no auto-ontology-mcp process, so an MCP client cannot sign in. The tools below are the same HTTP calls the MCP server would make, sent straight to FastAPI with the trusted x-auto-ontology-user-id header.
+
+## search_terms  (GET /api/terms)
+CHECK PASS: search_terms: query=rent -> ['Rental']
+
+## get_term  (GET /api/terms/{term_id})
+CHECK PASS: get_term: Customer, synonyms ['renter', 'patron']
+
+## get_term_columns  (GET /api/terms/{term_id}/column-attributes)
+CHECK PASS: get_term_columns: ['customer email', 'customer id']
+
+## get_term_sql_attributes  (GET /api/terms/{term_id}/sql-attributes)
+CHECK PASS: get_term_sql_attributes: ['customer lifetime value']
+
+## get_sql_attribute  (GET /api/sql-attributes/{attr_id})
+CHECK PASS: get_sql_attribute: customer lifetime value: SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id
+
+## describe_table  (GET /api/exploration/tables/{table_id}/details)
+describe_table customer (abridged):
+{
+  "queries": [],
+  "terms": [
+    {
+      "id": "1494ca89-18dd-4978-8491-f448b66a1e89",
+      "name": "Customer",
+      "description": "A person who rents films from a store.",
+      "relationship_types": [
+        "HAS_ATTRIBUTE",
+        "REPRESENTS"
+      ]
+    }
+  ],
+  "terms_total": 1
+}
+CHECK PASS: describe_table: the table view names the term Customer
+
+## check_answerable  (POST /api/question-entity-coverage)
+CHECK PASS: check_answerable: coverage 1.0
+
+## check_readiness  (three probes, folded by upstream's readiness._summarise)
+check_readiness:
+{
+  "ready": false,
+  "semantic_layer_built": true,
+  "can_execute_sql": false,
+  "catalog_present": true,
+  "databases": [
+    "chinook",
+    "pagila"
+  ],
+  "blockers": [
+    "No database connection is configured, so generated SQL cannot execute. Questions will still be accepted and will still cost a full agent run before failing with an empty answer. Add a connection in the Auto Ontology UI."
+  ],
+  "unverified": []
+}
+CHECK PASS: check_readiness: answers (ready=False; see demo 01 for the false blocker)
+
+## ask_question  (POST /api/chat/completions, SSE)
+engine: http://127.0.0.1:3001
+question: How many songs are longer than five minutes?
+http 200 · 22 SSE events · [DONE] seen · 44.0s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → execute_sql_query → check_empty_like_result → check_value_repair → format_and_respond
+sql: SELECT COUNT(*) AS song_count FROM "Track" AS t WHERE t."Milliseconds" > 300000
+rows (1, first 10):
+[
+  {
+    "song_count": 1069
+  }
+]
+answer: This counts the songs whose length is greater than five minutes. It uses the Track table and checks that the track length in milliseconds is more than 300,000 (five minutes). Songs exactly five minutes long are not included, and the result is a single total count.
+CHECK PASS: ask_question: answer + SQL + rows as separate fields
+row_count=1 (the MCP server caps rows at 100 and reports row_count/truncated)
+
+checks: 9/9 passed
+elapsed: 45.5s
+STATUS: partial — 9/9 operations answer through FastAPI; the OAuth MCP front door is not wired in Nidra yet

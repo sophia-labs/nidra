@@ -1,0 +1,159 @@
+# 12-model-interchange: model export (YAML, Ossie) and re-import
+run at 2026-11-03T20:32:33-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: POST /api/model/export writes the catalog + semantic layer as native YAML or Apache Ossie; POST /api/model/import reads either back; verify by exact re-export.
+claim source: skills/nvidia-ontology-management § Bulk import / export; references/publication.md
+
+
+## export from the live engine (read-only)
+CHECK PASS: native export (200, 59852 bytes)
+CHECK PASS: Apache Ossie export (200, 54576 bytes)
+Ossie zip with include_ontology (200): ['semantic_model.yaml', 'ontology.yaml', 'mapping.yaml']
+CHECK PASS: Ossie zip holds the semantic model, the ontology and the mapping
+native: 2 databases, 5 terms, sql_attributes 4, custom_analyses 2
+ossie: 5 datasets, 2 relationships, metrics 2
+
+## sandbox: duplicate the graph, start an engine on it
+duplicate_graph:
+{
+  "success": true,
+  "type": "duplicate_graph",
+  "source_graph_id": "ao-catalog",
+  "sourceGraphId": "ao-catalog",
+  "new_graph_id": "ao-demo-sandbox-20261103-203236",
+  "newGraphId": "ao-demo-sandbox-20261103-203236",
+  "title": "nidra demos: model interchange sandbox",
+  "document_count": 0,
+  "documentCount": 0,
+  "artifact_count": 0,
+  "artifactCount": 0,
+  "image_count": 0,
+  "imageCount": 0,
+  "s3_objects_copied": 0,
+  "local_objects_copied": 0,
+  "rdf_quad_count": 3883,
+  "rdfQuadCount": 3883,
+  "graph": {
+    "graph_uri": "urn:mnemosyne:local:graph:ao-demo-sandbox-20261103-203236",
+    "graph_id": "ao-demo-sandbox-20261103-203236",
+    "title": "nidra demos: model interchange sandbox",
+    "description": null,
+    "status": "active",
+    "created_at": "1793766756211",
+    "updat
+… [398 more characters not shown]
+CHECK PASS: sandbox ao-demo-sandbox-20261103-203236 created
+quads: ao-catalog 3884, ao-demo-sandbox-20261103-203236 3884
+side engine up on :3012 (graph ao-demo-sandbox-20261103-203236, pid 89213)
+
+## baseline: export from the sandbox engine itself (it has Pagila connected, so dialects are filled)
+diff original-export -> sandbox-baseline: 7 lines (first 12):
+  --- original-export
+  +++ sandbox-baseline
+  @@ -535,3 +535,3 @@
+           type: base table
+  -  - dialect: ''
+  +  - dialect: postgres
+       id: dcdd3bd2-fabd-4d4b-b03b-34d97edad70b
+(the live engine exports Pagila's dialect as '' because it has no Pagila connection)
+
+## re-import the native export into the sandbox (replace=false, embed=false)
+import native (200):
+{
+  "success": true,
+  "summary": {
+    "database_ids": [
+      "23f06f0b-d348-4984-abc4-5204741977b1",
+      "dcdd3bd2-fabd-4d4b-b03b-34d97edad70b"
+    ],
+    "created": {
+      "databases": 0,
+      "schemas": 0,
+      "tables": 0,
+      "columns": 0,
+      "terms": 0,
+      "column_attributes": 0,
+      "sql_attributes": 0,
+      "custom_analyses": 0
+    },
+    "skipped": {
+      "databases": 2,
+      "schemas": 3,
+      "tables": 37,
+      "columns": 209,
+      "terms": 5,
+      "column_attributes": 8,
+      "sql_attributes": 4,
+      "custom_analyses": 2
+    },
+    "replace": false,
+    "terms": 5,
+    "column_attributes": 8,
+    "semantic_fks": 3,
+    "sql_attributes": 4,
+    "custom_analyses": 2,
+    "format": "auto_ontology"
+  }
+}
+CHECK PASS: re-importing its own export creates nothing (every row adopted)
+CHECK PASS: re-export after the native import equals the original export (volatile stamps aside)
+
+## import the Apache Ossie export into the sandbox (replace=false, embed=false)
+import ossie (200):
+{
+  "success": true,
+  "summary": {
+    "database_ids": [
+      "23f06f0b-d348-4984-abc4-5204741977b1",
+      "dcdd3bd2-fabd-4d4b-b03b-34d97edad70b"
+    ],
+    "created": {
+      "databases": 0,
+      "schemas": 0,
+      "tables": 0,
+      "columns": 0,
+      "terms": 0,
+      "column_attributes": 1,
+      "sql_attributes": 0,
+      "custom_analyses": 0
+    },
+    "skipped": {
+      "databases": 2,
+      "schemas": 3,
+      "tables": 37,
+      "columns": 209,
+      "terms": 5,
+      "column_attributes": 8,
+      "sql_attributes": 3,
+      "custom_analyses": 2
+    },
+    "replace": false,
+    "terms": 5,
+    "column_attributes": 9,
+    "semantic_fks": 3,
+    "sql_attributes": 3,
+    "custom_analyses": 2,
+    "format": "ossie"
+  }
+}
+CHECK PASS: the Ossie document is accepted as Ossie
+terms before: ['Customer', 'Film', 'Payment', 'Rental', 'Track']
+terms after the Ossie import: ['Customer', 'Film', 'Payment', 'Rental', 'Track']
+CHECK PASS: the Ossie round trip neither loses nor duplicates terms
+column attributes before 8, after the Ossie import 9
+CHECK FAIL: re-export after the Ossie import equals the original export exactly
+diff original-export -> after-ossie-import: 9 lines (first 60):
+  --- original-export
+  +++ after-ossie-import
+  @@ -1871,2 +1871,6 @@
+     - columns_attributes:
+  +    - column_id: 2b7284dc-8877-468f-8099-6de7c0c31fc9
+  +      description: Total paid by each customer.
+  +      id: 9b9af4fd-8031-4549-acc9-f49c60ee0f9c
+  +      name: customer_lifetime_value
+       - column_id: cbac74c2-3974-4ca2-91c9-02bc14481802
+NOTE: the Ossie round trip is lossy in one place: the SQL attribute 'customer lifetime value' (an aggregate, SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id) is exported as an Ossie field and comes back as a new column attribute 'customer_lifetime_value' on Customer, beside the SQL attribute it came from (upstream's convert_ossie_to_auto_ontology; replace=false adopts everything else)
+sandbox graph ao-demo-sandbox-20261103-203236 is left on the scratch gardend (manage_graph action=delete removes it)
+
+checks: 8/9 passed; failed: re-export after the Ossie import equals the original export exactly
+elapsed: 15.9s
+STATUS: partial

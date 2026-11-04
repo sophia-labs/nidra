@@ -1,0 +1,55 @@
+# 21-find-multilingual: find a column by meaning, in Spanish and Japanese
+run at 2026-11-03T20:41:43-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: gardend's find searches every entity of the graph by meaning and words in any language (multilingual-e5-small) and returns the named graph and how to read the hit. Upstream's search_terms matches term names as substrings (demo 09).
+
+
+## [es] duración de la canción en milisegundos
+  0.70 catalog column   Milliseconds           ref table id: Track; data type: INTEGER; name: Milliseconds; ordinal p
+  0.28 catalog column   Title                  ref table id: Album; data type: NVARCHAR(160); name: Title; ordinal po
+  0.25 catalog column   rental_duration        ref table id: film; data type: smallint; name: rental_duration; ordina
+  0.24 catalog column   Name                   ref table id: Playlist; data type: NVARCHAR(120); name: Name; ordinal 
+  0.21 catalog column   last_rented_at         ref table id: film_performance; data type: timestamp with time zone; n
+CHECK PASS: top hit is Track.Milliseconds (got Track.Milliseconds)
+  provenance: [{'namedGraph': 'urn:mnemosyne:local:graph:ao-catalog:user:rdf'}]; next: every fact of a hit: sparql_query {"graphId":"ao-catalog","query":"SELECT ?p ?o WHERE { GRAPH ?g { <IRI> ?p ?o…
+
+## [ja] 曲の長さ（ミリ秒）
+  0.70 catalog column   Milliseconds           ref table id: Track; data type: INTEGER; name: Milliseconds; ordinal p
+  0.47 catalog column   length                 ref table id: nicer_but_slower_film_list; data type: smallint; name: l
+  0.41 catalog column   length                 ref table id: film_list; data type: smallint; name: length; ordinal po
+  0.30 catalog column   Title                  ref table id: Album; data type: NVARCHAR(160); name: Title; ordinal po
+  0.28 catalog column   length                 ref table id: film; data type: smallint; name: length; ordinal positio
+CHECK PASS: top hit is Track.Milliseconds (got Track.Milliseconds)
+
+## [es] tarifa de alquiler de la película
+  0.70 catalog column   rental_rate            ref table id: film; data type: numeric; name: rental_rate; ordinal pos
+  0.54 catalog column   price                  ref table id: nicer_but_slower_film_list; data type: numeric; name: pr
+  0.53 catalog column   price                  ref table id: film_list; data type: numeric; name: price; ordinal posi
+  0.50 term             Film                   A motion picture available for rental. created: 2026-11-03; descriptio
+  0.48 catalog column   replacement_cost       ref table id: film; data type: numeric; name: replacement_cost; ordina
+CHECK PASS: top hit is film.rental_rate (got film.rental_rate)
+
+## [ja] 映画のレンタル料金
+  0.70 catalog column   rental_rate            ref table id: film; data type: numeric; name: rental_rate; ordinal pos
+  0.60 catalog column   rental_duration        ref table id: film; data type: smallint; name: rental_duration; ordina
+  0.59 catalog column   price                  ref table id: film_list; data type: numeric; name: price; ordinal posi
+  0.52 catalog column   price                  ref table id: nicer_but_slower_film_list; data type: numeric; name: pr
+  0.51 term             Film                   A motion picture available for rental. created: 2026-11-03; descriptio
+CHECK PASS: top hit is film.rental_rate (got film.rental_rate)
+
+## [es] ¿quién atendió al cliente? el empleado de soporte
+  0.70 catalog column   SupportRepId           ref table id: Customer; data type: INTEGER; name: SupportRepId; ordina
+  0.36 catalog column   Phone                  ref table id: Employee; data type: NVARCHAR(24); name: Phone; ordinal 
+  0.35 catalog column   store_id               ref table id: staff; data type: integer; name: store_id; ordinal posit
+  0.34 catalog column   manager_staff_id       ref table id: store; data type: integer; name: manager_staff_id; ordin
+  0.29 catalog column   staff_id               ref table id: payment; data type: integer; name: staff_id; ordinal pos
+CHECK PASS: top hit is Customer.SupportRepId (got Customer.SupportRepId)
+
+## the same intent through the engine's glossary search
+  GET /api/terms?query=canción -> []
+  GET /api/terms?query=曲 -> []
+  GET /api/terms?query=song -> []
+(search_terms is a name substring match; 'song' is Track's synonym and still finds nothing there)
+
+checks: 5/5 passed
+elapsed: 3.2s
+STATUS: works

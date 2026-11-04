@@ -1,0 +1,52 @@
+# 25-memory: remember an answer with its SQL; recall it from a paraphrase
+run at 2026-11-03T20:49:51-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: gardend keeps provenance-anchored memories and recalls them by meaning. Upstream's chat keeps the last five turns of one conversation for rewriting, and its 'similar questions from conversations' slot is never filled (demo 16).
+
+
+## the answer to remember
+source: recorded by demo 14 at 2026-11-03T20:34:04-08:00 (demos/out/14-mcp-tools.txt); fresh attempt said: 'LLM failed to produce a response.'
+question: How many songs are longer than five minutes?
+sql: SELECT COUNT(*) AS song_count FROM "Track" AS t WHERE t."Milliseconds" > 300000
+rows: [{"song_count": 1069}]
+CHECK PASS: an engine answer with SQL and rows is at hand
+
+## remember
+remember:
+{
+  "ok": true,
+  "subject": "urn:mnemosyne:local:graph:ao-catalog:projection:memory:record:ca4e49bb1bf087a5573267d44326ce083f283616957d663f215e4b24906a5270",
+  "subjects": [
+    "urn:mnemosyne:local:graph:ao-catalog:projection:memory:record:ca4e49bb1bf087a5573267d44326ce083f283616957d663f215e4b24906a5270"
+  ],
+  "supersededSubject": null,
+  "supersededSubjects": [],
+  "source": "memory-projection"
+}
+CHECK PASS: remembered, with a provenance anchor
+
+## recall by substring (recall)
+recall 'longer than five minutes': 2 hit(s)
+CHECK PASS: substring recall finds it
+
+## recall by meaning (memory_semantic_recall): how many tracks run over 5 min?
+  0.798 'Q: How many songs are longer than five minutes?\nA: [{"song_count": 1069}] (Chinook, via Nidra)\nSQL: SELECT COU'
+  0.650 'The Auto Ontology glossary describes term Track (urn:ao:term/id=12dc7904-1b6f-4112-81f0-24f8970b99e9) as: "A s'
+  model=fastembed/qdrant/bge-small-en-v1.5-onnx-q dims=384 candidates=2
+CHECK PASS: the paraphrase recalls the remembered answer first
+
+## recall by meaning (memory_semantic_recall): ¿cuántas canciones duran más de cinco minutos?
+  0.548 'The Auto Ontology glossary describes term Track (urn:ao:term/id=12dc7904-1b6f-4112-81f0-24f8970b99e9) as: "A s'
+  0.546 'Q: How many songs are longer than five minutes?\nA: [{"song_count": 1069}] (Chinook, via Nidra)\nSQL: SELECT COU'
+  model=fastembed/qdrant/bge-small-en-v1.5-onnx-q dims=384 candidates=2
+CHECK FAIL: the paraphrase recalls the remembered answer first
+
+## recall by meaning (memory_semantic_recall): length of the longest invoice
+  0.627 'Q: How many songs are longer than five minutes?\nA: [{"song_count": 1069}] (Chinook, via Nidra)\nSQL: SELECT COU'
+  0.499 'The Auto Ontology glossary describes term Track (urn:ao:term/id=12dc7904-1b6f-4112-81f0-24f8970b99e9) as: "A s'
+  model=fastembed/qdrant/bge-small-en-v1.5-onnx-q dims=384 candidates=2
+  (a control: an unrelated question; whatever comes back, the score should sit below the paraphrases')
+The recall model on this gardend is BGE Small EN v1.5 (English); the Spanish paraphrase is a test of that, not of find's multilingual e5 index (demo 21).
+
+checks: 4/5 passed; failed: the paraphrase recalls the remembered answer first
+elapsed: 73.2s
+STATUS: partial

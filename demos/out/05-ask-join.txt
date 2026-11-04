@@ -1,0 +1,61 @@
+# 05-ask-join: NL question: joins
+run at 2026-11-03T20:23:12-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Joins across related tables, found from foreign keys and join paths.
+claim source: README.md § Key Features; skills/nvidia-ontology-management § Semantic relationships
+
+
+## chinook: Which 3 artists have the most tracks, and how many tracks does each have?
+ground truth (chinook, run directly on the source): SELECT ar.Name, count(*) FROM Track t JOIN Album al ON al.AlbumId=t.AlbumId JOIN Artist ar ON ar.ArtistId=al.ArtistId GROUP BY 1 ORDER BY 2 DESC LIMIT 3
+  -> [('Iron Maiden', '213'), ('U2', '135'), ('Led Zeppelin', '114')]
+engine: http://127.0.0.1:3001
+question: Which 3 artists have the most tracks, and how many tracks does each have?
+http 200 · 22 SSE events · [DONE] seen · 55.3s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → execute_sql_query → check_empty_like_result → check_value_repair → format_and_respond
+sql: SELECT ar."Name" AS ArtistName, COUNT(t."TrackId") AS TrackCount FROM "Artist" AS ar INNER JOIN Album AS al ON al."ArtistId" = ar."ArtistId" INNER JOIN "Track" AS t ON t."AlbumId" = al."AlbumId" GROUP BY ar."ArtistId", ar."Name" ORDER BY TrackCount DESC, ar."Name" ASC LIMIT 3
+rows (3, first 10):
+[
+  {
+    "ArtistName": "Iron Maiden",
+    "TrackCount": 213
+  },
+  {
+    "ArtistName": "U2",
+    "TrackCount": 135
+  },
+  {
+    "ArtistName": "Led Zeppelin",
+    "TrackCount": 114
+  }
+]
+answer: This finds the 3 artists with the most tracks and shows each artist's name with their track count. It connects artists to their albums and the albums to their tracks, counts the tracks per artist, and orders the result from the highest count to the lowest. Artists with the same count are ordered alphabetically by name, and only the top 3 are returned. The artist-to-track link relies on an Album table that was not in the provided schema list, so please check that it exists.
+CHECK PASS: chinook [live engine] Which 3 artists have the most tracks, and how many tracks does each have?: all names and counts match
+
+## pagila: Which 3 film categories have the most films, and how many films are in each?
+ground truth (pagila, run directly on the source): SELECT c.name, count(*) FROM film_category fc JOIN category c ON c.category_id=fc.category_id GROUP BY 1 ORDER BY 2 DESC LIMIT 3
+  -> [('Sports', '74'), ('Foreign', '73'), ('Family', '69')]
+engine: http://127.0.0.1:3011
+question: Which 3 film categories have the most films, and how many films are in each?
+http 200 · 30 SSE events · [DONE] seen · 129.4s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → execute_sql_query → check_empty_like_result → check_value_repair → format_and_respond
+sql: WITH film_counts AS (SELECT f.rating, COUNT(f.film_id) AS film_count FROM pagila.public.film AS f GROUP BY f.rating) SELECT fc.rating, fc.film_count FROM film_counts AS fc ORDER BY fc.film_count DESC, fc.rating ASC LIMIT 3
+rows (3, first 10):
+[
+  {
+    "rating": "PG-13",
+    "film_count": 223
+  },
+  {
+    "rating": "NC-17",
+    "film_count": 210
+  },
+  {
+    "rating": "R",
+    "film_count": 195
+  }
+]
+answer: This counts the number of films in each rating group from the film table, using the MPAA rating as the closest available stand-in for film category because no category table exists in the schema. Films with a missing rating are included as their own group. The results are ordered from the group with the most films to the fewest, and the top three groups are returned along with their film counts.
+CHECK FAIL: pagila [side engine] Which 3 film categories have the most films, and how many films are in each?: missing or wrong: ['Sports=74', 'Foreign=73', 'Family=69']
+
+checks: 1/2 passed; failed: pagila [side engine] Which 3 film categories have the most films, and how many films are in each?: missing or wrong: ['Sports=74', 'Foreign=73', 'Family=69']
+elapsed: 185.0s
+STATUS: partial

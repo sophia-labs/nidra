@@ -1,0 +1,90 @@
+# 10-catalog: catalog: tables, columns, FKs, join paths
+run at 2026-11-03T20:29:22-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: A semantic catalog over relational sources; describe_table is the one table view MCP exposes; the management skill names term-to-term semantic paths.
+claim source: README.md § Key Features; docs/mcp.md (describe_table); skills/nvidia-ontology-management § Semantic relationships
+
+
+## GET /api/datasources/dbs, /api/schemas/{db}, /api/tables/{schema}
+- chinook.main: 11 tables: Album, Artist, Customer, Employee, Genre, Invoice, InvoiceLine, MediaType, Playlist, PlaylistTrack, Track
+- pagila.analytics: 3 tables: category_rollup, film_performance, top_films
+- pagila.public: 23 tables: actor, actor_info, address, category, city, country, customer, customer_list, film, film_actor, film_category, film_list, inventory, language, nicer_but_slower_film_list, payment, rental, rental_by_category, sales_by_film_category, sales_by_store, staff, staff_list, store
+CHECK PASS: 37 tables across both databases
+
+## GET /api/columns/{table_id}: Chinook Track
+- TrackId INTEGER
+- Name NVARCHAR(200)
+- AlbumId INTEGER
+- MediaTypeId INTEGER
+- GenreId INTEGER
+- Composer NVARCHAR(220)
+- Milliseconds INTEGER
+- Bytes INTEGER
+- UnitPrice NUMERIC(10,2)
+CHECK PASS: Track has 9 columns (Chinook's Track has 9)
+
+## describe_table: GET /api/exploration/tables/{id}/details for Pagila film
+film details (200), keys:
+[
+  "queries",
+  "terms",
+  "terms_total"
+]
+film details (abridged):
+{
+  "queries": [
+    {
+      "id": "2108acbd-92dc-4a4f-935a-546b54f1564f",
+      "sql": "SELECT count(film_id) FROM film"
+    },
+    {
+      "id": "73d803c7-3724-4309-a5a4-20b97f901adf",
+      "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+    }
+  ],
+  "terms": [
+    {
+      "id": "fc01c40a-11db-4f5d-a8cf-3ebcfe8e137e",
+      "name": "Film",
+      "description": "A motion picture available for rental.",
+      "relationship_types": [
+        "HAS_ATTRIBUTE",
+        "REPRESENTS"
+      ]
+    }
+  ],
+  "terms_total": 1
+}
+CHECK PASS: describe_table answers for film
+
+## foreign keys: GET /api/exploration/edges
+- ?.PlaylistId -> ?.PlaylistId
+- ?.CustomerId -> ?.CustomerId
+- ?.InvoiceId -> ?.InvoiceId
+- ?.category_id -> ?.category_id
+- ?.film_id -> ?.film_id
+- ?.SupportRepId -> ?.EmployeeId
+- ?.staff_id -> ?.staff_id
+- ?.store_id -> ?.store_id
+CHECK PASS: 27 table-to-table edges via foreign keys
+
+## join path between two terms: GET /api/exploration/terms/{a}/path/{b}
+Customer -> Rental (200): 4 hops: Customer -> [PROPERTY_OF] customer id (columnAttribute) -> [SEMANTIC_FK] customer_id (column) -> [CONTAINS] rental (table) -> [REPRESENTS] Rental (term)
+CHECK PASS: a semantic path Customer -> Rental exists (the fixture's semantic FK)
+Payment -> Rental (200): 6 hops: Payment -> [REPRESENTS] payment (table) -> [CONTAINS] customer_id (column) -> [SEMANTIC_FK] customer id (columnAttribute) -> [SEMANTIC_FK] customer_id (column) -> [CONTAINS] rental (table) -> [REPRESENTS] Rental (term)
+Customer -> Film (200): 0 hops: (no path)
+(the fixture defines semantic FKs among Customer, Payment and Rental only, so Customer -> Film has no path)
+
+## the catalog graph: GET /api/exploration/graph and /api/exploration/semantic-graph
+graph: 37 nodes, 28 edges (200)
+semantic-graph (200): keys ['links', 'nodes']
+CHECK PASS: both graph views answer
+
+## global search: POST /api/search/global-search
+global-search 'rental' (500):
+Internal Server Error
+CHECK FAIL: global search answers
+NOTE: POST /api/search/global-search answers 500 on Nidra: NotImplementedError: auto_ontology.dal.search.fetch_global_search has no RDF port (AO_RDF_STRICT=1)
+
+checks: 6/7 passed; failed: global search answers
+elapsed: 0.3s
+STATUS: partial

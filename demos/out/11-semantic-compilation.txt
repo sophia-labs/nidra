@@ -1,0 +1,48 @@
+# 11-semantic-compilation: semantic compilation: trigger and status
+run at 2026-11-03T20:29:22-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Discover: generate enterprise ontologies from metadata (semantic compilation over the catalog).
+claim source: README.md (Discover); skills/nvidia-ontology-management step 6; skills/nvidia-ontology-setup § Verify
+
+status before (200):
+{
+  "calculated": true,
+  "running": false,
+  "last_success_at": "2026-11-04T00:41:54.111477+00:00",
+  "last_failure_at": null
+}
+terms before: 5
+
+## POST /api/semantic-compilation/trigger
+trigger (202):
+{
+  "status": "accepted"
+}
+CHECK PASS: trigger accepted (202)
+
+## poll status for 60 s
+  t+ 5s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+10s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+15s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+20s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+25s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+30s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+35s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+40s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+45s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+50s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+55s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+  t+60s running=False last_success_at=2026-11-04T00:41:54.111477+00:00 last_failure_at=None
+terms after: 5
+
+## what the ingestion service did with it (docker logs nidra-ingestion, since the trigger)
+  2026-11-04 04:29:23,070 INFO uvicorn.access: 172.18.0.3:56644 - "POST /semantic/compile HTTP/1.1" 202
+  2026-11-04 04:29:23,075 INFO auto_ontology.ingestion_service.semantic_scheduler: semantic: compilation disabled in settings; skipping run
+  2026-11-04 04:29:23,076 INFO auto_ontology.ingestion_service.scheduler: semantic: next run at 2026-11-05T04:29:23.075790+00:00
+CHECK FAIL: a compilation pass actually ran
+NOTE: the pass was skipped: 'semantic: compilation disabled in settings; skipping run'. Upstream stores the switch in the frontend's configurations table (Prisma), toggled by PUT /api/configurations/semantic-compilation, a Next.js route Nidra does not run; on the gardend backend the switch is the environment variable AO_FLAG_SEMANTIC_COMPILATION_ENABLED=true on the ingestion service (auto_ontology/infra/feature_flags.py), and the live nidra-ingestion container does not set it.
+GET /api/configurations/semantic-compilation -> 404 {'detail': 'Not Found'}
+The current glossary (5 terms) is the hand-authored fixture from dev_tools/fixtures/seed_graph_fixture.py, not a compilation result; 'calculated: true' only means some Term exists (router.py semantic_status).
+
+checks: 1/2 passed; failed: a compilation pass actually ran
+elapsed: 61.1s
+STATUS: not yet — trigger and status answer; the pass is skipped because compilation is switched off and Nidra has no settings route to switch it on

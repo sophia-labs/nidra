@@ -1,0 +1,117 @@
+# 22-emporium-correction: a correction as witnessed testimony, and its two heads
+run at 2026-11-03T20:42:33-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Emporium records change as lineage and testimony as attributed: a correction supersedes, never overwrites; each witness keeps its own head; storage never picks a winner (plans/2026-11-02-emporium-log/ARCHITECTURE.md §2-3).
+
+
+## what the glossary says now (the engine's API)
+urn:ao:term/id=12dc7904-1b6f-4112-81f0-24f8970b99e9: 'A single piece of recorded music.' (description_certified=False)
+
+## what the data says (Chinook, directly)
+  MPEG audio file: 3034
+  Protected AAC audio file: 237
+  Protected MPEG-4 video file: 214
+  AAC audio file: 11
+  Purchased AAC audio file: 7
+  e.g. [('Battlestar Galactica: The Story So Far', 'Science Fiction'), ('Occupation / Precipice', 'TV Shows'), ('Exodus, Pt. 1', 'TV Shows')]
+CHECK PASS: 214 of 3503 Track rows are video, so 'a single piece of recorded music' is wrong
+
+## the vocabulary (emporium_vocab sophia-memory-core, MemoryRecord)
+MemoryRecord fields used here: content, kind, scope, contentOrientation, visibility, status, sourceRefs, isCurrent+validFrom (a head needs both, invariant I7), supersedes, tags; observedBy comes from the observer
+CHECK PASS: MemoryRecord carries supersedes / lineage / observedBy
+
+## write 1: the glossary's statement, published to the shared commons
+emporium_write (publish):
+{
+  "graphId": "ao-catalog",
+  "vocab": "sophia-memory-core",
+  "dryRun": false,
+  "ok": true,
+  "results": [
+    {
+      "subject": "urn:mnemosyne:local:graph:ao-catalog:projection:memory:record:4b7ddd570858e3569a99b3fa096df257de7f4a3a6f481a2e4a45b18434f15d54",
+      "outcome": "converged"
+    }
+  ],
+  "journalRef": "000000000002-1793767353192",
+  "warnings": [],
+  "violations": null
+}
+CHECK PASS: recorded: converged
+
+## write 2: the correction, in witness agent-6e6964726164656d's own membrane, superseding write 1
+emporium_write (observer):
+{
+  "graphId": "ao-catalog",
+  "vocab": "sophia-memory-core",
+  "dryRun": false,
+  "ok": true,
+  "results": [
+    {
+      "subject": "urn:mnemosyne:local:graph:ao-catalog:projection:memory:agent:agent-6e6964726164656d:record:98b9545babce55af0853d4fbce13f43d1dbc2b6cbd286cb34a79a9e7e2c5d8da",
+      "outcome": "converged",
+      "flags": {
+        "supersedes": "urn:mnemosyne:local:graph:ao-catalog:projection:memory:record:4b7ddd570858e3569a99b3fa096df257de7f4a3a6f481a2e4a45b18434f15d54"
+      }
+    }
+  ],
+  "journalRef": "000000000003-1793767353237",
+  "warnings": [],
+  "violations": null
+}
+CHECK PASS: recorded: converged
+
+## the heads
+emporium_heads (commons):
+[
+  {
+    "lineage": "urn:mnemosyne:local:graph:ao-catalog:projection:memory:record:4b7ddd570858e3569a99b3fa096df257de7f4a3a6f481a2e4a45b18434f15d54",
+    "heads": [
+      "urn:mnemosyne:local:graph:ao-catalog:projection:memory:record:4b7ddd570858e3569a99b3fa096df257de7f4a3a6f481a2e4a45b18434f15d54"
+    ],
+    "contested": false
+  }
+]
+emporium_heads (observer agent-6e6964726164656d):
+[
+  {
+    "lineage": "urn:mnemosyne:local:graph:ao-catalog:projection:memory:record:4b7ddd570858e3569a99b3fa096df257de7f4a3a6f481a2e4a45b18434f15d54",
+    "heads": [
+      "urn:mnemosyne:local:graph:ao-catalog:projection:memory:agent:agent-6e6964726164656d:record:98b9545babce55af0853d4fbce13f43d1dbc2b6cbd286cb34a79a9e7e2c5d8da"
+    ],
+    "contested": false
+  }
+]
+CHECK PASS: one lineage: the commons' head is the glossary's statement, the witness's head is the correction
+- head bd286cb34a79a9e7e2c5d8da witnessGraph=tion:memory:agent:agent-6e6964726164656d contested=True siblingHeads=['b18434f15d54']
+    ['"Correction to the glossary description of term Track (urn:ao:term/id=12dc7904-1b6f-4112-81f0-24f8970b99e9): it is wrong to say \\"A single piece of recorded music.\\".
+- head 6f481a2e4a45b18434f15d54 witnessGraph=local:graph:ao-catalog:projection:memory contested=True siblingHeads=['a9e7e2c5d8da']
+    ['"The Auto Ontology glossary describes term Track (urn:ao:term/id=12dc7904-1b6f-4112-81f0-24f8970b99e9) as: \\"A single piece of recorded music.\\""']
+CHECK PASS: merged across perspectives there are two current heads, flagged contested; nothing was overwritten
+emporium_describe (the correction): testimony:
+{
+  "class": {
+    "iri": "http://mnemosyne.dev/memory#MemoryRecord",
+    "name": "MemoryRecord",
+    "label": "MemoryRecord",
+    "plural": null,
+    "vocab": "sophia-memory-core",
+    "version": "1.3.0",
+    "source": "builtin"
+  },
+  "title": "Correction to the glossary description of term Track (urn:ao:term/id=12dc7904-1b6f-4112-81f0-24f8970b99e9): it is wrong to say \"A single piece of recorded music.\". Right: \"A purchasable media item: an audio track or a video. 214 of Chinook's 3503 Track rows are 'Protected MPEG-4 video file' (TV episodes such as 'Battlestar Galactica: The Story So Far').\" Witness: nidra-demos (Claude Fable, recording for Vera).",
+  "testimony": {},
+  "stance": "read"
+}
+attribution (SPARQL on the record): observedBy urn:sophia:agent:agent-6e6964726164656d, supersedes …4a45b18434f15d54, lineage …4a45b18434f15d54, in named graph urn:mnemosyne:local:graph:ao-catalog:projection:memory:agent:agent-6e6964726164656d
+CHECK PASS: the correction is attributed to witness agent-6e6964726164656d
+(emporium_describe fills 'testimony' for workflow-run items; for a memory record the witness is mem:observedBy, read above)
+emporium_violations: 0 findings in the ledger
+
+## and the engine?
+GET /api/terms/{Track} still says 'A single piece of recorded music.'
+NOTE: the correction lives beside the catalog as testimony; the text-to-SQL agent does not read Emporium heads, so Nidra's answers still use the glossary's description. Wiring heads into retrieval is not done.
+Witness agent-6e6964726164656d = nidra-demos (Claude Fable, recording for Vera); its records live in urn:mnemosyne:local:graph:ao-catalog:projection:memory:agent:agent-6e6964726164656d.
+
+checks: 7/7 passed
+elapsed: 3.2s
+STATUS: works

@@ -1,0 +1,91 @@
+# 08-check-answerable: check_answerable and an unanswerable question
+run at 2026-11-03T20:37:17-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: check_answerable grades semantic-layer coverage of a question without running the agent; an unanswerable question shows up as low coverage, not as a confident wrong number.
+claim source: docs/mcp.md (check_answerable); skills/nvidia-ontology-query § Instructions
+
+
+## glossary-covered (Pagila): How many patrons rented a film on May 25, 2022?
+POST /api/question-entity-coverage (200):
+{
+  "data": {
+    "coverage": 1.0,
+    "candidates": [
+      {
+        "label": "ColumnAttribute",
+        "attribute": "film rating",
+        "term": "Film",
+        "id": "99da8e48-8792-4583-940b-2c1b167fbf3a"
+      }
+    ],
+    "uncovered_entities": null
+  }
+}
+coverage = 1.0; uncovered = None
+CHECK PASS: covered question grades high (1.0)
+
+## answerable but uncompiled (Chinook has only one term, Track, with no column attributes): How many tracks are there?
+POST /api/question-entity-coverage (200):
+{
+  "data": {
+    "coverage": 0.0,
+    "candidates": [],
+    "uncovered_entities": null
+  }
+}
+coverage = 0.0; uncovered = None
+
+## not in the data at all: What was the weather in Montevideo on the day of each rental?
+POST /api/question-entity-coverage (200):
+{
+  "data": {
+    "coverage": 0.0,
+    "candidates": [],
+    "uncovered_entities": null
+  }
+}
+coverage = 0.0; uncovered = None
+CHECK PASS: unanswerable question grades low (0.0)
+
+## not in the data at all: How many employees have a pension plan with the company?
+POST /api/question-entity-coverage (200):
+{
+  "data": {
+    "coverage": 1.0,
+    "candidates": [
+      {
+        "label": "ColumnAttribute",
+        "attribute": "customer id",
+        "term": "Customer",
+        "id": "dce577e7-bc6d-4191-bf74-cf27e4f85b32"
+      },
+      {
+        "label": "ColumnAttribute",
+        "attribute": "customer email",
+        "term": "Customer",
+        "id": "d7552e9a-ee3d-48f7-8257-2f2c6c73fb68"
+      }
+    ],
+    "uncovered_entities": null
+  }
+}
+coverage = 1.0; uncovered = None
+CHECK FAIL: unanswerable question grades low (1.0)
+NOTE: coverage grades the semantic layer only (column attributes, SQL attributes, custom analyses): 'How many tracks are there?' grades 0.0 although ask_question answers it correctly (3503, demo 03) from the raw tables, because Chinook was never compiled (demo 11)
+
+## why unanswerable questions grade 1.0 here: find's scores never fall below the coverage threshold
+  find 'weather in Montevideo': (label, score, distance=1-score) [('rental_date', 0.7, 0.3), ('return_date', 0.66, 0.34), ('rental date', 0.58, 0.42)]
+  find 'zzqx flibbertigibbet': (label, score, distance=1-score) [('last_rented_at', 0.7, 0.3), ('fulltext', 0.68, 0.32), ('last_update', 0.6, 0.4)]
+  find 'rental': (label, score, distance=1-score) [('Rental', 0.98, 0.02), ('rental', 0.89, 0.11), ('rental_id', 0.82, 0.18)]
+NOTE: Nidra's vector store turns find's score into a distance as 1 - score (auto_ontology/vdb/gardend.py:196), and find's fused score for its top hit is about 0.7 even for nonsense (multilingual-e5-small cosines sit near 0.8 for any pair), so every extracted entity lands under coverage_grade's max_distance=0.75 and counts as covered. check_answerable cannot say no on Nidra until the distance is calibrated (e.g. an absolute cosine floor).
+
+## ask_question on the unanswerable question (live engine)
+engine: http://127.0.0.1:3001
+question: What was the weather in Montevideo on the day of each rental?
+http 200 · 25 SSE events · [DONE] seen · 58.6s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response → question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response
+answer: LLM failed to produce a response.
+NOTE: not graded: the model call failed (OpenRouter 402 'in_flight_budget_exhausted': the key's credit ran out tonight), so 'LLM failed to produce a response.' says nothing about how the agent treats the question
+
+checks: 2/3 passed; failed: unanswerable question grades low (1.0)
+elapsed: 65.5s
+STATUS: partial

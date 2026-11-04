@@ -1,0 +1,77 @@
+# 04-ask-aggregate: NL question: aggregates
+run at 2026-11-03T20:20:02-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Aggregates over one table, grouped.
+claim source: README.md § Key Features
+
+
+## chinook: What is the total invoice revenue per billing country? Give the top 5 countries.
+ground truth (chinook, run directly on the source): SELECT BillingCountry, round(sum(Total),2) FROM Invoice GROUP BY 1 ORDER BY 2 DESC LIMIT 5
+  -> [('USA', '523.06'), ('Canada', '303.96'), ('France', '195.1'), ('Brazil', '190.1'), ('Germany', '156.48')]
+engine: http://127.0.0.1:3001
+question: What is the total invoice revenue per billing country? Give the top 5 countries.
+http 200 · 22 SSE events · [DONE] seen · 34.2s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → execute_sql_query → check_empty_like_result → check_value_repair → format_and_respond
+sql: SELECT "BillingCountry", SUM("Total") AS total_revenue FROM "Invoice" GROUP BY "BillingCountry" ORDER BY total_revenue DESC, "BillingCountry" ASC LIMIT 5
+rows (5, first 10):
+[
+  {
+    "BillingCountry": "USA",
+    "total_revenue": 523.06
+  },
+  {
+    "BillingCountry": "Canada",
+    "total_revenue": 303.96
+  },
+  {
+    "BillingCountry": "France",
+    "total_revenue": 195.1
+  },
+  {
+    "BillingCountry": "Brazil",
+    "total_revenue": 190.1
+  },
+  {
+    "BillingCountry": "Germany",
+    "total_revenue": 156.48
+  }
+]
+answer: This calculates total invoice revenue for each billing country by summing the Total amount on every invoice, grouped by Billing Country. The countries are ordered from highest to lowest total revenue, and only the top 5 are returned. No date filter is applied, so all invoices are included, and ties are broken alphabetically by country name.
+CHECK PASS: chinook [live engine] What is the total invoice revenue per billing country? Give the top 5 countries.: all groups and values match
+
+## pagila: What is the average rental rate of films for each rating?
+ground truth (pagila, run directly on the source): SELECT rating::text, round(avg(rental_rate),2) FROM film GROUP BY 1 ORDER BY 1
+  -> [('G', '2.89'), ('NC-17', '2.97'), ('PG', '3.05'), ('PG-13', '3.03'), ('R', '2.94')]
+engine: http://127.0.0.1:3011
+question: What is the average rental rate of films for each rating?
+http 200 · 22 SSE events · [DONE] seen · 30.9s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → execute_sql_query → check_empty_like_result → check_value_repair → format_and_respond
+sql: SELECT f.rating, CAST(AVG(f.rental_rate) AS NUMERIC) AS average_rental_rate FROM pagila.public.film AS f GROUP BY f.rating ORDER BY f.rating
+rows (5, first 10):
+[
+  {
+    "rating": "G",
+    "average_rental_rate": 2.8888764045
+  },
+  {
+    "rating": "PG",
+    "average_rental_rate": 3.0518556701
+  },
+  {
+    "rating": "PG-13",
+    "average_rental_rate": 3.0348430493
+  },
+  {
+    "rating": "R",
+    "average_rental_rate": 2.9387179487
+  },
+  {
+    "rating": "NC-17",
+    "average_rental_rate": 2.970952381
+  }
+]
+answer: This calculates the average rental rate of films for each MPAA rating. It uses the Rating and Rental Rate columns from the Film table, with no date filters applied. Results are grouped by rating and ordered by rating.
+CHECK PASS: pagila [side engine] What is the average rental rate of films for each rating?: all groups and values match
+
+checks: 2/2 passed
+elapsed: 65.3s
+STATUS: works

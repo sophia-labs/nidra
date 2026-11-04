@@ -1,0 +1,27 @@
+# 17-platform: auth and RBAC, web UI, deployment
+run at 2026-11-03T20:39:45-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Authentication & RBAC (Better Auth), a web UI, Helm or Docker Compose deployment.
+claim source: README.md § Key Features, § Deployment, § Authentication
+
+
+## authentication and RBAC at the engine
+GET /api/terms with no identity header: 200, 5 terms
+GET /api/terms with x-auto-ontology-user-id: someone-else: 200, 5 terms
+GET /api/terms with x-api-key: bogus: 200, 5 terms
+FastAPI trusts x-auto-ontology-user-id and checks no permission itself (docs/mcp.md: 'the FastAPI port is a trusted internal service boundary'); Better Auth sessions, API tokens and RBAC live in the Next.js gateway, which Nidra does not run.
+CHECK FAIL: an unauthenticated or unprivileged caller is refused
+NOTE: auth and RBAC are not yet in Nidra: whoever reaches :3001 reads and writes as anyone. Upstream has the same property at FastAPI and relies on the gateway; Nidra's nidra/README.md names Sophia's gateway or app as that front door.
+
+## web UI
+Next.js UI on 127.0.0.1:3000 listening: False
+CHECK FAIL: the web UI is served
+
+## deployment: Docker Compose (compose.nidra.yaml) and Helm
+  nidra-engine	nidra-engine:latest	Up 3 hours (healthy)
+  nidra-ingestion	nidra-engine:latest	Up 3 hours (unhealthy)
+CHECK PASS: the Nidra stack runs under Docker Compose
+Helm chart present in the fork: True (upstream's chart deploys the Postgres stack; no Nidra chart was tried)
+
+checks: 1/3 passed; failed: an unauthenticated or unprivileged caller is refused; the web UI is served
+elapsed: 0.2s
+STATUS: partial — Compose runs; no auth/RBAC and no web UI in Nidra

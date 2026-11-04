@@ -1,0 +1,1933 @@
+data_layer:
+  databases:
+  - id: 23f06f0b-d348-4984-abc4-5204741977b1
+    dialect: sqlite
+    schemas:
+    - id: 48953c19-4c82-4c3e-be1b-f279479fcc41
+      name: main
+      database_name: chinook
+      tables:
+      - id: b219b72b-3f1b-47f5-b680-24a26c67cbc6
+        name: Album
+        description: ''
+        pk:
+        - AlbumId
+        type: base table
+        columns:
+        - id: c3ac5875-d4f4-4c4a-add2-1e3c5f925d3d
+          name: AlbumId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: f3bfc054-9840-4d06-a534-19658b9dd5c0
+          name: Title
+          description: ''
+          type: NVARCHAR(160)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 8c3066fb-79f2-406b-84d2-1c149a6f4443
+          name: ArtistId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 92f2ff3d-24c7-4cfa-8093-0de472e1926f
+        name: Artist
+        description: ''
+        pk:
+        - ArtistId
+        type: base table
+        columns:
+        - id: 831688f6-a21b-433e-83a7-b32a644470b8
+          name: ArtistId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: df18560c-e803-4288-b81c-97de64124c10
+          name: Name
+          description: ''
+          type: NVARCHAR(120)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: 2fbd3568-768a-41fd-b375-658620cffc12
+        name: Customer
+        description: ''
+        pk:
+        - CustomerId
+        type: base table
+        columns:
+        - id: ea134ec5-4518-412b-a12e-5512b6e3b8dc
+          name: CustomerId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 1b98beca-a271-4205-b713-62202833c980
+          name: FirstName
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 5b29cce2-6e82-47f3-a4c0-c77b8aff6dae
+          name: LastName
+          description: ''
+          type: NVARCHAR(20)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: ac4807f2-c1f6-46cc-ab86-17b0d863e7cd
+          name: Company
+          description: ''
+          type: NVARCHAR(80)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 849e7c98-d1f9-4294-84de-8620b866ade1
+          name: Address
+          description: ''
+          type: NVARCHAR(70)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: f4f1094d-29de-4f25-8b13-d5cf0b11ec8e
+          name: City
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: bdf7339f-48f2-4d63-b359-b8722e20702e
+          name: State
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 93662607-6bc7-4286-8134-2ab4f5869b3a
+          name: Country
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 418a2573-6d6d-4071-98ca-750ae165b1c7
+          name: PostalCode
+          description: ''
+          type: NVARCHAR(10)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 21ace6b3-c42f-42a3-a2f2-1ce217226ef3
+          name: Phone
+          description: ''
+          type: NVARCHAR(24)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: ace8284c-ce2c-4461-a5a0-063e1fe2c69b
+          name: Fax
+          description: ''
+          type: NVARCHAR(24)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 596b717d-dfe3-4152-9074-562b61bf1c57
+          name: Email
+          description: ''
+          type: NVARCHAR(60)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 3daa2e01-f09f-48da-8c2b-0ae586ccedf6
+          name: SupportRepId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: 7e154f2e-4bb8-42b8-bb9e-d31d73a0598c
+        name: Employee
+        description: ''
+        pk:
+        - EmployeeId
+        type: base table
+        columns:
+        - id: 8c2f7a83-0924-470c-8dae-85bc58ba305c
+          name: EmployeeId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: fc2789e4-c962-4784-ae9e-2b7632b8e817
+          name: LastName
+          description: ''
+          type: NVARCHAR(20)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: d592091f-ea2b-47f1-95a6-a46c07fd31b5
+          name: FirstName
+          description: ''
+          type: NVARCHAR(20)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 87ea7d49-77de-48e2-9cdc-7e39361a49e0
+          name: Title
+          description: ''
+          type: NVARCHAR(30)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 87a7ccc6-eb2a-4254-b048-b309855d16a8
+          name: ReportsTo
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 447fa84d-7b9a-4743-9e60-26be9e3a6f64
+          name: BirthDate
+          description: ''
+          type: DATETIME
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: d30d1239-ef13-4174-aabd-14041c00da76
+          name: HireDate
+          description: ''
+          type: DATETIME
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: a73bcabb-79c0-48c1-9521-bd17980147f9
+          name: Address
+          description: ''
+          type: NVARCHAR(70)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: ea40184f-686d-49eb-84c9-81d16acc5ec1
+          name: City
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: a7b8704f-c151-4a4c-b7a8-66b170a5a5ae
+          name: State
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: e2395466-2ffc-41e2-9180-4248b76bdc36
+          name: Country
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 374a149d-42f4-4ac5-b6c6-44210d9c0cd3
+          name: PostalCode
+          description: ''
+          type: NVARCHAR(10)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 6fc364ef-52e4-4cfb-986c-8509e3169712
+          name: Phone
+          description: ''
+          type: NVARCHAR(24)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 1d70f3bf-4353-433a-9c8e-fd5df89e9b8f
+          name: Fax
+          description: ''
+          type: NVARCHAR(24)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 050e7eea-b0a4-4621-8690-c6004fe1aa91
+          name: Email
+          description: ''
+          type: NVARCHAR(60)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: c772cd82-3a1b-4481-8228-0bd4b7e70e67
+        name: Genre
+        description: ''
+        pk:
+        - GenreId
+        type: base table
+        columns:
+        - id: e41f338d-ace0-4136-b110-c042841b4926
+          name: GenreId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: e9518351-c4ba-4bbb-891f-847a57dd0052
+          name: Name
+          description: ''
+          type: NVARCHAR(120)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: 1310a91c-fc26-4652-ae87-aed19cf2572c
+        name: Invoice
+        description: ''
+        pk:
+        - InvoiceId
+        type: base table
+        columns:
+        - id: f6c62291-c301-4fff-9ecc-1345c0312ebb
+          name: InvoiceId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 36f6eede-778a-4f1c-a0b1-b23b4ae76765
+          name: CustomerId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: f8d0e722-a534-4fd9-ac47-c73744d24f21
+          name: InvoiceDate
+          description: ''
+          type: DATETIME
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: cc365a3c-f388-4063-9784-0cbe164398a8
+          name: BillingAddress
+          description: ''
+          type: NVARCHAR(70)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 5e7aefe5-265d-4759-9890-da0e35327f71
+          name: BillingCity
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 25c5b932-fbfd-4bf9-9cb1-ad4ce86ccead
+          name: BillingState
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 5e35cdb3-d75a-4602-8461-3071c29e768c
+          name: BillingCountry
+          description: ''
+          type: NVARCHAR(40)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 86244613-1b94-48f2-800c-dc0d51092a73
+          name: BillingPostalCode
+          description: ''
+          type: NVARCHAR(10)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 732e56a8-99cf-4ad4-9c45-83e0985e8d15
+          name: Total
+          description: ''
+          type: NUMERIC(10,2)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: dc5bc2c0-2d5a-4ceb-b16a-399b7e2937ce
+        name: InvoiceLine
+        description: ''
+        pk:
+        - InvoiceLineId
+        type: base table
+        columns:
+        - id: 6f508230-4aa3-4833-84ef-cf5f2df241df
+          name: InvoiceLineId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 4d0dbc5a-5e13-4b03-ae97-4ed0e203bff2
+          name: InvoiceId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 39589979-512f-40ac-b098-e19099e1fc97
+          name: TrackId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 73eadbb9-95bb-40d4-b15f-2d88d6bac82c
+          name: UnitPrice
+          description: ''
+          type: NUMERIC(10,2)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: ccf736b5-4d51-4aeb-8f8b-c8ce9fcaa3a7
+          name: Quantity
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 89b65617-879c-4ada-8646-d8415fd7cf3f
+        name: MediaType
+        description: ''
+        pk:
+        - MediaTypeId
+        type: base table
+        columns:
+        - id: 163332d3-c462-4797-b65d-60d18ed0a765
+          name: MediaTypeId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: d1955e3f-29ff-4afb-9dc5-35ac619c025d
+          name: Name
+          description: ''
+          type: NVARCHAR(120)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: 0a3fa5fa-55f1-49cd-be16-621a1bd01bb5
+        name: Playlist
+        description: ''
+        pk:
+        - PlaylistId
+        type: base table
+        columns:
+        - id: 5d82cf44-2248-4aae-b464-1cf0542e5584
+          name: PlaylistId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: acea541a-4e42-4698-b600-4502198c34fe
+          name: Name
+          description: ''
+          type: NVARCHAR(120)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: f5fa480c-2f38-41ba-8744-262367e60829
+        name: PlaylistTrack
+        description: ''
+        pk:
+        - PlaylistId
+        - TrackId
+        type: base table
+        columns:
+        - id: 4d171959-98eb-40f5-9226-bed532c23657
+          name: PlaylistId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 6b53cd15-d26d-4a28-919e-ede41724675d
+          name: TrackId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: fd28dc4d-a202-4186-9293-2815738aa194
+        name: Track
+        description: ''
+        pk:
+        - TrackId
+        type: base table
+        columns:
+        - id: 4ae66cb5-2323-4dae-9c2c-2ac70bf159fb
+          name: TrackId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: deb18b02-777e-46b0-ab4b-cd137c609147
+          name: Name
+          description: ''
+          type: NVARCHAR(200)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: f240e094-a0e1-4686-b6b6-f9d5d1853520
+          name: AlbumId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 5f747f63-ffdb-4f00-8663-45fa365664eb
+          name: MediaTypeId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 325ecf64-69ce-4aac-8667-a20a344f0f51
+          name: GenreId
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: a612dcdb-ed85-471f-980c-ac1e7e4138ca
+          name: Composer
+          description: ''
+          type: NVARCHAR(220)
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: ff1e8d74-9f6a-4ec6-a4a3-1104da738f3a
+          name: Milliseconds
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: eb329ffc-f0d8-4d7a-85ab-c2dc78308a7e
+          name: Bytes
+          description: ''
+          type: INTEGER
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 99f1b634-0017-4411-be02-4a7ecf64a488
+          name: UnitPrice
+          description: ''
+          type: NUMERIC(10,2)
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+  - id: dcdd3bd2-fabd-4d4b-b03b-34d97edad70b
+    dialect: ''
+    schemas:
+    - id: 9d7767da-3fb2-425e-9bd0-31ffdda75a16
+      name: analytics
+      database_name: pagila
+      tables:
+      - id: 1d65a963-328b-4398-94fd-db8104b7a2e1
+        name: category_rollup
+        description: ''
+        pk:
+        - category_rollup_id
+        type: base table
+        columns:
+        - id: 457f9357-d7e3-4a83-9d06-c874afabb0be
+          name: category_rollup_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: c0c48a5b-e584-4dae-928f-13ffa4eac4f5
+          name: category_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 50bdf0d6-3762-4dcb-8c61-31aa6b6e2d3e
+          name: parent_rollup_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 6b0eb67c-78b2-4985-8336-8997a4f9c397
+          name: label
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 6ad67860-c0af-4bc5-9acd-139d0886220c
+          name: total_rentals
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 3c8434ab-bc95-4d2c-a680-e8cf833c7b82
+        name: film_performance
+        description: ''
+        pk:
+        - film_performance_id
+        type: base table
+        columns:
+        - id: c28260cc-ac30-4c4e-b2d5-806dd9005181
+          name: film_performance_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 3aaaa4b4-ec95-43ec-8e3e-15baccaac442
+          name: film_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: db010bb2-6884-4590-94bb-6521f89461d6
+          name: rental_count
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 343b1b82-e5e1-4333-9317-57f0bce05589
+          name: revenue
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: b9be0df2-d564-4402-a181-4ff2a33380a3
+          name: last_rented_at
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: d812ddbd-61f1-4c91-872a-c5e6c8397b97
+        name: top_films
+        description: ''
+        pk: []
+        type: view
+        columns:
+        - id: 85009cc8-c6c3-4039-aa88-6e33e80bb3e5
+          name: film_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 8cf69fbd-45b2-4e19-8486-25d182a10dae
+          name: title
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 22144dbf-5864-4eab-a770-d79663ba7714
+          name: rental_count
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 7295a58b-358a-4401-95d2-04ef11eae9ba
+          name: revenue
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+    - id: 90e51e31-de5f-48d4-af5b-2cacfe04c7bd
+      name: public
+      database_name: pagila
+      tables:
+      - id: da916053-ffff-40a2-a1dd-90f5e7167cc9
+        name: actor
+        description: ''
+        pk:
+        - actor_id
+        type: base table
+        columns:
+        - id: 29cea4ea-b076-44d4-8c50-e2fd0d5db485
+          name: actor_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: a0c0b2ca-1281-4cb9-8167-1a5854eb678d
+          name: first_name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 49c11237-b589-4056-bfb4-a17c2ff9933e
+          name: last_name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 4e0f357e-5d15-465e-bf2e-687faedb7017
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: afb37d4b-e380-49b2-a72a-9909d9099171
+        name: actor_info
+        description: ''
+        pk: []
+        type: view
+        columns:
+        - id: 57ad30ae-b04c-4680-af81-3518155f8ced
+          name: actor_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 52c45499-4ed5-4ad1-b811-a9d6c9ee6407
+          name: first_name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 08175348-49c6-4129-b173-683ab5fa3fa2
+          name: last_name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 1c667044-0d27-4810-90cd-5b388428a844
+          name: film_info
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: e8626274-5e9c-43be-863a-e40af0c2cd2e
+        name: address
+        description: ''
+        pk:
+        - address_id
+        type: base table
+        columns:
+        - id: 5ac17633-157d-4c1f-a367-12cc89931056
+          name: address_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 55aa84bf-fe3a-42bc-bb15-698e1a0ed2a7
+          name: address
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: f0cabd80-6c4e-4c7c-9826-6a4ab985134f
+          name: address2
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 88dfe10d-eafe-401e-9511-5321f9af4b32
+          name: district
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: db67904f-8205-468d-a2a1-697cb89a6436
+          name: city_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: fa291b2a-fbdc-423e-96c3-eafac3206958
+          name: postal_code
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: a279719b-47a6-4cfd-a1c8-5723a20bc08d
+          name: phone
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 6e9aa98b-047b-49d2-9764-fa2424a5e10a
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 4c5f1b4b-c4d3-4dbe-8bee-d69ff4bcfafe
+        name: category
+        description: ''
+        pk:
+        - category_id
+        type: base table
+        columns:
+        - id: 00b84aff-f672-46c4-8a67-762807ee15a4
+          name: category_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: b5e654e8-461f-4d40-aef0-9f59f512f174
+          name: name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: c35eecb2-b5cf-4d82-bee7-c58201fd5b9f
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 43aa306b-3270-42c1-8aa0-3a510cc0700f
+        name: city
+        description: ''
+        pk:
+        - city_id
+        type: base table
+        columns:
+        - id: 51c723ca-95fd-4cb6-813c-592613a142fb
+          name: city_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: a630c3d4-49d5-412b-be52-c7efadb56434
+          name: city
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 39fcd8b7-36fc-4237-a7ae-c3141a568854
+          name: country_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 630691c3-76af-4c6e-853e-59d4a8242603
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 6a263c51-50b7-49f0-a346-0acdd249a916
+        name: country
+        description: ''
+        pk:
+        - country_id
+        type: base table
+        columns:
+        - id: 8a11e094-8fbb-4393-b77f-a7b10e1687b1
+          name: country_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: dd451879-0c77-47aa-80be-95ba8e40580c
+          name: country
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: fb152e86-6ca4-4b97-ac32-ee9661707b4e
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 3398b4c3-98d9-4abe-bffe-d90614f3f33b
+        name: customer
+        description: ''
+        pk:
+        - customer_id
+        type: base table
+        columns:
+        - id: 2b7284dc-8877-468f-8099-6de7c0c31fc9
+          name: customer_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 4dba327a-9f6f-40f1-b0e6-9b5095f6f98d
+          name: store_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: acc28869-1390-4978-9733-f297a45b9f54
+          name: first_name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 14eb2afc-e141-41d9-b24a-a050dc370c9c
+          name: last_name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: cbac74c2-3974-4ca2-91c9-02bc14481802
+          name: email
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: f987d631-460a-469f-8ecf-12bf8c1c75d9
+          name: address_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: a994dc16-78ee-4084-9b70-3d9f1b86ddaf
+          name: activebool
+          description: ''
+          type: boolean
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 7366056e-5bbd-4a44-b227-e7e087c8f441
+          name: create_date
+          description: ''
+          type: date
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: a35d2893-2b2d-4701-a181-929bc48d59bd
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 08549974-b604-4a7e-926c-8e81db0a0d2b
+          name: active
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: ee2dcc0d-f6c0-434f-ae0b-0d9d3078eaa4
+        name: customer_list
+        description: ''
+        pk: []
+        type: view
+        columns:
+        - id: b817163b-bcf7-4010-9f4c-ac9084cfb938
+          name: id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 7570458a-2a26-420d-8102-afbfe23224ae
+          name: name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: c80f2af0-c029-400a-893e-1e39d5764a98
+          name: address
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 912dc1ac-3261-4dec-8961-fe42397e096a
+          name: zip code
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 5cfed119-66d4-4dab-b7a5-c88fb58a25ab
+          name: phone
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 04e49d89-8e02-42c5-b0fa-b85797fdc05d
+          name: city
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 03f6ca7e-4b03-4acd-8412-144e437c0d1b
+          name: country
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 78611ffb-14c9-4d06-8682-4cc40a7f34a9
+          name: notes
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 205f847c-f41e-42c6-ae54-94576794d87d
+          name: sid
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: d04a2dd7-77f9-4e41-91d4-1e68f1328e82
+        name: film
+        description: ''
+        pk:
+        - film_id
+        type: base table
+        columns:
+        - id: 0d62f166-25c0-4960-aae7-8c32118e7f77
+          name: film_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: d2520c74-5b74-4379-a28c-6a343b5625d7
+          name: title
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: b8c4992f-95ce-43ca-9c5e-040d279654f2
+          name: description
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 319156d8-928e-435b-a6e9-9a6f2c0c564c
+          name: release_year
+          description: ''
+          type: year
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: ef3d3c71-c2e7-4995-b6cc-2702e9cba13c
+          name: language_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 9e7245b6-f139-4b37-8a59-92cbe402a587
+          name: original_language_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 732c76f1-99ab-4336-84cc-deea80a2789a
+          name: rental_duration
+          description: ''
+          type: smallint
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 7dea473a-b663-40fa-b75d-8c1b419983bb
+          name: rental_rate
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 5855a8b3-04b0-49a8-990e-3bf73b233db8
+          name: length
+          description: ''
+          type: smallint
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: a3a5bc24-1d01-4228-b93c-9547642744c5
+          name: replacement_cost
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 4399f6c7-831d-443c-a1ab-8df37fbab0c3
+          name: rating
+          description: ''
+          type: mpaa_rating
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: e387fd90-c7c9-4e17-95aa-fd279492af29
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: b3f49462-3624-4453-9504-fa4f3526a017
+          name: special_features
+          description: ''
+          type: text[]
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 1dcf8216-7f5d-4d32-8332-054d35463399
+          name: fulltext
+          description: ''
+          type: tsvector
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: aea9e459-b4a7-4e61-a4e1-6755ab16d717
+        name: film_actor
+        description: ''
+        pk:
+        - actor_id
+        - film_id
+        type: base table
+        columns:
+        - id: c61f0eb8-da93-4eac-9b75-f87fa26bba0d
+          name: actor_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 9a3e273a-81c5-4e02-ae0e-31f59ca98cad
+          name: film_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: d9b97dde-51be-4135-a42a-9146a76273d6
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 138791f3-503c-4ce7-aa72-b69e9835dda8
+        name: film_category
+        description: ''
+        pk:
+        - film_id
+        - category_id
+        type: base table
+        columns:
+        - id: 99150c74-ff2c-4e17-bf4a-8ba7fabc5234
+          name: film_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: db9c5dc3-77d0-43db-9b42-a590ebd34881
+          name: category_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 8859f517-503a-4062-a792-ef478acab07c
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 902e698f-7922-430c-9686-ac9f81e8f42c
+        name: film_list
+        description: ''
+        pk: []
+        type: view
+        columns:
+        - id: 51e3af9b-0d0e-4a46-9744-6cbc239a1285
+          name: fid
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: e1a15c15-1bd1-434e-b328-4bdd62f8dc18
+          name: title
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: bb3b81f5-aa4a-4ede-8e13-fa8abab0ea0a
+          name: description
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 60e0344e-624d-40a1-9b51-4bbcfc8761a6
+          name: category
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 55b73ac2-416b-4ff5-8b5a-aa1ededbb46a
+          name: price
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: ab9b402e-9ed4-49a7-9f4e-77a2b8ae8c66
+          name: length
+          description: ''
+          type: smallint
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 7ba5956d-d00e-457e-afdd-b10a7f795860
+          name: rating
+          description: ''
+          type: mpaa_rating
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: ddfff0fa-a770-41db-8c63-5f9d3a37109c
+          name: actors
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: ead3a4ad-a439-468d-8066-5246f98b2da8
+        name: inventory
+        description: ''
+        pk:
+        - inventory_id
+        type: base table
+        columns:
+        - id: 3c5e12fb-b4a1-4463-a54b-1517e85ce692
+          name: inventory_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: d06f0d84-fd12-410e-b026-e0b00e214c56
+          name: film_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: ecf3cdb3-2627-4afe-a9ce-64ce3c56e907
+          name: store_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: c8861e6b-987f-4057-8e23-1e53192e9cae
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: fb557079-48bd-4810-bdc1-7e91dd138ab0
+        name: language
+        description: ''
+        pk:
+        - language_id
+        type: base table
+        columns:
+        - id: af535411-d40e-42bb-bcc8-db5efbfa3370
+          name: language_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 04d79fe2-c03c-4cfd-83eb-036e8fd501a3
+          name: name
+          description: ''
+          type: character
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 325199e4-c9c1-4b9e-850d-666a18d39af8
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: b6c84b47-cfba-40d8-ac47-42c3fe4f1e86
+        name: nicer_but_slower_film_list
+        description: ''
+        pk: []
+        type: view
+        columns:
+        - id: 91b92b19-c982-427c-8319-ef1c95eddfe6
+          name: fid
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: ce64621f-21fe-4314-9aed-6b1fc1a649a7
+          name: title
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 427b713f-4954-416b-9077-9dd4eecb0709
+          name: description
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: f6b5afad-646f-48fe-9b3e-0e28e7f658f4
+          name: category
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: c12d0f4b-9e5a-4c2f-ad9c-308406853ec5
+          name: price
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 3d378157-16dc-432f-b013-501c7c97e405
+          name: length
+          description: ''
+          type: smallint
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: a8664f9e-830d-4dfa-a3ef-7271a4c0ac9e
+          name: rating
+          description: ''
+          type: mpaa_rating
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: df533e05-9c03-409f-a74f-8e270871135e
+          name: actors
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: 349babaa-96e9-4a95-8d61-87529d629017
+        name: payment
+        description: ''
+        pk:
+        - payment_date
+        - payment_id
+        type: base table
+        columns:
+        - id: 98ac14b1-3900-44af-bb12-3639649b50b1
+          name: payment_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 9318c1aa-0199-4ea0-b1fa-8e8cf073d639
+          name: customer_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: e7f4014a-5b0c-4453-bd4c-98ea13aca378
+          name: staff_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 8f5f61b8-e41c-456c-a263-7dd7388c813f
+          name: rental_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: e4ef13a0-0550-4a3b-9512-cfb62bf38176
+          name: amount
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 6e2357bb-3511-471c-aac9-ae12ebd01d70
+          name: payment_date
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 606c84a4-f39b-4487-9849-a854037a0311
+        name: rental
+        description: ''
+        pk:
+        - rental_id
+        type: base table
+        columns:
+        - id: 1b92cc11-e143-40a1-84cc-ba89eac157b7
+          name: rental_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: dd34f3af-6e17-4f1b-afda-e39dee5c6810
+          name: rental_date
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 419297cd-27a9-4bbe-9538-aad2629b4bbb
+          name: inventory_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 4cdd8726-1a65-44dd-96e5-fbc3b828ed3b
+          name: customer_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: ca7260ca-fad1-4195-b079-c16d7a823598
+          name: return_date
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 91065b1c-17fe-4f19-950c-187760709385
+          name: staff_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 15a70382-bf63-4bcf-9976-9b8f36a1e110
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+      - id: 114cefe0-dfae-4588-8369-ad6c76653469
+        name: rental_by_category
+        description: ''
+        pk: []
+        type: materialized view
+        columns:
+        - id: b3cfab01-621b-4bd7-88a6-291ccf9407c9
+          name: category
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 87353b9a-2287-48ee-a8a7-cd1f0d8ed23b
+          name: total_sales
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: 48ae58fd-f5e1-4f29-b552-c661dff976c5
+        name: sales_by_film_category
+        description: ''
+        pk: []
+        type: view
+        columns:
+        - id: 14838760-5e66-45b2-83a9-3d4c77968b39
+          name: category
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: a4b45049-1e4e-43a8-9ab8-1a54ff1c7403
+          name: total_sales
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: 7e66fc71-fe8a-42d5-a840-ae37f127bddc
+        name: sales_by_store
+        description: ''
+        pk: []
+        type: view
+        columns:
+        - id: 0a41fb59-421f-4ae0-b99c-4f8fc85dd8e1
+          name: store
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 94f939a1-9fcd-4c69-a50a-c9f745dd5037
+          name: manager
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 9d5462b3-fb58-48b0-96c7-129657fef972
+          name: total_sales
+          description: ''
+          type: numeric
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: 3100939e-9178-441c-85f9-48b367bdec88
+        name: staff
+        description: ''
+        pk:
+        - staff_id
+        type: base table
+        columns:
+        - id: 1a730338-7c6b-4d05-9d9a-d44c60740994
+          name: staff_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: ff1dbb54-5987-4e24-81a9-cd708639584a
+          name: first_name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: abfd02aa-0a3a-4c8f-8a26-1bc775052ffc
+          name: last_name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: abe2230e-f616-4a55-895c-2cfa1be905ba
+          name: address_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: d0ddd3d2-c0f0-4ca5-838d-f9b7929a1d94
+          name: email
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 5568d452-1038-4487-94ea-9ee4fa26fe3b
+          name: store_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 8bacf5dd-a457-4003-b2f3-a288014d639c
+          name: active
+          description: ''
+          type: boolean
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 28a1d22e-74d7-4796-9987-c61a73cd8397
+          name: username
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 80f93b49-cb64-44e1-aa1c-e86d6738cfd3
+          name: password
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: eb863065-13e3-4af9-bbdc-c90980cd0f7d
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: cc6dab28-8804-433c-a957-a5482397ed82
+          name: picture
+          description: ''
+          type: bytea
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: 1087e1cc-4d02-4bb9-926b-0cca1fcacc14
+        name: staff_list
+        description: ''
+        pk: []
+        type: view
+        columns:
+        - id: e5277411-be1c-4434-b575-5e84521f76a9
+          name: id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 819572e2-3d15-4c3e-b33d-456ed482f11c
+          name: name
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 193d8689-6826-48b7-9218-f682fd4291c1
+          name: address
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 1cfbd675-6a6d-419f-b78a-15e2c559922c
+          name: zip code
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 02ca04d6-58fa-451a-aaad-a1bdb10be459
+          name: phone
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: d151e395-89b5-47c8-bcc3-589ee124439b
+          name: city
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 4580664b-d217-4418-af92-4c77c1f3c7e7
+          name: country
+          description: ''
+          type: text
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+        - id: 1f248982-b865-464a-b504-fecda4fe94d9
+          name: sid
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: true
+          is_unique: false
+      - id: a8f2fecb-ebe6-4503-b8ad-6c7bd8ed25a2
+        name: store
+        description: ''
+        pk:
+        - store_id
+        type: base table
+        columns:
+        - id: 4f146ce9-11e6-4c4a-b174-33192a1c6125
+          name: store_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 74097cc1-8a49-4330-a9a3-5e945c779568
+          name: manager_staff_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: f88e7cf9-bf32-4b36-aa73-291d137617ff
+          name: address_id
+          description: ''
+          type: integer
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+        - id: 587deb9d-6ef5-4d5c-b13c-215786a82e43
+          name: last_update
+          description: ''
+          type: timestamp with time zone
+          sample_values: []
+          is_nullable: false
+          is_unique: false
+  foreign_keys:
+  - source_column_id: 325ecf64-69ce-4aac-8667-a20a344f0f51
+    target_column_id: e41f338d-ace0-4136-b110-c042841b4926
+  - source_column_id: 36f6eede-778a-4f1c-a0b1-b23b4ae76765
+    target_column_id: ea134ec5-4518-412b-a12e-5512b6e3b8dc
+  - source_column_id: 39589979-512f-40ac-b098-e19099e1fc97
+    target_column_id: 4ae66cb5-2323-4dae-9c2c-2ac70bf159fb
+  - source_column_id: 39fcd8b7-36fc-4237-a7ae-c3141a568854
+    target_column_id: 8a11e094-8fbb-4393-b77f-a7b10e1687b1
+  - source_column_id: 3daa2e01-f09f-48da-8c2b-0ae586ccedf6
+    target_column_id: 8c2f7a83-0924-470c-8dae-85bc58ba305c
+  - source_column_id: 419297cd-27a9-4bbe-9538-aad2629b4bbb
+    target_column_id: 3c5e12fb-b4a1-4463-a54b-1517e85ce692
+  - source_column_id: 4cdd8726-1a65-44dd-96e5-fbc3b828ed3b
+    target_column_id: 2b7284dc-8877-468f-8099-6de7c0c31fc9
+  - source_column_id: 4d0dbc5a-5e13-4b03-ae97-4ed0e203bff2
+    target_column_id: f6c62291-c301-4fff-9ecc-1345c0312ebb
+  - source_column_id: 4d171959-98eb-40f5-9226-bed532c23657
+    target_column_id: 5d82cf44-2248-4aae-b464-1cf0542e5584
+  - source_column_id: 4dba327a-9f6f-40f1-b0e6-9b5095f6f98d
+    target_column_id: 4f146ce9-11e6-4c4a-b174-33192a1c6125
+  - source_column_id: 50bdf0d6-3762-4dcb-8c61-31aa6b6e2d3e
+    target_column_id: 457f9357-d7e3-4a83-9d06-c874afabb0be
+  - source_column_id: 5568d452-1038-4487-94ea-9ee4fa26fe3b
+    target_column_id: 4f146ce9-11e6-4c4a-b174-33192a1c6125
+  - source_column_id: 5f747f63-ffdb-4f00-8663-45fa365664eb
+    target_column_id: 163332d3-c462-4797-b65d-60d18ed0a765
+  - source_column_id: 6b53cd15-d26d-4a28-919e-ede41724675d
+    target_column_id: 4ae66cb5-2323-4dae-9c2c-2ac70bf159fb
+  - source_column_id: 87a7ccc6-eb2a-4254-b048-b309855d16a8
+    target_column_id: 8c2f7a83-0924-470c-8dae-85bc58ba305c
+  - source_column_id: 8c3066fb-79f2-406b-84d2-1c149a6f4443
+    target_column_id: 831688f6-a21b-433e-83a7-b32a644470b8
+  - source_column_id: 91065b1c-17fe-4f19-950c-187760709385
+    target_column_id: 1a730338-7c6b-4d05-9d9a-d44c60740994
+  - source_column_id: 99150c74-ff2c-4e17-bf4a-8ba7fabc5234
+    target_column_id: 0d62f166-25c0-4960-aae7-8c32118e7f77
+  - source_column_id: 9a3e273a-81c5-4e02-ae0e-31f59ca98cad
+    target_column_id: 0d62f166-25c0-4960-aae7-8c32118e7f77
+  - source_column_id: 9e7245b6-f139-4b37-8a59-92cbe402a587
+    target_column_id: af535411-d40e-42bb-bcc8-db5efbfa3370
+  - source_column_id: abe2230e-f616-4a55-895c-2cfa1be905ba
+    target_column_id: 5ac17633-157d-4c1f-a367-12cc89931056
+  - source_column_id: c61f0eb8-da93-4eac-9b75-f87fa26bba0d
+    target_column_id: 29cea4ea-b076-44d4-8c50-e2fd0d5db485
+  - source_column_id: d06f0d84-fd12-410e-b026-e0b00e214c56
+    target_column_id: 0d62f166-25c0-4960-aae7-8c32118e7f77
+  - source_column_id: db67904f-8205-468d-a2a1-697cb89a6436
+    target_column_id: 51c723ca-95fd-4cb6-813c-592613a142fb
+  - source_column_id: db9c5dc3-77d0-43db-9b42-a590ebd34881
+    target_column_id: 00b84aff-f672-46c4-8a67-762807ee15a4
+  - source_column_id: ecf3cdb3-2627-4afe-a9ce-64ce3c56e907
+    target_column_id: 4f146ce9-11e6-4c4a-b174-33192a1c6125
+  - source_column_id: ef3d3c71-c2e7-4995-b6cc-2702e9cba13c
+    target_column_id: af535411-d40e-42bb-bcc8-db5efbfa3370
+  - source_column_id: f240e094-a0e1-4686-b6b6-f9d5d1853520
+    target_column_id: c3ac5875-d4f4-4c4a-add2-1e3c5f925d3d
+  - source_column_id: f88e7cf9-bf32-4b36-aa73-291d137617ff
+    target_column_id: 5ac17633-157d-4c1f-a367-12cc89931056
+  - source_column_id: f987d631-460a-469f-8ecf-12bf8c1c75d9
+    target_column_id: 5ac17633-157d-4c1f-a367-12cc89931056
+  joins: []
+semantic_layer:
+  terms:
+  - id: 1494ca89-18dd-4978-8491-f448b66a1e89
+    name: Customer
+    description: A person who rents films from a store.
+    represents:
+    - 3398b4c3-98d9-4abe-bffe-d90614f3f33b
+    columns_attributes:
+    - id: d7552e9a-ee3d-48f7-8257-2f2c6c73fb68
+      name: customer email
+      description: Contact address.
+      column_id: cbac74c2-3974-4ca2-91c9-02bc14481802
+    - id: dce577e7-bc6d-4191-bf74-cf27e4f85b32
+      name: customer id
+      description: Primary key of customer.
+      column_id: 2b7284dc-8877-468f-8099-6de7c0c31fc9
+  - id: fc01c40a-11db-4f5d-a8cf-3ebcfe8e137e
+    name: Film
+    description: A motion picture available for rental.
+    represents:
+    - d04a2dd7-77f9-4e41-91d4-1e68f1328e82
+    columns_attributes:
+    - id: 67e76a2e-c20b-4907-b4eb-6c4641b841e3
+      name: film id
+      description: Primary key of film.
+      column_id: 0d62f166-25c0-4960-aae7-8c32118e7f77
+    - id: 99da8e48-8792-4583-940b-2c1b167fbf3a
+      name: film rating
+      description: MPAA rating; an enum.
+      column_id: 4399f6c7-831d-443c-a1ab-8df37fbab0c3
+    - id: aac02a7f-98de-4403-91f3-925b4d883597
+      name: film title
+      description: The film's title.
+      column_id: d2520c74-5b74-4379-a28c-6a343b5625d7
+  - id: f97d128a-57fd-4db3-a40f-7a7ca244eef3
+    name: Payment
+    description: Money received for a rental. Owning table is partitioned.
+    represents:
+    - 349babaa-96e9-4a95-8d61-87529d629017
+    columns_attributes:
+    - id: 1f775d50-bdba-47fc-9948-d5951c5cde8b
+      name: payment amount
+      description: Amount paid.
+      column_id: e4ef13a0-0550-4a3b-9512-cfb62bf38176
+  - id: c44e8824-7943-4d72-9335-1941e0207c05
+    name: Rental
+    description: A single film rental transaction.
+    represents:
+    - 606c84a4-f39b-4487-9849-a854037a0311
+    columns_attributes:
+    - id: 0c170026-137d-4901-ba29-5dde794859dc
+      name: rental date
+      description: When the rental started.
+      column_id: dd34f3af-6e17-4f1b-afda-e39dee5c6810
+  - id: 12dc7904-1b6f-4112-81f0-24f8970b99e9
+    name: Track
+    description: A single piece of recorded music.
+    represents:
+    - fd28dc4d-a202-4186-9293-2815738aa194
+    columns_attributes:
+    - id: b3989d4f-dbca-404f-86bd-ce042db9f555
+      name: track name
+      description: The track's title.
+      column_id: deb18b02-777e-46b0-ab4b-cd137c609147
+  semantic_fks:
+  - column_attribute_id: dce577e7-bc6d-4191-bf74-cf27e4f85b32
+    column_id: 4cdd8726-1a65-44dd-96e5-fbc3b828ed3b
+    use_in_join_paths: true
+  - column_attribute_id: dce577e7-bc6d-4191-bf74-cf27e4f85b32
+    column_id: 9318c1aa-0199-4ea0-b1fa-8e8cf073d639
+    use_in_join_paths: true
+  - column_attribute_id: 67e76a2e-c20b-4907-b4eb-6c4641b841e3
+    column_id: d06f0d84-fd12-410e-b026-e0b00e214c56
+    use_in_join_paths: true
+  sql_attributes:
+    manual:
+    - id: 96439e95-b09c-4b2c-982a-e7552f0e6396
+      name: total revenue
+      description: Sum of all payment amounts.
+      sql: SELECT sum(amount) FROM payment
+      sql_column_is:
+      - e4ef13a0-0550-4a3b-9512-cfb62bf38176
+      term_id: f97d128a-57fd-4db3-a40f-7a7ca244eef3
+    table:
+    - id: ba0fea61-856d-4dbc-8b0f-17469875f8d5
+      name: customer lifetime value
+      description: Total paid by each customer.
+      sql: SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id
+      sql_column_is:
+      - 9318c1aa-0199-4ea0-b1fa-8e8cf073d639
+      - e4ef13a0-0550-4a3b-9512-cfb62bf38176
+      term_id: 1494ca89-18dd-4978-8491-f448b66a1e89
+    sql:
+    - id: 99b9e471-4019-448d-b461-1f42fcac89d5
+      name: film count
+      description: Number of films in the catalog.
+      sql: SELECT count(film_id) FROM film
+      sql_column_is:
+      - 0d62f166-25c0-4960-aae7-8c32118e7f77
+      term_id: fc01c40a-11db-4f5d-a8cf-3ebcfe8e137e
+    bridge_table:
+    - id: dcbf41eb-a51d-4635-82d4-a358c539716e
+      name: films per category
+      description: Film count grouped by category, via the bridge table.
+      sql: SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c
+        ON c.category_id = fc.category_id GROUP BY c.name
+      sql_column_is:
+      - db9c5dc3-77d0-43db-9b42-a590ebd34881
+      - 99150c74-ff2c-4e17-bf4a-8ba7fabc5234
+      - b5e654e8-461f-4d40-aef0-9f59f512f174
+      - 00b84aff-f672-46c4-8a67-762807ee15a4
+      term_id: fc01c40a-11db-4f5d-a8cf-3ebcfe8e137e
+  custom_analyses:
+  - id: 960f49af-d9ac-48d0-bc29-209d21877e2f
+    name: Revenue by staff
+    description: Payment totals per staff member.
+    sql: SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id
+    sql_column_is:
+    - e4ef13a0-0550-4a3b-9512-cfb62bf38176
+    - e7f4014a-5b0c-4453-bd4c-98ea13aca378
+  - id: e6ec24df-bd1a-4a35-9861-16ebc5957dcf
+    name: Top rented films
+    description: Films ordered by rental count.
+    sql: SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory
+      i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP
+      BY f.title ORDER BY rentals DESC
+    sql_column_is:
+    - d2520c74-5b74-4379-a28c-6a343b5625d7
+    - 1b92cc11-e143-40a1-84cc-ba89eac157b7
+    - d06f0d84-fd12-410e-b026-e0b00e214c56
+    - 0d62f166-25c0-4960-aae7-8c32118e7f77
+    - 419297cd-27a9-4bbe-9538-aad2629b4bbb
+    - 3c5e12fb-b4a1-4463-a54b-1517e85ce692
+zones: []

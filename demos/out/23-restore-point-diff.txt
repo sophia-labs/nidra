@@ -1,0 +1,110 @@
+# 23-restore-point-diff: restore point, recompile, diff
+run at 2026-11-03T20:56:48-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: gardend captures time-travel restore points of a graph and diffs any two, so a recompile can be inspected and undone. Upstream has no snapshot of its semantic layer (the management skill's publication gate asks for a scoped backup by hand).
+
+
+## before: restore point 1 and a fingerprint of the catalog's named graph
+create_restore_point:
+{
+  "restorePointId": "rp-c7d75aac4d1342d282bdca9705525397",
+  "timestamp": "2026-11-04T04:56:48.820Z",
+  "trigger": "manual",
+  "label": "nidra-demo-23 before recompile",
+  "isLatest": true,
+  "sizeBytes": 15659,
+  "contentHashSha256": "3f17f0da27e23df2ea582ab14134dce8f627b9138c27e9443db0bb2862833987",
+  "documentCount": 3,
+  "folderCount": 1,
+  "artifactCount": 0
+}
+catalog (urn:mnemosyne:local:graph:ao-catalog:user:rdf): 3875 quads, sha256 5dcc621f21f3eaaf
+
+## the recompile: POST /api/semantic-compilation/trigger, then wait 30 s
+trigger -> 202 {'status': 'accepted'}
+  2026-11-04 04:56:51,419 INFO auto_ontology.ingestion_service.semantic_scheduler: semantic: compilation disabled in settings; skipping run
+  2026-11-04 04:56:51,419 INFO auto_ontology.ingestion_service.scheduler: semantic: next run at 2026-11-05T04:56:51.419959+00:00
+
+## after: restore point 2, the restore-point diff, and the catalog fingerprint
+diff_restore_points rp1 -> rp2:
+{
+  "restorePointId": "rp-c7d75aac4d1342d282bdca9705525397",
+  "against": "rp-6404e6b23a84490d971f546713a2b37b",
+  "target": {
+    "restorePointId": "rp-c7d75aac4d1342d282bdca9705525397",
+    "createdAt": "2026-11-04T04:56:48.820Z",
+    "label": "nidra-demo-23 before recompile",
+    "trigger": "manual"
+  },
+  "baseline": {
+    "restorePointId": "rp-6404e6b23a84490d971f546713a2b37b",
+    "createdAt": "2026-11-04T04:57:21.559Z",
+    "label": "nidra-demo-23 after recompile",
+    "trigger": "manual"
+  },
+  "aggregate": {
+    "docsAdded": 0,
+    "docsRemoved": 0,
+    "docsModified": 0,
+    "totalCharDelta": 0,
+    "workspaceSizeDelta": 0
+  }
+}
+CHECK PASS: the two restore points diff
+catalog after: 3875 quads, sha256 5dcc621f21f3eaaf; added 0, removed 0
+NOTE: the recompile was a no-op: compilation is switched off on the live stack (demo 11), so the catalog did not change and there is nothing for a diff to show
+
+## what a restore point holds
+get_restore_point (manifest):
+{
+  "workspace": {
+    "sizeBytes": 2649,
+    "bytesPath": "workspace.bin",
+    "snapshotPath": "workspace.json"
+  },
+  "documents": [
+    {
+      "documentId": "doc-48b09f62fa404230b800237ad58bc66a",
+      "title": "nidra demo 24: catalog annotations",
+      "snapshotId": "snapshot-1793768209296-17cbfde9-0e20-4382-9e44-3585576fd1c5",
+      "sizeBytes": 295,
+      "blockCount": 1,
+      "charCount": 105
+    },
+    {
+      "documentId": "doc-fa3000229d994d5e82fc589f76969a83",
+      "title": "nidra demo 24: Track.Milliseconds",
+      "snapshotId": "snapshot-1793768209883-0310c38d-7c68-4aa7-9c25-5ce64db9bd0e",
+      "sizeBytes": 3532,
+      "blockCount": 3,
+      "charCount": 500
+    },
+    {
+      "documentId": "doc-9a70cca6440a4adb9ddcb1fe06013d80",
+      "title": "Answer trace: How many songs are longer than five minutes?",
+      "snapshotId": "snapshot-1793768210229-33fb988b-f6cc-4a72-b528-f615508a1aa6",
+      "sizeBytes": 9183,
+      "blockCount": 19,
+      "charCount": 2677
+    }
+  ],
+  "metadata": {
+    "folderCount": 1,
+    "documentCount": 3,
+    "artifactCount": 0,
+    "wireCount": 3,
+    "workspaceSizeBytes": 2649,
+    "totalDocumentSizeBytes": 13010
+  }
+}
+NOTE: a restore point bundles the workspace (folders, wires) and a snapshot of every document; the catalog is RDF loaded straight into the store (/api/rdf/load, /api/sparql/update), outside any document, so neither the restore point nor diff_restore_points sees it. The fingerprint above is the diff that sees it.
+
+## does restore_to_restore_point undo? (on a throwaway graph made for this, never on ao-catalog)
+restore succeeded (Restore complete); raw triple still there: True; later document still listed: True
+CHECK FAIL: restore removes RDF loaded after the restore point
+CHECK FAIL: restore removes a document created after the restore point
+NOTE: on ao-demo-rp-20261103-205722: after restore_to_restore_point to a point taken on the empty graph, the RDF loaded later is still there and the document created later is still listed. So the restore point from demo 00 is not, by itself, an undo of what the demos add: demo 29 lists the documents, wires and records they wrote, and the catalog's own undo is demo 00's N-Quads snapshot.
+CHECK FAIL: a recompile ran and its diff is visible in the restore-point diff
+
+checks: 1/4 passed; failed: restore removes RDF loaded after the restore point; restore removes a document created after the restore point; a recompile ran and its diff is visible in the restore-point diff
+elapsed: 39.9s
+STATUS: partial — restore points are captured and diffed; they do not cover the RDF catalog, a restore left both later RDF and a later document in place, and the recompile is switched off on the live stack

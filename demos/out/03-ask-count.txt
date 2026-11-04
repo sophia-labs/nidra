@@ -1,0 +1,46 @@
+# 03-ask-count: NL question: a count
+run at 2026-11-03T20:20:02-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Natural-language querying of structured data: the question becomes SQL and runs on the connected database.
+claim source: README.md § Key Features; docs/mcp.md § ask_question
+
+
+## chinook: How many tracks are there in the Chinook database?
+ground truth (chinook, run directly on the source): SELECT count(*) FROM Track
+  -> [('3503',)]
+engine: http://127.0.0.1:3001
+question: How many tracks are there in the Chinook database?
+http 200 · 85 SSE events · [DONE] seen · 223.1s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → unconstructable_sql_response → question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → reconstruct_sql → validate_sql_query → unconstructable_sql_response
+answer: SQL can't be constructed from the data.
+CHECK FAIL: chinook [live engine] How many tracks are there in the Chinook database?: no rows came back
+
+## pagila: How many films are in the Pagila catalog?
+ground truth (pagila, run directly on the source): SELECT count(*) FROM film
+  -> [('1000',)]
+engine: http://127.0.0.1:3001
+question: How many films are in the Pagila catalog?
+http 200 · 25 SSE events · [DONE] seen · 45.8s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response → question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response
+answer: LLM failed to produce a response.
+CHECK FAIL: pagila [live engine] Pagila on the LIVE engine (no Pagila connection): no rows came back
+
+## pagila: How many films are in the Pagila catalog?
+ground truth (pagila, run directly on the source): SELECT count(*) FROM film
+  -> [('1000',)]
+engine: http://127.0.0.1:3011
+question: How many films are in the Pagila catalog?
+http 200 · 34 SSE events · [DONE] seen · 81.5s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response → question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → validate_sql_query → execute_sql_query → check_empty_like_result → check_value_repair → format_and_respond
+sql: SELECT COUNT(f.film_id) AS film_count FROM pagila.public.film AS f
+rows (1, first 10):
+[
+  {
+    "film_count": 1000
+  }
+]
+answer: This counts how many films are in the catalog. It uses the Film table and counts each film by its film ID. No filters, time windows, or grouping are applied, so the result is a single total number.
+CHECK PASS: pagila [side engine] How many films are in the Pagila catalog?: expected 1000
+
+checks: 1/3 passed; failed: chinook [live engine] How many tracks are there in the Chinook database?: no rows came back; pagila [live engine] Pagila on the LIVE engine (no Pagila connection): no rows came back
+elapsed: 350.8s
+STATUS: partial — Chinook on the live engine; Pagila only on the side engine (live engine has no Pagila connection)

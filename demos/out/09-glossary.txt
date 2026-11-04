@@ -1,0 +1,150 @@
+# 09-glossary: glossary: terms, synonyms, SQL attributes, certification
+run at 2026-11-03T20:24:54-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: A semantic catalog of terms with synonyms, column mappings and reviewed SQL attributes, each with certification.
+claim source: README.md § Key Features; docs/mcp.md (search_terms, get_term, get_term_columns, get_term_sql_attributes, get_sql_attribute); skills/nvidia-ontology-management
+
+
+## GET /api/terms (search_terms)
+- Customer: 'A person who rents films from a store.' synonyms=['renter', 'patron'] certification=partial (name_certified=True, description_certified=False)
+- Film: 'A motion picture available for rental.' synonyms=['movie', 'picture', 'title'] certification=partial (name_certified=True, description_certified=True)
+- Payment: 'Money received for a rental. Owning table is partitioned.' synonyms=['transaction'] certification=pending (name_certified=False, description_certified=False)
+- Rental: 'A single film rental transaction.' synonyms=['hire', 'loan'] certification=partial (name_certified=False, description_certified=True)
+- Track: 'A single piece of recorded music.' synonyms=['song'] certification=pending (name_certified=False, description_certified=False)
+CHECK PASS: 5 terms listed, total=5
+
+## GET /api/terms?query=… (search_terms)
+query=fil hits: ['Film']
+CHECK PASS: a name substring finds its term
+query=movie (a synonym of Film) hits: []
+NOTE: search_terms matches term names only, not synonyms: upstream filters name ILIKE '%q%' (auto_ontology/dal/terms.py _semantic_terms), and the port keeps that. Synonyms reach the chat agent through retrieval (demo 07), and gardend's find matches them by meaning (demo 21).
+
+## GET /api/terms/fc01c40a-11db-4f5d-a8cf-3ebcfe8e137e (get_term)
+get_term (200):
+{
+  "data": {
+    "id": "fc01c40a-11db-4f5d-a8cf-3ebcfe8e137e",
+    "name": "Film",
+    "description": "A motion picture available for rental.",
+    "synonyms": [
+      "movie",
+      "picture",
+      "title"
+    ],
+    "name_certified": true,
+    "description_certified": true,
+    "certification": "partial",
+    "owner_id": null,
+    "zones": [
+      {
+        "id": "3f6ded9b-48fb-42da-8db5-1f3e47a59061",
+        "name": "Film domain",
+        "color": "#4f46e5",
+        "enabled": true
+      }
+    ],
+    "table_count": 1,
+    "tables": [
+      {
+        "id": "d04a2dd7-77f9-4e41-91d4-1e68f1328e82",
+        "name": "film",
+        "schema_id": "90e51e31-de5f-48d4-af5b-2cacfe04c7bd",
+        "db_id": "dcdd3bd2-fabd-4d4b-b03b-34d97edad70b"
+      }
+    ],
+    "related_terms": [],
+    "tags": [],
+    "created": "2026-11-03T23:50:51.503778Z",
+    "modified": null,
+    "created_by": null,
+    "modified_by": null
+  }
+}
+CHECK PASS: get_term answers
+
+## GET /api/terms/{id}/column-attributes (get_term_columns)
+- film id -> column film_id certified=False
+- film rating -> column rating certified=False
+- film title -> column title certified=False
+CHECK PASS: 3 column attributes on Film
+
+## GET /api/terms/{id}/sql-attributes (get_term_sql_attributes) and GET /api/sql-attributes/{id} (get_sql_attribute)
+- film count: SELECT count(film_id) FROM film certified=False
+- films per category: SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = fc.category_id GROUP BY c.name certified=False
+CHECK PASS: 2 SQL attributes on Film
+get_sql_attribute (200):
+{
+  "data": {
+    "id": "99b9e471-4019-448d-b461-1f42fcac89d5",
+    "name": "film count",
+    "description": "Number of films in the catalog.",
+    "description_suggestion": null,
+    "expression": "SELECT count(film_id) FROM film",
+    "source": "sql",
+    "sql": "SELECT count(film_id) FROM film",
+    "sql_id": null,
+    "certified": false,
+    "term_id": "fc01c40a-11db-4f5d-a8cf-3ebcfe8e137e",
+    "term_name": "Film",
+    "database_name": null,
+    "owner_id": null,
+    "zones": [
+      {
+        "id": "3f6ded9b-48fb-42da-8db5-1f3e47a59061",
+        "name": "Film domain",
+        "color": "#4f46e5",
+        "enabled": true
+      }
+    ],
+    "tags": [],
+    "created": "2026-11-03T23:50:52.097703Z",
+    "modified": null,
+    "created_by": null,
+    "modified_by": null
+  }
+}
+CHECK PASS: get_sql_attribute answers
+
+## POST /api/sql-attributes/validate (management skill step 4)
+valid Chinook SQL on the live engine (200):
+{
+  "data": {
+    "valid": true,
+    "expression": "SELECT count(\"TrackId\") FROM \"Track\""
+  }
+}
+CHECK PASS: a valid Chinook expression validates on the live engine
+valid Pagila SQL on the live engine (422):
+{
+  "detail": "SQL doesn't reference any table known to the catalog; ingest the schema first or check the query"
+}
+NOTE: the live engine validates SQL against connected sources only, so a Pagila expression is refused there ('SQL doesn't reference any table known to the catalog') although Pagila is in the catalog (demo 02)
+the same Pagila SQL on the side engine (200):
+{
+  "data": {
+    "valid": true,
+    "expression": "SELECT count(film_id) FROM film"
+  }
+}
+CHECK PASS: the Pagila expression validates where Pagila is connected
+broken SQL (422):
+{
+  "detail": "SQL parse error: Invalid query syntax or unsupported dialect. Supported dialects: sqlite. Last parser error: Invalid expression / Unexpected token. Line 1, Col: 12.\n  SELEC count\u001b[4m(\u001b[0m FROM"
+}
+CHECK PASS: a parse failure is HTTP 422, as the skill says
+
+## certification: certify a SQL attribute, read it back, put it back
+PATCH certified=True (500):
+Internal Server Error
+CHECK FAIL: certification persisted (film count: False -> False)
+CHECK PASS: certification is back to False
+PATCH /api/terms/{Track} name_certified=True -> 500 Internal Server Error
+CHECK FAIL: term certification persisted (Track name_certified False -> False)
+NOTE: certification writes fail on Nidra: PATCH /api/sql-attributes/{id} and PATCH /api/terms/{id} answer 500 because auto_ontology/dal/owners.py edit_subject -> _stored_owner (line 64) still opens Postgres (psycopg.OperationalError: connection to server at 127.0.0.1:5432 refused)
+
+## acronyms (part of the glossary surface upstream)
+GET /api/acronyms -> 404 {'detail': 'Not Found'}
+NOTE: /api/acronyms is a Next.js (Prisma) route upstream; Nidra's FastAPI has no acronyms store
+
+checks: 10/12 passed; failed: certification persisted (film count: False -> False); term certification persisted (Track name_certified False -> False)
+elapsed: 0.7s
+STATUS: partial

@@ -1,0 +1,45 @@
+# 15-skill-query: the query skill's sequence, with answer validation
+run at 2026-11-03T20:57:36-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: readiness, then the vocabulary, then a cheap coverage check, then the question, then validate SQL, rows, truncation and prose before presenting a claim.
+claim source: skills/nvidia-ontology-query/SKILL.md § Prefer MCP for reads; references/query-validation.md
+
+
+## 1. check_readiness
+ready=False built=True can_execute_sql=False databases=['chinook', 'pagila']
+(the skill would stop here: the fold reports a false blocker for an env-configured connection, demo 01; we go on)
+
+## 2. search_terms for the nouns: 'song' -> ?
+query=song -> []
+query=track -> [('Track', ['song'], 'A single piece of recorded music.')]
+CHECK PASS: the glossary says 'song' is a synonym of Track
+
+## 3. check_answerable
+coverage (200):
+{
+  "data": {
+    "coverage": 1.0,
+    "candidates": [
+      {
+        "label": "ColumnAttribute",
+        "attribute": "film rating",
+        "term": "Film",
+        "id": "99da8e48-8792-4583-940b-2c1b167fbf3a"
+      }
+    ],
+    "uncovered_entities": null
+  }
+}
+
+## 4. ask_question
+engine: http://127.0.0.1:3001
+question: How many songs are longer than five minutes?
+http 200 · 25 SSE events · [DONE] seen · 57.0s
+steps: question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response → question_intent → question_extraction → retrieve_candidates → prepare_candidates → construct_sql_from_candidates → unconstructable_sql_response
+answer: LLM failed to produce a response.
+
+## 5. validate the claim (query-validation.md: population, measure, unit, rows, truncation, prose)
+NOTE: not graded: the model call failed (OpenRouter 402, the key's credit ran out tonight)
+
+checks: 1/1 passed
+elapsed: 62.9s
+STATUS: not graded — steps 1-3 run; the ask could not run (model credit exhausted)

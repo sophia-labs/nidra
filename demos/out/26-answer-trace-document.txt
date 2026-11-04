@@ -1,0 +1,22 @@
+# 26-answer-trace-document: an answer trace as a document, found by search
+run at 2026-11-03T20:52:54-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Every answer can be kept where the catalog lives, as a document with its provenance, wired to the columns it read, and found later by title, by content, or from the column. Upstream streams the trace to the caller and keeps conversations in the frontend's Postgres.
+
+answer source: recorded by demo 14 at 2026-11-03T20:34:04-08:00 (demos/out/14-mcp-tools.txt)
+
+## create_document + write_document
+document doc-9a70cca6440a4adb9ddcb1fe06013d80: revision 1, 19 blocks
+CHECK PASS: trace document written
+
+## found again
+search_documents 'Answer trace': ['Answer trace: How many songs are longer than five minutes?']
+CHECK PASS: search_documents finds it by title
+search_blocks 'Milliseconds > 300000': [('doc-9a70cca6440a4adb9ddcb1fe06013d80', 'None'), ('doc-fa3000229d994d5e82fc589f76969a83', 'None'), ('doc-fa3000229d994d5e82fc589f76969a83', 'None'), ('doc-fa3000229d994d5e82fc589f76969a83', 'None')]
+CHECK PASS: search_blocks finds the SQL inside it
+get_backlinks of the column: [('wire', 'Answer trace: How many songs are longer than five minutes?', 'read-column'), ('wire', 'nidra demo 24: Track.Milliseconds', 'annotates'), ('embed', 'nidra demo 24: Track.Milliseconds', None)]
+CHECK PASS: from the column, the trace is one backlink away
+made by this demo: document doc-9a70cca6440a4adb9ddcb1fe06013d80 (see demo 29 to remove it)
+
+checks: 4/4 passed
+elapsed: 118.2s
+STATUS: works

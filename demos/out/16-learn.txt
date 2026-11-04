@@ -1,0 +1,26 @@
+# 16-learn: Learn: certified corrections and usage folded back
+run at 2026-11-03T20:39:39-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Learn: fold certified corrections and usage back into the ontology, so shared context improves with every question.
+claim source: README.md (Learn)
+
+
+## certified corrections: the certification and description writes
+PATCH /api/terms/{Track} description_certified=true -> 500 Internal Server Error
+CHECK FAIL: a certified correction can be written
+NOTE: same failure as demo 09: dal/owners.py _stored_owner opens Postgres, so every term and SQL-attribute edit answers 500 on Nidra
+
+## usage: what the catalog records about queries
+- count=1 last=2026-11-03 15:50:52.318090+00:00 SELECT customer_id, sum(amount) FROM payment GROUP BY customer_id
+- count=1 last=2026-11-03 15:50:52.165430+00:00 SELECT c.name, count(fc.film_id) FROM film_category fc JOIN category c ON c.category_id = 
+- count=1 last=2026-11-03 15:50:52.426395+00:00 SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventor
+- count=1 last=2026-11-03 15:50:52.065980+00:00 SELECT count(film_id) FROM film
+- count=1 last=2026-11-03 15:50:51.958015+00:00 SELECT sum(amount) FROM payment
+- count=1 last=2026-11-03 15:50:52.598278+00:00 SELECT staff_id, sum(amount) AS revenue FROM payment GROUP BY staff_id
+6 SQL statements in the catalog (the fixture's query history)
+Usage enters the catalog only at ingest, from the source's own query log (catalog/write.py -> sql_parse.populate_queries); the Chinook ingest in demo 13 logged 'Starting to parse 0 queries' (SQLite keeps no query log).
+chat answers are not folded back: sql_from_semantic.py reads path_state['similar_questions'] ("Using N similar questions from conversations"), and no code assigns it (0 writers found); the slot is always empty, upstream too.
+CHECK FAIL: an answered question improves the next one
+
+checks: 0/2 passed; failed: a certified correction can be written; an answered question improves the next one
+elapsed: 4.6s
+STATUS: not yet — certification writes fail on Nidra (500); usage is only the source's query log at ingest; nothing folds answers back, upstream included

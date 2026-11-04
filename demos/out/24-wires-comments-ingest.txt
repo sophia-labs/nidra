@@ -1,0 +1,89 @@
+# 24-wires-comments-ingest: a wire term -> table, a comment on a column, then an ingest sweep
+run at 2026-11-03T20:46:13-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Annotations live in the same graph as the catalog, on the catalog's own IRIs, and an ingest sweep leaves them standing. Upstream's glossary has no annotation layer beside its tables.
+
+term Customer      urn:ao:term/id=1494ca89-18dd-4978-8491-f448b66a1e89  (represents pagila.public.customer today)
+table Customer     urn:ao:catalog_table/id=2fbd3568-768a-41fd-b375-658620cffc12  (chinook.main.Customer)
+column Milliseconds urn:ao:catalog_column/id=ff1e8d74-9f6a-4ec6-a4a3-1104da738f3a  (chinook.main.Track)
+
+## a whiteboard to draw the term -> table wire on (an object-to-object wire needs a scene)
+board doc-48b09f62fa404230b800237ad58bc66a
+
+## wire: term Customer --should-also-represent--> chinook.main.Customer
+wire already there from an earlier run: w-f0a6812e
+
+## a note document that embeds the column, a wire to it, and a comment on it
+edit_comment:
+{
+  "success": true,
+  "anchored": 1,
+  "blockId": "block-96f1fd9e",
+  "quotedText": "300000"
+}
+CHECK PASS: comment anchored on '300000' in the paragraph about the column
+before the sweep:
+{
+  "term_wires": [
+    [
+      "should-also-represent",
+      "urn:ao:catalog_table/id=2fbd3568-768a-41fd-b375-658620cffc12"
+    ]
+  ],
+  "column_wires_in": [
+    [
+      "annotates",
+      "doc-fa3000229d994d5e82fc589f76969a83"
+    ]
+  ],
+  "comments": [
+    [
+      "nidra-demo-24-unit",
+      "300000",
+      false
+    ]
+  ],
+  "targets_exist": {
+    "urn:ao:catalog_table/id=2fbd3568-768a-41fd-b375-658620cffc12": true,
+    "urn:ao:catalog_column/id=ff1e8d74-9f6a-4ec6-a4a3-1104da738f3a": true
+  }
+}
+
+## the ingest sweep: docker exec nidra-ingestion POST /ingest {database: chinook}
+202 {"status":"accepted"} -> 2026-11-04 04:46:19,990 INFO ingestion_service.ingest: Data ingestion finished successfully for database chinook — 11 table(s), 64 column(s), 75 embedding row(s) in 1.2s
+CHECK PASS: Chinook re-ingested
+after the sweep:
+{
+  "term_wires": [
+    [
+      "should-also-represent",
+      "urn:ao:catalog_table/id=2fbd3568-768a-41fd-b375-658620cffc12"
+    ]
+  ],
+  "column_wires_in": [
+    [
+      "annotates",
+      "doc-fa3000229d994d5e82fc589f76969a83"
+    ]
+  ],
+  "comments": [
+    [
+      "nidra-demo-24-unit",
+      "300000",
+      false
+    ]
+  ],
+  "targets_exist": {
+    "urn:ao:catalog_table/id=2fbd3568-768a-41fd-b375-658620cffc12": true,
+    "urn:ao:catalog_column/id=ff1e8d74-9f6a-4ec6-a4a3-1104da738f3a": true
+  }
+}
+CHECK PASS: wires, comment and their catalog targets are unchanged after the sweep
+CHECK PASS: the IRIs the annotations point at still exist
+CHECK PASS: the term -> table wire survives
+CHECK PASS: the comment survives
+Why it survives: the ingest is a diff keyed by the catalog's own ids (demo 13), so the rows keep their IRIs, and the annotations are separate workspace/document state that ingestion never touches.
+made by this demo: board doc-48b09f62fa404230b800237ad58bc66a, note doc-fa3000229d994d5e82fc589f76969a83 (see demo 29 to remove them)
+
+checks: 6/6 passed
+elapsed: 7.0s
+STATUS: works

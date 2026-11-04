@@ -1,0 +1,18 @@
+# 03b-count-star-validator: the validator and COUNT(*)
+run at 2026-11-03T20:56:16-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Validate: generated SQL is checked against the catalog before it runs.
+claim source: README.md (Validate); auto_ontology/retrieval/text_to_sql/agents/sql_parse_validation.py
+
+  SELECT COUNT(*) AS track_count FROM "Track"                -> SQL doesn't reference any table known to the catalog; check the query and available schema
+  SELECT COUNT(*) AS track_count FROM Track                  -> SQL doesn't reference any table known to the catalog; check the query and available schema
+  SELECT COUNT("TrackId") AS track_count FROM "Track"        -> ok, tables ['main.Track']
+  SELECT COUNT(*) FROM "Track" WHERE "Milliseconds" > 300000 -> ok, tables ['main.Track']
+  SELECT COUNT(*) FROM film                                  -> SQL doesn't reference any table known to the catalog; check the query and available schema
+  SELECT COUNT(film_id) FROM film                            -> ok, tables ['public.film']
+  SELECT * FROM film_category                                -> ok, tables ['public.film_category']
+CHECK FAIL: a count over a whole known table passes validation
+NOTE: SQL that references no column (COUNT(*) over a table, with no WHERE) is refused as 'SQL doesn't reference any table known to the catalog': upstream's auto_ontology/catalog/sql_parse.py parse_query_single returns None when parse_query_slim finds no column, and the validator reads None as 'no known table'. The engine's counting prompt asks for COUNT(pk), so most runs pass; when the model writes COUNT(*) it is refused, rewrites COUNT(*) again, and after the reconstruction budget answers 'SQL can't be constructed' (demo 03, 223 s). The function is upstream's, unchanged in the fork; reproduced on Nidra, not run against upstream's Postgres backend.
+
+checks: 0/1 passed; failed: a count over a whole known table passes validation
+elapsed: 0.3s
+STATUS: not yet

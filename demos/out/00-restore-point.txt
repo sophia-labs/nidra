@@ -1,0 +1,37 @@
+# 00-restore-point: restore point and catalog snapshot before the demos
+run at 2026-11-03T20:18:21-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Vera can undo everything the demos write.
+
+
+## restore point (documents, folders, wires)
+create_restore_point:
+{
+  "restorePointId": "rp-5c54b5b4e4ce4c7b9fd584d268c6c94f",
+  "timestamp": "2026-11-04T04:18:21.859Z",
+  "trigger": "manual",
+  "label": "nidra-demos-before-20261103-201821",
+  "isLatest": true,
+  "sizeBytes": 0,
+  "contentHashSha256": "6310b5a0fe6cfbda2b03ee8fe1c1bfe9ba3185a3404557c1f6322c7a140640b9",
+  "documentCount": 0,
+  "folderCount": 0,
+  "artifactCount": 0
+}
+CHECK PASS: restore point created: rp-5c54b5b4e4ce4c7b9fd584d268c6c94f label nidra-demos-before-20261103-201821
+
+## N-Quads snapshot of every named graph (the catalog lives here)
+wrote 3884 quads to /Users/vera/dev/auto-ontology-rdf-20261103/demos/state/ao-catalog-nidra-demos-before-20261103-201821.nq (sha256 df2e02a837e14514…)
+CHECK PASS: snapshot holds 3884 quads
+
+## baseline counts
+  <urn:mnemosyne:local:graph:ao-catalog:projection:graph>: 8
+  <urn:mnemosyne:local:graph:ao-catalog:projection:seed>: 1
+  <urn:mnemosyne:local:graph:ao-catalog:user:rdf>: 3875
+
+To undo the documents, wires and comments the demos add:
+  restore_to_restore_point {graphId: ao-catalog, restorePointId: rp-5c54b5b4e4ce4c7b9fd584d268c6c94f, dryRun: true} first, then without dryRun
+To undo catalog (RDF) changes: clear the graph's user:rdf named graph and rdf_load the snapshot above (see README).
+
+checks: 2/2 passed
+elapsed: 4.3s
+STATUS: works

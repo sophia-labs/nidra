@@ -1,0 +1,47 @@
+# 20-sparql-catalog: the catalog as RDF: SPARQL over terms, columns, tables
+run at 2026-11-03T20:41:39-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Nidra's catalog is one RDF graph (a W3C Direct Mapping of upstream's schema, auto_ontology/rdf/README.md), so an agent can ask it anything SPARQL can say, through MCP. Upstream's MCP exposes nine fixed tools and deliberately no catalog browser (docs/mcp.md).
+
+
+## 1. every glossary term, its column attributes, the physical column, table and database (one query)
+PREFIX t: <urn:ao:term#> PREFIX ca: <urn:ao:column_attribute#> PREFIX cat: <urn:ao:column_attribute__term#> PREFIX cha: <urn:ao:column__has_attribute#> PREFIX col: <urn:ao:catalog_column#> PREFIX tb: <urn:ao:catalog_table#> PREFIX sc: <urn:ao:catalog_schema#> PREFIX db: <urn:ao:catalog_database#> SELECT ?term ?attr ?column ?table ?schema ?database WHERE { GRAPH ?g {
+  ?tl cat:ref-term_id ?t ; cat:ref-attribute_id ?a .
+  ?t t:name ?term . ?a ca:name ?attr .
+  ?hl cha:ref-attribute_id ?a ; cha:ref-column_id ?c .
+  ?c col:name ?column ; col:ref-table_id ?tbl .
+  ?tbl tb:name ?table ; tb:ref-schema_id ?s .
+  ?s sc:name ?schema ; sc:ref-database_id ?d . ?d db:name ?database .
+} } ORDER BY ?term ?attr
+  Customer  customer email   -> pagila.public.customer.email
+  Customer  customer id      -> pagila.public.customer.customer_id
+  Film      film id          -> pagila.public.film.film_id
+  Film      film rating      -> pagila.public.film.rating
+  Film      film title       -> pagila.public.film.title
+  Payment   payment amount   -> pagila.public.payment.amount
+  Rental    rental date      -> pagila.public.rental.rental_date
+  Track     track name       -> chinook.main.Track.Name
+CHECK PASS: 8 term -> column paths (the glossary has 8 column attributes)
+CHECK PASS: the engine's own API agrees: 8 column attributes
+
+## 2. where the semantic layer is thin: tables no term represents, per database, with column counts
+  chinook: 11 tables, 10 with no term
+  pagila: 26 tables, 22 with no term
+CHECK PASS: coverage of the semantic layer per database, in one query
+
+## 3. a foreign-key walk: what does a Pagila rental reach in two hops?
+  rental -> customer -> address
+  rental -> customer -> store
+  rental -> inventory -> film
+  rental -> inventory -> store
+  rental -> staff -> address
+  rental -> staff -> store
+CHECK PASS: rental reaches customer (and beyond) by foreign keys
+
+## 4. the same graph holds the vector index: which catalog rows are embedded, per collection
+  data_objects_layer: 75
+  semantic_layer: 13
+Patterns are wrapped in GRAPH ?g { } because gardend's store is named-graph partitioned (an unwrapped pattern matches nothing).
+
+checks: 4/4 passed
+elapsed: 3.4s
+STATUS: works

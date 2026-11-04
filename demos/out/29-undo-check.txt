@@ -1,0 +1,79 @@
+# 29-undo-check: what the demos wrote, and how to undo it
+run at 2026-11-03T20:59:04-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: Vera can undo the demos: the restore point from demo 00 plus the catalog snapshot.
+
+demo 00 restore point: rp-5c54b5b4e4ce4c7b9fd584d268c6c94f (nidra-demos-before-20261103-201821); snapshot: /Users/vera/dev/auto-ontology-rdf-20261103/demos/state/ao-catalog-nidra-demos-before-20261103-201821.nq
+
+## documents and wires (the restore point's layer)
+diff_restore_points demo-00 -> current:
+{
+  "docsAdded": 0,
+  "docsRemoved": 3,
+  "docsModifiedApprox": 0,
+  "comparison": "approximate",
+  "note": "diff against `current` reports document set deltas only; capture a restore point first for exact char-level deltas"
+}
+- doc-9a70cca6440a4adb9ddcb1fe06013d80  'Answer trace: How many songs are longer than five minutes?'  wires: [('read-column', 'w-1fe5cc3f')]
+- doc-48b09f62fa404230b800237ad58bc66a  'nidra demo 24: catalog annotations'  wires: [('should-also-represent', 'w-f0a6812e')]
+- doc-fa3000229d994d5e82fc589f76969a83  'nidra demo 24: Track.Milliseconds'  wires: [('annotates', 'w-6111b295')]
+CHECK PASS: no documents other than the demos' (3 demo documents, 0 others)
+- wire from term Customer: [('should-also-represent', 'w-f0a6812e')] (drawn on the demo 24 board)
+
+## restore points the demos made
+- rp-6404e6b23a84490d971f546713a2b37b  nidra-demo-23 after recompile  2026-11-04T04:57:21.559Z
+- rp-c7d75aac4d1342d282bdca9705525397  nidra-demo-23 before recompile  2026-11-04T04:56:48.820Z
+- rp-a4d4c856ad494b7982d90ffee10262f7  nidra-demo-23 after recompile  2026-11-04T04:45:03.703Z
+- rp-5fe6ef050f2a489da807a70605e3c959  nidra-demo-23 before recompile  2026-11-04T04:44:33.457Z
+- rp-1322a88dfff44712b2495bc17a787668  nidra-demo-23 after recompile  2026-11-04T04:43:24.867Z
+- rp-d464a9725f5448a6b3e6c9608ade8ce7  nidra-demo-23 before recompile  2026-11-04T04:42:54.591Z
+- rp-5c54b5b4e4ce4c7b9fd584d268c6c94f  nidra-demos-before-20261103-201821  2026-11-04T04:18:21.859Z
+
+## memory and Emporium records (projection graphs, RDF)
+- nidra-demo-22  urn:mnemosyne:local:graph:ao-catalog:projection:memory:record:4b7ddd570858e3569a99b3fa096df257de7f4a3a6f481a2e4a45b18434f15d54  in urn:mnemosyne:local:graph:ao-catalog:projection:memory
+- nidra-demo-22  urn:mnemosyne:local:graph:ao-catalog:projection:memory:agent:agent-6e6964726164656d:record:98b9545babce55af0853d4fbce13f43d1dbc2b6cbd286cb34a79a9e7e2c5d8da  in urn:mnemosyne:local:graph:ao-catalog:projection:memory:agent:agent-6e6964726164656d
+- nidra-demo-25  urn:mnemosyne:local:graph:ao-catalog:projection:memory:record:ca4e49bb1bf087a5573267d44326ce083f283616957d663f215e4b24906a5270  in urn:mnemosyne:local:graph:ao-catalog:projection:memory
+
+## the catalog's named graph against demo 00's snapshot
+user:rdf quads: snapshot 3875, now 3875; added 12, removed 12
+  + <urn:ao:catalog_database/id=23f06f0b-d348-4984-abc4-5204741977b1> <urn:ao:catalog_database#pulled> "2026-11-04T04:46:18Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> <urn:mnemosyne:local:graph:ao-cat
+  + <urn:ao:column__foreign_key/source_column_id=325ecf64-69ce-4aac-8667-a20a344f0f51;target_column_id=e41f338d-ace0-4136-b110-c042841b4926> <urn:ao:column__foreign_key#last_seen> "2026-11-04T04:46:19.299
+  + <urn:ao:column__foreign_key/source_column_id=36f6eede-778a-4f1c-a0b1-b23b4ae76765;target_column_id=ea134ec5-4518-412b-a12e-5512b6e3b8dc> <urn:ao:column__foreign_key#last_seen> "2026-11-04T04:46:19.299
+  + <urn:ao:column__foreign_key/source_column_id=39589979-512f-40ac-b098-e19099e1fc97;target_column_id=4ae66cb5-2323-4dae-9c2c-2ac70bf159fb> <urn:ao:column__foreign_key#last_seen> "2026-11-04T04:46:19.299
+  + <urn:ao:column__foreign_key/source_column_id=3daa2e01-f09f-48da-8c2b-0ae586ccedf6;target_column_id=8c2f7a83-0924-470c-8dae-85bc58ba305c> <urn:ao:column__foreign_key#last_seen> "2026-11-04T04:46:19.299
+  + <urn:ao:column__foreign_key/source_column_id=4d0dbc5a-5e13-4b03-ae97-4ed0e203bff2;target_column_id=f6c62291-c301-4fff-9ecc-1345c0312ebb> <urn:ao:column__foreign_key#last_seen> "2026-11-04T04:46:19.299
+  + <urn:ao:column__foreign_key/source_column_id=4d171959-98eb-40f5-9226-bed532c23657;target_column_id=5d82cf44-2248-4aae-b464-1cf0542e5584> <urn:ao:column__foreign_key#last_seen> "2026-11-04T04:46:19.299
+  + <urn:ao:column__foreign_key/source_column_id=5f747f63-ffdb-4f00-8663-45fa365664eb;target_column_id=163332d3-c462-4797-b65d-60d18ed0a765> <urn:ao:column__foreign_key#last_seen> "2026-11-04T04:46:19.299
+  + <urn:ao:column__foreign_key/source_column_id=6b53cd15-d26d-4a28-919e-ede41724675d;target_column_id=4ae66cb5-2323-4dae-9c2c-2ac70bf159fb> <urn:ao:column__foreign_key#last_seen> "2026-11-04T04:46:19.299
+  + <urn:ao:column__foreign_key/source_column_id=87a7ccc6-eb2a-4254-b048-b309855d16a8;target_column_id=8c2f7a83-0924-470c-8dae-85bc58ba305c> <urn:ao:column__foreign_key#last_seen> "2026-11-04T04:46:19.299
+  - <urn:ao:catalog_database/id=23f06f0b-d348-4984-abc4-5204741977b1> <urn:ao:catalog_database#pulled> "2026-11-04T01:45:37Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> <urn:mnemosyne:local:graph:ao-cat
+  - <urn:ao:column__foreign_key/source_column_id=325ecf64-69ce-4aac-8667-a20a344f0f51;target_column_id=e41f338d-ace0-4136-b110-c042841b4926> <urn:ao:column__foreign_key#last_seen> "2026-11-04T01:45:37.945
+  - <urn:ao:column__foreign_key/source_column_id=36f6eede-778a-4f1c-a0b1-b23b4ae76765;target_column_id=ea134ec5-4518-412b-a12e-5512b6e3b8dc> <urn:ao:column__foreign_key#last_seen> "2026-11-04T01:45:37.945
+  - <urn:ao:column__foreign_key/source_column_id=39589979-512f-40ac-b098-e19099e1fc97;target_column_id=4ae66cb5-2323-4dae-9c2c-2ac70bf159fb> <urn:ao:column__foreign_key#last_seen> "2026-11-04T01:45:37.945
+  - <urn:ao:column__foreign_key/source_column_id=3daa2e01-f09f-48da-8c2b-0ae586ccedf6;target_column_id=8c2f7a83-0924-470c-8dae-85bc58ba305c> <urn:ao:column__foreign_key#last_seen> "2026-11-04T01:45:37.945
+  - <urn:ao:column__foreign_key/source_column_id=4d0dbc5a-5e13-4b03-ae97-4ed0e203bff2;target_column_id=f6c62291-c301-4fff-9ecc-1345c0312ebb> <urn:ao:column__foreign_key#last_seen> "2026-11-04T01:45:37.945
+  - <urn:ao:column__foreign_key/source_column_id=4d171959-98eb-40f5-9226-bed532c23657;target_column_id=5d82cf44-2248-4aae-b464-1cf0542e5584> <urn:ao:column__foreign_key#last_seen> "2026-11-04T01:45:37.945
+  - <urn:ao:column__foreign_key/source_column_id=5f747f63-ffdb-4f00-8663-45fa365664eb;target_column_id=163332d3-c462-4797-b65d-60d18ed0a765> <urn:ao:column__foreign_key#last_seen> "2026-11-04T01:45:37.945
+  - <urn:ao:column__foreign_key/source_column_id=6b53cd15-d26d-4a28-919e-ede41724675d;target_column_id=4ae66cb5-2323-4dae-9c2c-2ac70bf159fb> <urn:ao:column__foreign_key#last_seen> "2026-11-04T01:45:37.945
+  - <urn:ao:column__foreign_key/source_column_id=87a7ccc6-eb2a-4254-b048-b309855d16a8;target_column_id=8c2f7a83-0924-470c-8dae-85bc58ba305c> <urn:ao:column__foreign_key#last_seen> "2026-11-04T01:45:37.945
+CHECK PASS: the snapshot is there to compare against
+
+## other graphs the demos created on the scratch gardend
+- ao-demo-rp-20261103-205722  nidra demo 23: restore probe (scratch)
+- ao-demo-rp-20261103-204503  nidra demo 23: restore probe (scratch)
+- ao-demo-probe  nidra demos: emporium probe (scratch)
+- ao-demo-sandbox-20261103-203236  nidra demos: model interchange sandbox
+- ao-demo-sandbox-20261103-203211  nidra demos: model interchange sandbox
+- ao-demo-sandbox-20261103-203136  nidra demos: model interchange sandbox
+- ao-demo-sandbox-20261103-203104  nidra demos: model interchange sandbox
+
+## to undo (nothing here is run by the demos)
+1. documents: delete_document {graphId: ao-catalog, documentId: <each id above>} (their wires and the comment go with them)
+2. memory / Emporium records: emporium_retract {graph_id: ao-catalog, subject: <each subject above>, rationale: 'demo cleanup'}
+   (a retraction is an event; the records stay in the log, hidden from heads and recall)
+3. catalog triples, if a later run changed them: clear named graph user:rdf and rdf_load the snapshot (README)
+4. scratch graphs: manage_graph {graphId: <id>, action: delete}
+restore_to_restore_point to demo 00's point is NOT enough: in demo 23 a restore left a later document and later RDF in place.
+
+checks: 2/2 passed
+elapsed: 8.4s
+STATUS: works

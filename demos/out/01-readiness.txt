@@ -1,0 +1,67 @@
+# 01-readiness: check_readiness: compiled layer + live connection + catalog
+run at 2026-11-03T20:18:26-08:00 against Nidra http://127.0.0.1:3001 and gardend http://127.0.0.1:7690 graph ao-catalog
+claim: check_readiness tells 'not set up' from 'not understood' in three cheap reads.
+claim source: docs/mcp.md § About check_readiness; mcp/auto_ontology_mcp/readiness.py
+
+
+## the three probes, as the MCP server makes them
+GET /api/health (200):
+{
+  "status": "ok",
+  "postgres": {
+    "status": "ok",
+    "store": "gardend"
+  },
+  "migrations": {
+    "status": "ok",
+    "detail": "no migrations on the gardend backend"
+  }
+}
+GET /api/semantic-compilation/status (200):
+{
+  "calculated": true,
+  "running": false,
+  "last_success_at": "2026-11-04T00:41:54.111477+00:00",
+  "last_failure_at": null
+}
+GET /api/connections (200):
+{
+  "data": [],
+  "count": 0
+}
+GET /api/datasources/dbs (200):
+{
+  "count": 2,
+  "names": [
+    "chinook",
+    "pagila"
+  ]
+}
+GET /api/connections/source (200) — is CONNECTION_STRINGS set:
+true
+CHECK PASS: engine health ok (store: gardend)
+CHECK PASS: semantic layer reported built (calculated: true)
+CHECK PASS: catalog holds pagila and chinook
+
+## upstream's verdict (readiness._summarise, unmodified)
+check_readiness:
+{
+  "ready": false,
+  "semantic_layer_built": true,
+  "can_execute_sql": false,
+  "catalog_present": true,
+  "databases": [
+    "chinook",
+    "pagila"
+  ],
+  "blockers": [
+    "No database connection is configured, so generated SQL cannot execute. Questions will still be accepted and will still cost a full agent run before failing with an empty answer. Add a connection in the Auto Ontology UI."
+  ],
+  "unverified": []
+}
+CHECK FAIL: upstream check_readiness says ready
+NOTE: upstream's fold reads only UI-managed connections (/api/connections count 0); this engine's connection comes from CONNECTION_STRINGS (/api/connections/source = true), so check_readiness reports 'No database connection is configured' while Chinook questions do execute (demo 03). Same behaviour upstream for any env-configured deployment.
+
+checks: 3/4 passed; failed: upstream check_readiness says ready
+elapsed: 0.2s
+STATUS: partial — probes all answer; upstream's fold reports a false blocker for an env-configured connection
