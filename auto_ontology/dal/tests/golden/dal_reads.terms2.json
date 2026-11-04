@@ -1,0 +1,1343 @@
+{
+  "errors": {},
+  "results": {
+    "terms.count_column_attributes_by_term_id__t2_Customer[admin]": 2,
+    "terms.count_column_attributes_by_term_id__t2_Customer[cross]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Customer[none]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Customer[retired]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Customer[scoped]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Film[admin]": 3,
+    "terms.count_column_attributes_by_term_id__t2_Film[cross]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Film[none]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Film[retired]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Film[scoped]": 3,
+    "terms.count_column_attributes_by_term_id__t2_Payment[admin]": 1,
+    "terms.count_column_attributes_by_term_id__t2_Payment[cross]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Payment[none]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Payment[retired]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Payment[scoped]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Track[admin]": 1,
+    "terms.count_column_attributes_by_term_id__t2_Track[cross]": 1,
+    "terms.count_column_attributes_by_term_id__t2_Track[none]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Track[retired]": 0,
+    "terms.count_column_attributes_by_term_id__t2_Track[scoped]": 0,
+    "terms.count_column_attributes_by_term_id__t2_unknown[admin]": 0,
+    "terms.count_column_attributes_by_term_id__t2_unknown[cross]": 0,
+    "terms.count_column_attributes_by_term_id__t2_unknown[none]": 0,
+    "terms.count_column_attributes_by_term_id__t2_unknown[retired]": 0,
+    "terms.count_column_attributes_by_term_id__t2_unknown[scoped]": 0,
+    "terms.fetch_column_attribute_counts__t2_data_ids": [
+      {
+        "count": 3,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "terms.fetch_column_attribute_counts__t2_empty_term_ids": [],
+    "terms.fetch_column_attribute_counts__t2_term_ids[admin]": [
+      {
+        "count": 2,
+        "term_id": "<term:Customer>"
+      },
+      {
+        "count": 3,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "terms.fetch_column_attribute_counts__t2_term_ids[cross]": [],
+    "terms.fetch_column_attribute_counts__t2_term_ids[none]": [],
+    "terms.fetch_column_attribute_counts__t2_term_ids[retired]": [],
+    "terms.fetch_column_attribute_counts__t2_term_ids[scoped]": [
+      {
+        "count": 3,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "terms.fetch_column_attribute_counts__t2_unknown_term": [],
+    "terms.fetch_column_attribute_embedding_contexts_by_column_id__t2_customer_customer_id": [
+      [
+        [
+          {
+            "description": "Primary key of customer.",
+            "id": "<attr:Customer/customer id/customer_id>",
+            "name": "customer id",
+            "sample_values": null,
+            "source_column": "customer_id",
+            "term_name": "Customer"
+          }
+        ],
+        {
+          "database_name": "pagila",
+          "description": "A person who rents films from a store.",
+          "id": "<term:Customer>",
+          "name": "Customer",
+          "synonyms": [
+            "patron",
+            "renter"
+          ]
+        }
+      ]
+    ],
+    "terms.fetch_column_attribute_embedding_contexts_by_column_id__t2_film_title": [
+      [
+        [
+          {
+            "description": "The film's title.",
+            "id": "<attr:Film/film title/title>",
+            "name": "film title",
+            "sample_values": null,
+            "source_column": "title",
+            "term_name": "Film"
+          }
+        ],
+        {
+          "database_name": "pagila",
+          "description": "A motion picture available for rental.",
+          "id": "<term:Film>",
+          "name": "Film",
+          "synonyms": [
+            "movie",
+            "picture",
+            "title"
+          ]
+        }
+      ]
+    ],
+    "terms.fetch_column_attribute_embedding_contexts_by_column_id__t2_inventory_film_id": [],
+    "terms.fetch_column_attribute_embedding_contexts_by_column_id__t2_rental_customer_id": [],
+    "terms.fetch_column_attribute_embedding_contexts_by_column_id__t2_unknown": [],
+    "terms.fetch_related_term_ids__t2_Customer[admin]": [
+      "<term:Payment>",
+      "<term:Rental>"
+    ],
+    "terms.fetch_related_term_ids__t2_Customer[cross]": [],
+    "terms.fetch_related_term_ids__t2_Customer[none]": [],
+    "terms.fetch_related_term_ids__t2_Customer[retired]": [],
+    "terms.fetch_related_term_ids__t2_Customer[scoped]": [],
+    "terms.fetch_related_term_ids__t2_Film[admin]": [],
+    "terms.fetch_related_term_ids__t2_Film[cross]": [],
+    "terms.fetch_related_term_ids__t2_Film[none]": [],
+    "terms.fetch_related_term_ids__t2_Film[retired]": [],
+    "terms.fetch_related_term_ids__t2_Film[scoped]": [],
+    "terms.fetch_related_term_ids__t2_Payment[admin]": [
+      "<term:Customer>"
+    ],
+    "terms.fetch_related_term_ids__t2_Payment[cross]": [],
+    "terms.fetch_related_term_ids__t2_Payment[none]": [],
+    "terms.fetch_related_term_ids__t2_Payment[retired]": [],
+    "terms.fetch_related_term_ids__t2_Payment[scoped]": [],
+    "terms.fetch_related_term_ids__t2_Track[admin]": [],
+    "terms.fetch_related_term_ids__t2_Track[cross]": [],
+    "terms.fetch_related_term_ids__t2_Track[none]": [],
+    "terms.fetch_related_term_ids__t2_Track[retired]": [],
+    "terms.fetch_related_term_ids__t2_Track[scoped]": [],
+    "terms.fetch_related_term_ids__t2_unknown[admin]": [],
+    "terms.fetch_related_term_ids__t2_unknown[cross]": [],
+    "terms.fetch_related_term_ids__t2_unknown[none]": [],
+    "terms.fetch_related_term_ids__t2_unknown[retired]": [],
+    "terms.fetch_related_term_ids__t2_unknown[scoped]": [],
+    "terms.fetch_related_terms__t2_Customer[admin]": [
+      {
+        "description": "A single film rental transaction.",
+        "id": "<term:Rental>",
+        "name": "Rental"
+      },
+      {
+        "description": "Money received for a rental. Owning table is partitioned.",
+        "id": "<term:Payment>",
+        "name": "Payment"
+      }
+    ],
+    "terms.fetch_related_terms__t2_Customer[cross]": [],
+    "terms.fetch_related_terms__t2_Customer[none]": [],
+    "terms.fetch_related_terms__t2_Customer[retired]": [],
+    "terms.fetch_related_terms__t2_Customer[scoped]": [],
+    "terms.fetch_related_terms__t2_Film[admin]": [],
+    "terms.fetch_related_terms__t2_Film[cross]": [],
+    "terms.fetch_related_terms__t2_Film[none]": [],
+    "terms.fetch_related_terms__t2_Film[retired]": [],
+    "terms.fetch_related_terms__t2_Film[scoped]": [],
+    "terms.fetch_related_terms__t2_Payment[admin]": [
+      {
+        "description": "A person who rents films from a store.",
+        "id": "<term:Customer>",
+        "name": "Customer"
+      }
+    ],
+    "terms.fetch_related_terms__t2_Payment[cross]": [],
+    "terms.fetch_related_terms__t2_Payment[none]": [],
+    "terms.fetch_related_terms__t2_Payment[retired]": [],
+    "terms.fetch_related_terms__t2_Payment[scoped]": [],
+    "terms.fetch_related_terms__t2_Track[admin]": [],
+    "terms.fetch_related_terms__t2_Track[cross]": [],
+    "terms.fetch_related_terms__t2_Track[none]": [],
+    "terms.fetch_related_terms__t2_Track[retired]": [],
+    "terms.fetch_related_terms__t2_Track[scoped]": [],
+    "terms.fetch_related_terms__t2_data_ids": [],
+    "terms.fetch_related_terms__t2_page_limit0": [],
+    "terms.fetch_related_terms__t2_page_limit1": [
+      {
+        "description": "Money received for a rental. Owning table is partitioned.",
+        "id": "<term:Payment>",
+        "name": "Payment"
+      }
+    ],
+    "terms.fetch_related_terms__t2_page_skip1": [
+      {
+        "description": "A single film rental transaction.",
+        "id": "<term:Rental>",
+        "name": "Rental"
+      }
+    ],
+    "terms.fetch_related_terms__t2_page_skip_past_end": [],
+    "terms.fetch_related_terms__t2_unknown[admin]": [],
+    "terms.fetch_related_terms__t2_unknown[cross]": [],
+    "terms.fetch_related_terms__t2_unknown[none]": [],
+    "terms.fetch_related_terms__t2_unknown[retired]": [],
+    "terms.fetch_related_terms__t2_unknown[scoped]": [],
+    "terms.fetch_related_terms_counts__t2_data_ids": [
+      {
+        "count": 0,
+        "term_id": "<term:Film>"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_empty_term_ids": [],
+    "terms.fetch_related_terms_counts__t2_term_ids[admin]": [
+      {
+        "count": 0,
+        "term_id": "<term:Film>"
+      },
+      {
+        "count": 0,
+        "term_id": "<term:Track>"
+      },
+      {
+        "count": 2,
+        "term_id": "<term:Customer>"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_term_ids[cross]": [
+      {
+        "count": 0,
+        "term_id": "<term:Customer>"
+      },
+      {
+        "count": 0,
+        "term_id": "<term:Film>"
+      },
+      {
+        "count": 0,
+        "term_id": "<term:Track>"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_term_ids[none]": [
+      {
+        "count": 0,
+        "term_id": "<term:Customer>"
+      },
+      {
+        "count": 0,
+        "term_id": "<term:Film>"
+      },
+      {
+        "count": 0,
+        "term_id": "<term:Track>"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_term_ids[retired]": [
+      {
+        "count": 0,
+        "term_id": "<term:Customer>"
+      },
+      {
+        "count": 0,
+        "term_id": "<term:Film>"
+      },
+      {
+        "count": 0,
+        "term_id": "<term:Track>"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_term_ids[scoped]": [
+      {
+        "count": 0,
+        "term_id": "<term:Customer>"
+      },
+      {
+        "count": 0,
+        "term_id": "<term:Film>"
+      },
+      {
+        "count": 0,
+        "term_id": "<term:Track>"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_unknown[admin]": [
+      {
+        "count": 0,
+        "term_id": "no-such-id"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_unknown[cross]": [
+      {
+        "count": 0,
+        "term_id": "no-such-id"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_unknown[none]": [
+      {
+        "count": 0,
+        "term_id": "no-such-id"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_unknown[retired]": [
+      {
+        "count": 0,
+        "term_id": "no-such-id"
+      }
+    ],
+    "terms.fetch_related_terms_counts__t2_unknown[scoped]": [
+      {
+        "count": 0,
+        "term_id": "no-such-id"
+      }
+    ],
+    "terms.fetch_table_schema_map__t2_blank": {},
+    "terms.fetch_table_schema_map__t2_chinook": {
+      "album": "main",
+      "artist": "main",
+      "customer": "main",
+      "employee": "main",
+      "genre": "main",
+      "invoice": "main",
+      "invoiceline": "main",
+      "mediatype": "main",
+      "playlist": "main",
+      "playlisttrack": "main",
+      "track": "main"
+    },
+    "terms.fetch_table_schema_map__t2_no-such-db": {},
+    "terms.fetch_table_schema_map__t2_pagila": {
+      "actor": "public",
+      "actor_info": "public",
+      "address": "public",
+      "category": "public",
+      "category_rollup": "analytics",
+      "city": "public",
+      "country": "public",
+      "customer": "public",
+      "customer_list": "public",
+      "film": "public",
+      "film_actor": "public",
+      "film_category": "public",
+      "film_list": "public",
+      "film_performance": "analytics",
+      "inventory": "public",
+      "language": "public",
+      "nicer_but_slower_film_list": "public",
+      "payment": "public",
+      "rental": "public",
+      "rental_by_category": "public",
+      "sales_by_film_category": "public",
+      "sales_by_store": "public",
+      "staff": "public",
+      "staff_list": "public",
+      "store": "public",
+      "top_films": "analytics"
+    },
+    "terms.fetch_term_and_column_attributes_for_embedding__t2_Customer": [
+      [
+        {
+          "description": "Contact address.",
+          "id": "<attr:Customer/customer email/email>",
+          "is_unique": null,
+          "name": "customer email",
+          "sample_values": null,
+          "source_column": "email",
+          "table_id": "<table:pagila.public.customer>",
+          "table_name": "customer",
+          "term_name": "Customer"
+        },
+        {
+          "description": "Primary key of customer.",
+          "id": "<attr:Customer/customer id/customer_id>",
+          "is_unique": null,
+          "name": "customer id",
+          "sample_values": null,
+          "source_column": "customer_id",
+          "table_id": "<table:pagila.public.customer>",
+          "table_name": "customer",
+          "term_name": "Customer"
+        }
+      ],
+      {
+        "database_name": "pagila",
+        "description": "A person who rents films from a store.",
+        "id": "<term:Customer>",
+        "name": "Customer",
+        "synonyms": [
+          "patron",
+          "renter"
+        ]
+      }
+    ],
+    "terms.fetch_term_and_column_attributes_for_embedding__t2_Film": [
+      [
+        {
+          "description": "MPAA rating; an enum.",
+          "id": "<attr:Film/film rating/rating>",
+          "is_unique": null,
+          "name": "film rating",
+          "sample_values": null,
+          "source_column": "rating",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film",
+          "term_name": "Film"
+        },
+        {
+          "description": "Primary key of film.",
+          "id": "<attr:Film/film id/film_id>",
+          "is_unique": null,
+          "name": "film id",
+          "sample_values": null,
+          "source_column": "film_id",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film",
+          "term_name": "Film"
+        },
+        {
+          "description": "The film's title.",
+          "id": "<attr:Film/film title/title>",
+          "is_unique": null,
+          "name": "film title",
+          "sample_values": null,
+          "source_column": "title",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film",
+          "term_name": "Film"
+        }
+      ],
+      {
+        "database_name": "pagila",
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film",
+        "synonyms": [
+          "movie",
+          "picture",
+          "title"
+        ]
+      }
+    ],
+    "terms.fetch_term_and_column_attributes_for_embedding__t2_Payment": [
+      [
+        {
+          "description": "Amount paid.",
+          "id": "<attr:Payment/payment amount/amount>",
+          "is_unique": null,
+          "name": "payment amount",
+          "sample_values": null,
+          "source_column": "amount",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment",
+          "term_name": "Payment"
+        }
+      ],
+      {
+        "database_name": "pagila",
+        "description": "Money received for a rental. Owning table is partitioned.",
+        "id": "<term:Payment>",
+        "name": "Payment",
+        "synonyms": [
+          "transaction"
+        ]
+      }
+    ],
+    "terms.fetch_term_and_column_attributes_for_embedding__t2_Track": [
+      [
+        {
+          "description": "The track's title.",
+          "id": "<attr:Track/track name/Name>",
+          "is_unique": null,
+          "name": "track name",
+          "sample_values": null,
+          "source_column": "Name",
+          "table_id": "<table:chinook.main.Track>",
+          "table_name": "Track",
+          "term_name": "Track"
+        }
+      ],
+      {
+        "database_name": "chinook",
+        "description": "A single piece of recorded music.",
+        "id": "<term:Track>",
+        "name": "Track",
+        "synonyms": [
+          "song"
+        ]
+      }
+    ],
+    "terms.fetch_term_and_column_attributes_for_embedding__t2_unknown": [
+      [],
+      null
+    ],
+    "terms.fetch_term_zones_map__t2_all[admin]": {
+      "<term:Film>": [
+        {
+          "color": "#4f46e5",
+          "enabled": true,
+          "id": "<zone:Film domain>",
+          "name": "Film domain"
+        }
+      ],
+      "<term:Track>": [
+        {
+          "color": "#059669",
+          "enabled": true,
+          "id": "<zone:Cross database>",
+          "name": "Cross database"
+        }
+      ]
+    },
+    "terms.fetch_term_zones_map__t2_all[cross]": {
+      "<term:Track>": [
+        {
+          "color": "#059669",
+          "enabled": true,
+          "id": "<zone:Cross database>",
+          "name": "Cross database"
+        }
+      ]
+    },
+    "terms.fetch_term_zones_map__t2_all[none]": {},
+    "terms.fetch_term_zones_map__t2_all[retired]": {},
+    "terms.fetch_term_zones_map__t2_all[scoped]": {
+      "<term:Film>": [
+        {
+          "color": "#4f46e5",
+          "enabled": true,
+          "id": "<zone:Film domain>",
+          "name": "Film domain"
+        }
+      ]
+    },
+    "terms.fetch_term_zones_map__t2_empty_term_ids": {},
+    "terms.fetch_term_zones_map__t2_one_term[admin]": {},
+    "terms.fetch_term_zones_map__t2_one_term[cross]": {},
+    "terms.fetch_term_zones_map__t2_one_term[none]": {},
+    "terms.fetch_term_zones_map__t2_one_term[retired]": {},
+    "terms.fetch_term_zones_map__t2_one_term[scoped]": {},
+    "terms.fetch_term_zones_map__t2_term_ids[admin]": {
+      "<term:Film>": [
+        {
+          "color": "#4f46e5",
+          "enabled": true,
+          "id": "<zone:Film domain>",
+          "name": "Film domain"
+        }
+      ],
+      "<term:Track>": [
+        {
+          "color": "#059669",
+          "enabled": true,
+          "id": "<zone:Cross database>",
+          "name": "Cross database"
+        }
+      ]
+    },
+    "terms.fetch_term_zones_map__t2_term_ids[cross]": {
+      "<term:Track>": [
+        {
+          "color": "#059669",
+          "enabled": true,
+          "id": "<zone:Cross database>",
+          "name": "Cross database"
+        }
+      ]
+    },
+    "terms.fetch_term_zones_map__t2_term_ids[none]": {},
+    "terms.fetch_term_zones_map__t2_term_ids[retired]": {},
+    "terms.fetch_term_zones_map__t2_term_ids[scoped]": {
+      "<term:Film>": [
+        {
+          "color": "#4f46e5",
+          "enabled": true,
+          "id": "<zone:Film domain>",
+          "name": "Film domain"
+        }
+      ]
+    },
+    "terms.fetch_term_zones_map__t2_two_zones": {
+      "<term:Film>": [
+        {
+          "color": "#4f46e5",
+          "enabled": true,
+          "id": "<zone:Film domain>",
+          "name": "Film domain"
+        }
+      ],
+      "<term:Track>": [
+        {
+          "color": "#059669",
+          "enabled": true,
+          "id": "<zone:Cross database>",
+          "name": "Cross database"
+        }
+      ]
+    },
+    "terms.fetch_term_zones_map__t2_unknown_term[admin]": {},
+    "terms.fetch_term_zones_map__t2_unknown_term[cross]": {},
+    "terms.fetch_term_zones_map__t2_unknown_term[none]": {},
+    "terms.fetch_term_zones_map__t2_unknown_term[retired]": {},
+    "terms.fetch_term_zones_map__t2_unknown_term[scoped]": {},
+    "terms.fetch_terms_by_ids__t2_all": [
+      {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      },
+      {
+        "description": "A person who rents films from a store.",
+        "id": "<term:Customer>",
+        "name": "Customer"
+      },
+      {
+        "description": "A single piece of recorded music.",
+        "id": "<term:Track>",
+        "name": "Track"
+      },
+      {
+        "description": "Money received for a rental. Owning table is partitioned.",
+        "id": "<term:Payment>",
+        "name": "Payment"
+      }
+    ],
+    "terms.fetch_terms_by_ids__t2_dups": [
+      {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      },
+      {
+        "description": "A person who rents films from a store.",
+        "id": "<term:Customer>",
+        "name": "Customer"
+      }
+    ],
+    "terms.fetch_terms_by_ids__t2_empty": [],
+    "terms.fetch_terms_by_ids__t2_mixed": [
+      {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      }
+    ],
+    "terms.fetch_terms_by_ids__t2_page_limit0": [],
+    "terms.fetch_terms_by_ids__t2_page_limit2": [
+      {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      },
+      {
+        "description": "A person who rents films from a store.",
+        "id": "<term:Customer>",
+        "name": "Customer"
+      }
+    ],
+    "terms.fetch_terms_by_ids__t2_page_skip1": [
+      {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      },
+      {
+        "description": "A single piece of recorded music.",
+        "id": "<term:Track>",
+        "name": "Track"
+      },
+      {
+        "description": "Money received for a rental. Owning table is partitioned.",
+        "id": "<term:Payment>",
+        "name": "Payment"
+      }
+    ],
+    "terms.fetch_terms_by_ids__t2_page_skip1_limit2": [
+      {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      },
+      {
+        "description": "Money received for a rental. Owning table is partitioned.",
+        "id": "<term:Payment>",
+        "name": "Payment"
+      }
+    ],
+    "terms.fetch_terms_by_ids__t2_page_skip_past_end": [],
+    "terms.fetch_terms_by_ids__t2_unknown": [],
+    "terms.fetch_terms_with_sqls__t2_db_None": [],
+    "terms.fetch_terms_with_sqls__t2_db_chinook": [],
+    "terms.fetch_terms_with_sqls__t2_db_no-such-db": [],
+    "terms.fetch_terms_with_sqls__t2_db_pagila": [],
+    "terms.fetch_terms_with_sqls__t2_other_source": [],
+    "terms.find_column_attribute_by_column_id__t2_customer_customer_id": "<attr:Customer/customer id/customer_id>",
+    "terms.find_column_attribute_by_column_id__t2_film_title": "<attr:Film/film title/title>",
+    "terms.find_column_attribute_by_column_id__t2_inventory_film_id": null,
+    "terms.find_column_attribute_by_column_id__t2_rental_customer_id": null,
+    "terms.find_column_attribute_by_column_id__t2_unknown": null,
+    "terms.find_term_link_path__t2_Customer_Customer": [],
+    "terms.find_term_link_path__t2_Customer_Film": [],
+    "terms.find_term_link_path__t2_Customer_Payment": [
+      {
+        "relationship": "CONTAINS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.payment.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        "target": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "label": "Table",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        }
+      },
+      {
+        "relationship": "PROPERTY_OF",
+        "source": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        },
+        "target": {
+          "id": "<term:Customer>",
+          "label": "Term",
+          "name": "Customer"
+        }
+      },
+      {
+        "relationship": "REPRESENTS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "label": "Table",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        },
+        "target": {
+          "id": "<term:Payment>",
+          "label": "Term",
+          "name": "Payment"
+        }
+      },
+      {
+        "relationship": "SEMANTIC_FK",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.payment.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        "target": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        }
+      }
+    ],
+    "terms.find_term_link_path__t2_Customer_Track": [],
+    "terms.find_term_link_path__t2_Film_Customer": [],
+    "terms.find_term_link_path__t2_Film_Film": [],
+    "terms.find_term_link_path__t2_Film_Payment": [],
+    "terms.find_term_link_path__t2_Film_Track": [],
+    "terms.find_term_link_path__t2_Payment_Customer": [
+      {
+        "relationship": "CONTAINS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.payment.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        "target": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "label": "Table",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        }
+      },
+      {
+        "relationship": "PROPERTY_OF",
+        "source": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        },
+        "target": {
+          "id": "<term:Customer>",
+          "label": "Term",
+          "name": "Customer"
+        }
+      },
+      {
+        "relationship": "REPRESENTS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "label": "Table",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        },
+        "target": {
+          "id": "<term:Payment>",
+          "label": "Term",
+          "name": "Payment"
+        }
+      },
+      {
+        "relationship": "SEMANTIC_FK",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.payment.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        "target": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        }
+      }
+    ],
+    "terms.find_term_link_path__t2_Payment_Film": [],
+    "terms.find_term_link_path__t2_Payment_Payment": [],
+    "terms.find_term_link_path__t2_Payment_Track": [],
+    "terms.find_term_link_path__t2_Track_Customer": [],
+    "terms.find_term_link_path__t2_Track_Film": [],
+    "terms.find_term_link_path__t2_Track_Payment": [],
+    "terms.find_term_link_path__t2_Track_Track": [],
+    "terms.find_term_link_path__t2_all_Customer_Rental": [
+      {
+        "relationship": "CONTAINS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        "target": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "label": "Table",
+          "name": "rental",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        }
+      },
+      {
+        "relationship": "PROPERTY_OF",
+        "source": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        },
+        "target": {
+          "id": "<term:Customer>",
+          "label": "Term",
+          "name": "Customer"
+        }
+      },
+      {
+        "relationship": "REPRESENTS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "label": "Table",
+          "name": "rental",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        },
+        "target": {
+          "id": "<term:Rental>",
+          "label": "Term",
+          "name": "Rental"
+        }
+      },
+      {
+        "relationship": "SEMANTIC_FK",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        "target": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        }
+      }
+    ],
+    "terms.find_term_link_path__t2_all_Film_Rental": [],
+    "terms.find_term_link_path__t2_all_Payment_Rental": [
+      {
+        "relationship": "CONTAINS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.payment.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        "target": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "label": "Table",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        }
+      },
+      {
+        "relationship": "CONTAINS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        "target": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "label": "Table",
+          "name": "rental",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        }
+      },
+      {
+        "relationship": "REPRESENTS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "label": "Table",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        },
+        "target": {
+          "id": "<term:Payment>",
+          "label": "Term",
+          "name": "Payment"
+        }
+      },
+      {
+        "relationship": "REPRESENTS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "label": "Table",
+          "name": "rental",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        },
+        "target": {
+          "id": "<term:Rental>",
+          "label": "Term",
+          "name": "Rental"
+        }
+      },
+      {
+        "relationship": "SEMANTIC_FK",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.payment.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        "target": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        }
+      },
+      {
+        "relationship": "SEMANTIC_FK",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        "target": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        }
+      }
+    ],
+    "terms.find_term_link_path__t2_all_Rental_Customer": [
+      {
+        "relationship": "CONTAINS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        "target": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "label": "Table",
+          "name": "rental",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        }
+      },
+      {
+        "relationship": "PROPERTY_OF",
+        "source": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        },
+        "target": {
+          "id": "<term:Customer>",
+          "label": "Term",
+          "name": "Customer"
+        }
+      },
+      {
+        "relationship": "REPRESENTS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "label": "Table",
+          "name": "rental",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        },
+        "target": {
+          "id": "<term:Rental>",
+          "label": "Term",
+          "name": "Rental"
+        }
+      },
+      {
+        "relationship": "SEMANTIC_FK",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        "target": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        }
+      }
+    ],
+    "terms.find_term_link_path__t2_all_Rental_Film": [],
+    "terms.find_term_link_path__t2_all_Rental_Payment": [
+      {
+        "relationship": "CONTAINS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.payment.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        "target": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "label": "Table",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        }
+      },
+      {
+        "relationship": "CONTAINS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        "target": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "label": "Table",
+          "name": "rental",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        }
+      },
+      {
+        "relationship": "REPRESENTS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.payment>",
+          "label": "Table",
+          "name": "payment",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        },
+        "target": {
+          "id": "<term:Payment>",
+          "label": "Term",
+          "name": "Payment"
+        }
+      },
+      {
+        "relationship": "REPRESENTS",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<table:pagila.public.rental>",
+          "label": "Table",
+          "name": "rental",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public"
+        },
+        "target": {
+          "id": "<term:Rental>",
+          "label": "Term",
+          "name": "Rental"
+        }
+      },
+      {
+        "relationship": "SEMANTIC_FK",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.payment.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.payment>",
+          "table_name": "payment"
+        },
+        "target": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        }
+      },
+      {
+        "relationship": "SEMANTIC_FK",
+        "source": {
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "id": "<col:pagila.public.rental.customer_id>",
+          "label": "Column",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        },
+        "target": {
+          "id": "<attr:Customer/customer id/customer_id>",
+          "label": "ColumnAttribute",
+          "name": "customer id"
+        }
+      }
+    ],
+    "terms.find_term_link_path__t2_all_Rental_Rental": [],
+    "terms.find_term_link_path__t2_all_Rental_Track": [],
+    "terms.find_term_link_path__t2_all_Track_Rental": [],
+    "terms.find_term_link_path__t2_empty_a": [],
+    "terms.find_term_link_path__t2_empty_b": [],
+    "terms.find_term_link_path__t2_unknown_a": [],
+    "terms.find_term_link_path__t2_unknown_b": [],
+    "terms.get_slim_term_by_id__t2_Customer": {
+      "id": "<term:Customer>",
+      "name": "Customer"
+    },
+    "terms.get_slim_term_by_id__t2_Film": {
+      "id": "<term:Film>",
+      "name": "Film"
+    },
+    "terms.get_slim_term_by_id__t2_Payment": {
+      "id": "<term:Payment>",
+      "name": "Payment"
+    },
+    "terms.get_slim_term_by_id__t2_Track": {
+      "id": "<term:Track>",
+      "name": "Track"
+    },
+    "terms.get_slim_term_by_id__t2_empty": null,
+    "terms.get_slim_term_by_id__t2_unknown": null,
+    "terms.get_term_certification__t2_Customer[admin]": "partial",
+    "terms.get_term_certification__t2_Customer[cross]": null,
+    "terms.get_term_certification__t2_Customer[none]": null,
+    "terms.get_term_certification__t2_Customer[retired]": null,
+    "terms.get_term_certification__t2_Customer[scoped]": null,
+    "terms.get_term_certification__t2_Film[admin]": "partial",
+    "terms.get_term_certification__t2_Film[cross]": null,
+    "terms.get_term_certification__t2_Film[none]": null,
+    "terms.get_term_certification__t2_Film[retired]": null,
+    "terms.get_term_certification__t2_Film[scoped]": "partial",
+    "terms.get_term_certification__t2_Payment[admin]": "pending",
+    "terms.get_term_certification__t2_Payment[cross]": null,
+    "terms.get_term_certification__t2_Payment[none]": null,
+    "terms.get_term_certification__t2_Payment[retired]": null,
+    "terms.get_term_certification__t2_Payment[scoped]": null,
+    "terms.get_term_certification__t2_Track[admin]": "pending",
+    "terms.get_term_certification__t2_Track[cross]": "pending",
+    "terms.get_term_certification__t2_Track[none]": null,
+    "terms.get_term_certification__t2_Track[retired]": null,
+    "terms.get_term_certification__t2_Track[scoped]": null,
+    "terms.get_term_certification__t2_unknown[admin]": null,
+    "terms.get_term_certification__t2_unknown[cross]": null,
+    "terms.get_term_certification__t2_unknown[none]": null,
+    "terms.get_term_certification__t2_unknown[retired]": null,
+    "terms.get_term_certification__t2_unknown[scoped]": null,
+    "terms.get_term_record_for_table__t2_customer": {
+      "description": "A person who rents films from a store.",
+      "id": "<term:Customer>",
+      "name": "Customer"
+    },
+    "terms.get_term_record_for_table__t2_film": {
+      "description": "A motion picture available for rental.",
+      "id": "<term:Film>",
+      "name": "Film"
+    },
+    "terms.get_term_record_for_table__t2_rental": {
+      "description": "A single film rental transaction.",
+      "id": "<term:Rental>",
+      "name": "Rental"
+    },
+    "terms.get_term_record_for_table__t2_track": {
+      "description": "A single piece of recorded music.",
+      "id": "<term:Track>",
+      "name": "Track"
+    },
+    "terms.get_term_record_for_table__t2_unknown": null,
+    "terms.semantic_layer_calculated__t2_again": true,
+    "terms.term_is_in_scope__t2_Customer[admin]": true,
+    "terms.term_is_in_scope__t2_Customer[cross]": false,
+    "terms.term_is_in_scope__t2_Customer[none]": false,
+    "terms.term_is_in_scope__t2_Customer[retired]": false,
+    "terms.term_is_in_scope__t2_Customer[scoped]": false,
+    "terms.term_is_in_scope__t2_Customer_data_ids": false,
+    "terms.term_is_in_scope__t2_Film[admin]": true,
+    "terms.term_is_in_scope__t2_Film[cross]": false,
+    "terms.term_is_in_scope__t2_Film[none]": false,
+    "terms.term_is_in_scope__t2_Film[retired]": false,
+    "terms.term_is_in_scope__t2_Film[scoped]": true,
+    "terms.term_is_in_scope__t2_Film_data_ids": true,
+    "terms.term_is_in_scope__t2_Payment[admin]": true,
+    "terms.term_is_in_scope__t2_Payment[cross]": false,
+    "terms.term_is_in_scope__t2_Payment[none]": false,
+    "terms.term_is_in_scope__t2_Payment[retired]": false,
+    "terms.term_is_in_scope__t2_Payment[scoped]": false,
+    "terms.term_is_in_scope__t2_Payment_data_ids": false,
+    "terms.term_is_in_scope__t2_Track[admin]": true,
+    "terms.term_is_in_scope__t2_Track[cross]": true,
+    "terms.term_is_in_scope__t2_Track[none]": false,
+    "terms.term_is_in_scope__t2_Track[retired]": false,
+    "terms.term_is_in_scope__t2_Track[scoped]": false,
+    "terms.term_is_in_scope__t2_Track_data_ids": false,
+    "terms.term_is_in_scope__t2_unknown[admin]": false,
+    "terms.term_is_in_scope__t2_unknown[cross]": false,
+    "terms.term_is_in_scope__t2_unknown[none]": false,
+    "terms.term_is_in_scope__t2_unknown[retired]": false,
+    "terms.term_is_in_scope__t2_unknown[scoped]": false,
+    "terms.term_is_in_scope__t2_unknown_data_ids": false
+  }
+}
