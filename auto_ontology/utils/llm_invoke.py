@@ -282,6 +282,8 @@ _NON_REASONING_MODEL_NAME = resolve("NON_REASONING", "MODEL")
 _NON_REASONING_API_KEY = resolve("NON_REASONING", "API_KEY")
 
 
+
+
 def _build_client(
     *,
     model: str,
@@ -296,7 +298,12 @@ def _build_client(
     ``ChatOpenAI``, which supports structured output. Everything else uses
     ``ChatNVIDIA``.
     """
-    if model.startswith(("openai/", "azure/", "aws/")):
+    # Sophia Labs fork: any endpoint that is not NVIDIA's goes through
+    # ChatOpenAI with function-calling structured output. ChatNVIDIA picks a
+    # JSON-schema response_format for models it does not know, which DeepSeek
+    # and others reject ("This response_format type is unavailable now").
+    non_nvidia = "nvidia.com" not in (base_url or "")
+    if model.startswith(("openai/", "azure/", "aws/")) or non_nvidia:
         from langchain_openai import ChatOpenAI
 
         return ChatOpenAI(
@@ -544,6 +551,16 @@ def _structured_output_kwargs(llm: BaseChatModel) -> dict:
     the caller retries if it ever answers without one.
     """
     if _is_claude(llm):
+        return {"method": "function_calling", "tool_choice": None}
+    # Sophia Labs fork: on an OpenAI-compatible endpoint that is neither
+    # OpenAI's nor NVIDIA's (DeepSeek, OpenRouter, a local server), function
+    # calling is the one structured mode they all support; json_schema is
+    # refused by DeepSeek ("This response_format type is unavailable now").
+    base = str(getattr(llm, "openai_api_base", None) or getattr(llm, "base_url", None) or "")
+    if base and "api.openai.com" not in base and "nvidia.com" not in base:
+        # No forced tool choice: DeepSeek's thinking mode refuses one
+        # ("Thinking mode does not support this tool_choice"); the model calls
+        # the tool anyway and the caller retries if it ever answers without.
         return {"method": "function_calling", "tool_choice": None}
     return {}
 
