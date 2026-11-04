@@ -1,0 +1,282 @@
+{
+  "errors": {},
+  "results": {
+    "attributes.column_participates_in_semantic_fk__empty": false,
+    "attributes.column_participates_in_semantic_fk__fk_holder": true,
+    "attributes.column_participates_in_semantic_fk__owner_side": true,
+    "attributes.column_participates_in_semantic_fk__plain_column": false,
+    "attributes.column_participates_in_semantic_fk__unknown": false,
+    "attributes.fetch_attr_column_contexts__any_database": {
+      "<attr:Film/film id/film_id>": {
+        "attr_description": "Primary key of film.",
+        "attr_name": "film id",
+        "col_id": "<col:pagila.public.film.film_id>",
+        "col_name": "film_id",
+        "database_name": "pagila",
+        "datatype": "integer",
+        "schema_name": "public",
+        "table_id": "<table:pagila.public.film>",
+        "table_name": "film",
+        "term_name": "Film"
+      }
+    },
+    "attributes.fetch_attr_column_contexts__empty": {},
+    "attributes.fetch_attr_column_contexts__other_database": {
+      "<attr:Film/film id/film_id>": {
+        "attr_description": "Primary key of film.",
+        "attr_name": "film id",
+        "col_id": "<col:pagila.public.film.film_id>",
+        "col_name": "film_id",
+        "database_name": "",
+        "datatype": "integer",
+        "schema_name": "public",
+        "table_id": "<table:pagila.public.film>",
+        "table_name": "film",
+        "term_name": "Film"
+      }
+    },
+    "attributes.fetch_attr_column_contexts__unknown_id": {
+      "<attr:Film/film id/film_id>": {
+        "attr_description": "Primary key of film.",
+        "attr_name": "film id",
+        "col_id": "<col:pagila.public.film.film_id>",
+        "col_name": "film_id",
+        "database_name": "pagila",
+        "datatype": "integer",
+        "schema_name": "public",
+        "table_id": "<table:pagila.public.film>",
+        "table_name": "film",
+        "term_name": "Film"
+      }
+    },
+    "attributes.find_anchor_hub_siblings__film_not_an_anchor": [
+      0,
+      []
+    ],
+    "attributes.find_anchor_hub_siblings__inventory_hub_without_siblings": [
+      0,
+      []
+    ],
+    "attributes.find_anchor_hub_siblings__payment_cap_zero": [
+      1,
+      [
+        {
+          "hub_table": "customer",
+          "id": "<table:pagila.public.customer>",
+          "is_hub": true,
+          "source_table": "payment",
+          "target_table": "customer"
+        }
+      ]
+    ],
+    "attributes.find_anchor_hub_siblings__payment_default": [
+      0,
+      [
+        {
+          "hub_table": "customer",
+          "id": "<table:pagila.public.customer>",
+          "is_hub": true,
+          "source_table": "payment",
+          "target_table": "customer"
+        },
+        {
+          "hub_table": "customer",
+          "id": "<table:pagila.public.rental>",
+          "is_hub": false,
+          "source_table": "payment",
+          "target_table": "rental"
+        }
+      ]
+    ],
+    "attributes.find_anchor_hub_siblings__rental_uncapped": [
+      0,
+      [
+        {
+          "hub_table": "customer",
+          "id": "<table:pagila.public.customer>",
+          "is_hub": true,
+          "source_table": "rental",
+          "target_table": "customer"
+        },
+        {
+          "hub_table": "customer",
+          "id": "<table:pagila.public.payment>",
+          "is_hub": false,
+          "source_table": "rental",
+          "target_table": "payment"
+        }
+      ]
+    ],
+    "attributes.find_anchor_hub_siblings__unknown": [
+      0,
+      []
+    ],
+    "attributes.find_connected_junction_tables__blank_ids": [
+      [],
+      []
+    ],
+    "attributes.find_connected_junction_tables__empty": [
+      [],
+      []
+    ],
+    "attributes.find_connected_junction_tables__no_junctions": [
+      [],
+      []
+    ],
+    "attributes.find_connected_junction_tables__unknown": [
+      [],
+      []
+    ],
+    "attributes.find_join_path__cross_database": [],
+    "attributes.find_join_path__no_route": [],
+    "attributes.find_join_path__owner_to_fk_side": [
+      {
+        "source_column": "customer_id",
+        "source_database": "pagila",
+        "source_schema": "public",
+        "source_table": "customer",
+        "target_column": "customer_id",
+        "target_database": "pagila",
+        "target_schema": "public",
+        "target_table": "rental"
+      }
+    ],
+    "attributes.find_join_path__two_hops_via_hub": [
+      {
+        "source_column": "customer_id",
+        "source_database": "pagila",
+        "source_schema": "public",
+        "source_table": "customer",
+        "target_column": "customer_id",
+        "target_database": "pagila",
+        "target_schema": "public",
+        "target_table": "payment"
+      },
+      {
+        "source_column": "customer_id",
+        "source_database": "pagila",
+        "source_schema": "public",
+        "source_table": "rental",
+        "target_column": "customer_id",
+        "target_database": "pagila",
+        "target_schema": "public",
+        "target_table": "customer"
+      }
+    ],
+    "attributes.find_join_path__unknown_dest": [],
+    "attributes.find_kept_table_bridges__bridge_already_kept": [
+      0,
+      [
+        [
+          {
+            "source_column": "customer_id",
+            "source_schema": "public",
+            "source_table": "customer",
+            "target_column": "customer_id",
+            "target_schema": "public",
+            "target_table": "payment"
+          },
+          {
+            "source_column": "customer_id",
+            "source_schema": "public",
+            "source_table": "rental",
+            "target_column": "customer_id",
+            "target_schema": "public",
+            "target_table": "customer"
+          }
+        ]
+      ],
+      []
+    ],
+    "attributes.find_kept_table_bridges__bridge_found": [
+      0,
+      [
+        [
+          {
+            "source_column": "customer_id",
+            "source_schema": "public",
+            "source_table": "customer",
+            "target_column": "customer_id",
+            "target_schema": "public",
+            "target_table": "payment"
+          },
+          {
+            "source_column": "customer_id",
+            "source_schema": "public",
+            "source_table": "rental",
+            "target_column": "customer_id",
+            "target_schema": "public",
+            "target_table": "customer"
+          }
+        ]
+      ],
+      [
+        {
+          "id": "<table:pagila.public.customer>",
+          "name": "customer"
+        }
+      ]
+    ],
+    "attributes.find_kept_table_bridges__cap_skips_pairs": [
+      5,
+      [
+        [
+          {
+            "source_column": "customer_id",
+            "source_schema": "public",
+            "source_table": "customer",
+            "target_column": "customer_id",
+            "target_schema": "public",
+            "target_table": "payment"
+          },
+          {
+            "source_column": "customer_id",
+            "source_schema": "public",
+            "source_table": "rental",
+            "target_column": "customer_id",
+            "target_schema": "public",
+            "target_table": "customer"
+          }
+        ]
+      ],
+      [
+        {
+          "id": "<table:pagila.public.customer>",
+          "name": "customer"
+        }
+      ]
+    ],
+    "attributes.find_kept_table_bridges__empty": [
+      0,
+      [],
+      []
+    ],
+    "attributes.find_kept_table_bridges__no_bridge": [
+      0,
+      [],
+      []
+    ],
+    "attributes.find_kept_table_bridges__not_allowed": [
+      0,
+      [],
+      []
+    ],
+    "attributes.find_kept_table_bridges__single_table": [
+      0,
+      [],
+      []
+    ],
+    "attributes.find_shared_hub_bridge__different_hubs": {},
+    "attributes.find_shared_hub_bridge__found": {
+      "hub_column": "customer_id",
+      "hub_table": "customer"
+    },
+    "attributes.find_shared_hub_bridge__found_reversed": {
+      "hub_column": "customer_id",
+      "hub_table": "customer"
+    },
+    "attributes.find_shared_hub_bridge__owner_side": {},
+    "attributes.find_shared_hub_bridge__same_column": {},
+    "attributes.find_shared_hub_bridge__unknown": {}
+  }
+}
