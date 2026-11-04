@@ -1,0 +1,496 @@
+{
+  "errors": {},
+  "results": {
+    "exploration.fetch_column_attribute_exploration_details__film_id[admin]": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.film_id>",
+          "name": "film_id",
+          "relationship_types": [
+            "HAS_ATTRIBUTE"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.film_id>",
+          "name": "film_id",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        }
+      ],
+      "columns_total": 2,
+      "term": {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      }
+    },
+    "exploration.fetch_column_attribute_exploration_details__film_id[none]": {
+      "columns": [],
+      "columns_total": 0,
+      "term": null
+    },
+    "exploration.fetch_column_attribute_exploration_details__film_id[scoped]": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.film_id>",
+          "name": "film_id",
+          "relationship_types": [
+            "HAS_ATTRIBUTE"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.film_id>",
+          "name": "film_id",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        }
+      ],
+      "columns_total": 2,
+      "term": {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      }
+    },
+    "exploration.fetch_column_attribute_exploration_details__missing[admin]": {
+      "columns": [],
+      "columns_total": 0,
+      "term": null
+    },
+    "exploration.fetch_column_attribute_exploration_details__missing[none]": {
+      "columns": [],
+      "columns_total": 0,
+      "term": null
+    },
+    "exploration.fetch_column_attribute_exploration_details__missing[scoped]": {
+      "columns": [],
+      "columns_total": 0,
+      "term": null
+    },
+    "exploration.fetch_column_attribute_exploration_details__page_limit1": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film.film_id>",
+          "name": "film_id",
+          "relationship_types": [
+            "HAS_ATTRIBUTE"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film>",
+          "table_name": "film"
+        }
+      ],
+      "columns_total": 2,
+      "term": {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      }
+    },
+    "exploration.fetch_column_attribute_exploration_details__page_skip1": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.film_id>",
+          "name": "film_id",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        }
+      ],
+      "columns_total": 2,
+      "term": {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      }
+    },
+    "exploration.fetch_column_attribute_exploration_details__page_skip1_limit1": {
+      "columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.film_id>",
+          "name": "film_id",
+          "relationship_types": [
+            "SEMANTIC_FK"
+          ],
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        }
+      ],
+      "columns_total": 2,
+      "term": {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      }
+    },
+    "exploration.fetch_column_attribute_exploration_details__page_skip99": {
+      "columns": [],
+      "columns_total": 2,
+      "term": {
+        "description": "A motion picture available for rental.",
+        "id": "<term:Film>",
+        "name": "Film"
+      }
+    },
+    "exploration.fetch_column_exploration_details__customer_customer_id[admin]": {
+      "column_attribute": {
+        "description": "Primary key of customer.",
+        "id": "<attr:Customer/customer id/customer_id>",
+        "name": "customer id",
+        "relationship_type": "HAS_ATTRIBUTE"
+      },
+      "foreign_key_column": null,
+      "referencing_columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.rental.customer_id>",
+          "name": "customer_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.rental>",
+          "table_name": "rental"
+        }
+      ],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__customer_customer_id[none]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__customer_customer_id[scoped]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__film_film_id[admin]": {
+      "column_attribute": {
+        "description": "Primary key of film.",
+        "id": "<attr:Film/film id/film_id>",
+        "name": "film id",
+        "relationship_type": "HAS_ATTRIBUTE"
+      },
+      "foreign_key_column": null,
+      "referencing_columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film_actor.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film_actor>",
+          "table_name": "film_actor"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.film_category.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.film_category>",
+          "table_name": "film_category"
+        },
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        }
+      ],
+      "sql_queries": [
+        {
+          "id": "<sql:SELECT count(film_id) FROM film>",
+          "sql": "SELECT count(film_id) FROM film"
+        },
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ]
+    },
+    "exploration.fetch_column_exploration_details__film_film_id[none]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__film_film_id[scoped]": {
+      "column_attribute": {
+        "description": "Primary key of film.",
+        "id": "<attr:Film/film id/film_id>",
+        "name": "film id",
+        "relationship_type": "HAS_ATTRIBUTE"
+      },
+      "foreign_key_column": null,
+      "referencing_columns": [
+        {
+          "data_type": "integer",
+          "database_id": "<db:pagila>",
+          "database_name": "pagila",
+          "description": null,
+          "id": "<col:pagila.public.inventory.film_id>",
+          "name": "film_id",
+          "schema_id": "<schema:pagila.public>",
+          "schema_name": "public",
+          "table_id": "<table:pagila.public.inventory>",
+          "table_name": "inventory"
+        }
+      ],
+      "sql_queries": [
+        {
+          "id": "<sql:SELECT count(film_id) FROM film>",
+          "sql": "SELECT count(film_id) FROM film"
+        }
+      ]
+    },
+    "exploration.fetch_column_exploration_details__film_title[admin]": {
+      "column_attribute": {
+        "description": "The film's title.",
+        "id": "<attr:Film/film title/title>",
+        "name": "film title",
+        "relationship_type": "HAS_ATTRIBUTE"
+      },
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": [
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ]
+    },
+    "exploration.fetch_column_exploration_details__film_title[none]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__film_title[scoped]": {
+      "column_attribute": {
+        "description": "The film's title.",
+        "id": "<attr:Film/film title/title>",
+        "name": "film title",
+        "relationship_type": "HAS_ATTRIBUTE"
+      },
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__inventory_film_id[admin]": {
+      "column_attribute": {
+        "description": "Primary key of film.",
+        "id": "<attr:Film/film id/film_id>",
+        "name": "film id",
+        "relationship_type": "SEMANTIC_FK"
+      },
+      "foreign_key_column": {
+        "data_type": "integer",
+        "database_id": "<db:pagila>",
+        "database_name": "pagila",
+        "description": null,
+        "id": "<col:pagila.public.film.film_id>",
+        "name": "film_id",
+        "schema_id": "<schema:pagila.public>",
+        "schema_name": "public",
+        "table_id": "<table:pagila.public.film>",
+        "table_name": "film"
+      },
+      "referencing_columns": [],
+      "sql_queries": [
+        {
+          "id": "<sql:SELECT f.title, count(r.rental_id) AS rentals FROM rental r >",
+          "sql": "SELECT f.title, count(r.rental_id) AS rentals FROM rental r JOIN inventory i ON i.inventory_id = r.inventory_id JOIN film f ON f.film_id = i.film_id GROUP BY f.title ORDER BY rentals DESC"
+        }
+      ]
+    },
+    "exploration.fetch_column_exploration_details__inventory_film_id[none]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__inventory_film_id[scoped]": {
+      "column_attribute": {
+        "description": "Primary key of film.",
+        "id": "<attr:Film/film id/film_id>",
+        "name": "film id",
+        "relationship_type": "SEMANTIC_FK"
+      },
+      "foreign_key_column": {
+        "data_type": "integer",
+        "database_id": "<db:pagila>",
+        "database_name": "pagila",
+        "description": null,
+        "id": "<col:pagila.public.film.film_id>",
+        "name": "film_id",
+        "schema_id": "<schema:pagila.public>",
+        "schema_name": "public",
+        "table_id": "<table:pagila.public.film>",
+        "table_name": "film"
+      },
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__missing[admin]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__missing[none]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__missing[scoped]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__rental_customer_id[admin]": {
+      "column_attribute": {
+        "description": "Primary key of customer.",
+        "id": "<attr:Customer/customer id/customer_id>",
+        "name": "customer id",
+        "relationship_type": "SEMANTIC_FK"
+      },
+      "foreign_key_column": {
+        "data_type": "integer",
+        "database_id": "<db:pagila>",
+        "database_name": "pagila",
+        "description": null,
+        "id": "<col:pagila.public.customer.customer_id>",
+        "name": "customer_id",
+        "schema_id": "<schema:pagila.public>",
+        "schema_name": "public",
+        "table_id": "<table:pagila.public.customer>",
+        "table_name": "customer"
+      },
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__rental_customer_id[none]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_column_exploration_details__rental_customer_id[scoped]": {
+      "column_attribute": null,
+      "foreign_key_column": null,
+      "referencing_columns": [],
+      "sql_queries": []
+    },
+    "exploration.fetch_sql_attribute_exploration_details__missing[admin]": {
+      "sql": null,
+      "term": null
+    },
+    "exploration.fetch_sql_attribute_exploration_details__missing[none]": {
+      "sql": null,
+      "term": null
+    },
+    "exploration.fetch_sql_attribute_exploration_details__missing[scoped]": {
+      "sql": null,
+      "term": null
+    },
+    "exploration.fetch_sql_attribute_exploration_details__revenue[admin]": {
+      "sql": {
+        "id": "<sql:SELECT sum(amount) FROM payment>",
+        "sql": "SELECT sum(amount) FROM payment"
+      },
+      "term": {
+        "description": "Money received for a rental. Owning table is partitioned.",
+        "id": "<term:Payment>",
+        "name": "Payment"
+      }
+    },
+    "exploration.fetch_sql_attribute_exploration_details__revenue[none]": {
+      "sql": null,
+      "term": {
+        "description": "Money received for a rental. Owning table is partitioned.",
+        "id": "<term:Payment>",
+        "name": "Payment"
+      }
+    },
+    "exploration.fetch_sql_attribute_exploration_details__revenue[scoped]": {
+      "sql": null,
+      "term": {
+        "description": "Money received for a rental. Owning table is partitioned.",
+        "id": "<term:Payment>",
+        "name": "Payment"
+      }
+    }
+  }
+}
