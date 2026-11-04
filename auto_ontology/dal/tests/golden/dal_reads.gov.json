@@ -1,0 +1,112 @@
+{
+  "errors": {},
+  "results": {
+    "groups.get_group__g_missing": null,
+    "groups.groups_for_user__g_nobody": [],
+    "groups.list_groups__g_all": [],
+    "rules.count_rules__g_all": 0,
+    "rules.count_rules__g_search_a": 0,
+    "rules.count_rules__g_search_blank": 0,
+    "rules.count_rules__g_search_none": 0,
+    "rules.count_rules__g_search_pct": 0,
+    "rules.list_rules__g_all": [],
+    "rules.list_rules__g_page_limit0": [],
+    "rules.list_rules__g_page_limit1": [],
+    "rules.list_rules__g_page_skip1": [],
+    "rules.list_rules__g_search_a": [],
+    "rules.list_rules__g_search_blank": [],
+    "rules.list_rules__g_search_none": [],
+    "rules.list_rules__g_search_pct": [],
+    "tags.count_tag_targets__g_missing": 0,
+    "tags.count_tags__g_all": 0,
+    "tags.count_tags__g_search_blank": 0,
+    "tags.count_tags__g_search_ci": 0,
+    "tags.count_tags__g_search_none": 0,
+    "tags.count_tags__g_search_pct": 0,
+    "tags.count_tags__g_search_sub": 0,
+    "tags.count_tags__g_search_under": 0,
+    "tags.existing_tag_ids__g_all": [],
+    "tags.existing_tag_ids__g_empty": [],
+    "tags.existing_tag_ids__g_missing": [],
+    "tags.fetch_tags_map__g_table": {},
+    "tags.fetch_tags_map__g_term": {},
+    "tags.get_tag__g_missing": null,
+    "tags.get_tag_by_name__g_missing": null,
+    "tags.get_tag_by_name__g_pii": null,
+    "tags.list_tag_targets__g_missing": [],
+    "tags.list_tags__g_all": [],
+    "tags.list_tags__g_page_limit0": [],
+    "tags.list_tags__g_page_limit1": [],
+    "tags.list_tags__g_page_skip1": [],
+    "tags.list_tags__g_page_skip1_limit1": [],
+    "tags.list_tags__g_search_blank": [],
+    "tags.list_tags__g_search_ci": [],
+    "tags.list_tags__g_search_none": [],
+    "tags.list_tags__g_search_pct": [],
+    "tags.list_tags__g_search_sub": [],
+    "tags.list_tags__g_search_under": [],
+    "zones.get_zone_by_id__g_all": [
+      {
+        "color": "#059669",
+        "description": "A schema in one database plus a table in another.",
+        "enabled": true,
+        "id": "<zone:Cross database>",
+        "items": [
+          {
+            "id": "<schema:pagila.analytics>",
+            "label": "schema",
+            "name": "analytics"
+          },
+          {
+            "id": "<table:chinook.main.Track>",
+            "label": "table",
+            "name": "Track"
+          }
+        ],
+        "label": "Zone",
+        "name": "Cross database"
+      },
+      {
+        "color": "#4f46e5",
+        "description": "Tables describing films and their inventory.",
+        "enabled": true,
+        "id": "<zone:Film domain>",
+        "items": [
+          {
+            "id": "<table:pagila.public.category>",
+            "label": "table",
+            "name": "category"
+          },
+          {
+            "id": "<table:pagila.public.film>",
+            "label": "table",
+            "name": "film"
+          },
+          {
+            "id": "<table:pagila.public.inventory>",
+            "label": "table",
+            "name": "inventory"
+          }
+        ],
+        "label": "Zone",
+        "name": "Film domain"
+      },
+      {
+        "color": "#dc2626",
+        "description": "Disabled; grants no access but stays visible to admins.",
+        "enabled": false,
+        "id": "<zone:Retired zone>",
+        "items": [
+          {
+            "id": "<table:pagila.public.staff>",
+            "label": "table",
+            "name": "staff"
+          }
+        ],
+        "label": "Zone",
+        "name": "Retired zone"
+      }
+    ],
+    "zones.get_zone_by_id__g_missing": null
+  }
+}
