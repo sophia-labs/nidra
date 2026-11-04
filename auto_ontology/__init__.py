@@ -1,3 +1,6 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES.
-# All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
+# Sophia Labs fork: with CATALOG_READ_BACKEND=rdf the catalog is read from and
+# written to a gardend graph; the ports are installed here, before any module
+# of the package can be mid-import (see auto_ontology/rdf/README.md).
+from auto_ontology.rdf.patch import install as _install_rdf_backend  # noqa: E402
+
+_install_rdf_backend()

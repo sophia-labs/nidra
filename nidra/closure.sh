@@ -7,11 +7,14 @@
 #   GARDEND_URL=http://127.0.0.1:7691 GARDEND_TOKEN=... nidra/closure.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
+_URL="${GARDEND_URL:-}"; _TOKEN="${GARDEND_TOKEN:-}"; _GRAPH="${GARDEND_GRAPH_ID:-}"
 set -a; . ./.env; set +a
+# the caller's gardend wins over .env (which names the compose gardend)
+export GARDEND_URL="${_URL:-$GARDEND_URL}" GARDEND_TOKEN="${_TOKEN:-$GARDEND_TOKEN}"
 : "${GARDEND_URL:?}" "${GARDEND_TOKEN:?}"
 SQ="$PWD/dev_tools/fixtures/sql/chinook.sqlite"
 export CONNECTION_STRINGS="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:$POSTGRES_PORT/pagila,sqlite:///$SQ"
-export GARDEND_GRAPH_ID="${GARDEND_GRAPH_ID:-closure-$(date +%s)}"
+export GARDEND_GRAPH_ID="${_GRAPH:-closure-$(date +%s)}"
 export CATALOG_READ_BACKEND=rdf AO_RDF_STRICT=1
 # the engine's store must be unreachable: only the source URL above names Postgres
 export POSTGRES_HOST=127.0.0.1 POSTGRES_PORT_STORE_UNREACHABLE=1
