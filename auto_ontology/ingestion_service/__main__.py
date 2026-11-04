@@ -55,7 +55,10 @@ async def lifespan(app: FastAPI):
     # not starting. Worse here than there, because a scheduler runs unattended —
     # nobody is watching a request come back 500, so the failure surfaces as an
     # empty catalog hours later.
-    require_current_schema()
+    from auto_ontology.rdf.patch import enabled as _rdf
+
+    if not _rdf():
+        require_current_schema()
 
     # uvicorn owns SIGINT/SIGTERM; each scheduler exposes a stop() that unwinds
     # its in-flight wait promptly on shutdown. Schedulers are stored on
