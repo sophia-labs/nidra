@@ -20,8 +20,8 @@
 services:
   gardend:
     image: ${GARDEND_IMAGE:-nidra-gardend:latest}
-    build:
-      context: ./nidra/gardend
+    # from the download (`docker load -i nidra-gardend-<date>.tar`) or
+    # `docker build -t nidra-gardend:latest nidra/gardend`
     container_name: nidra-gardend
     restart: unless-stopped
     command: ["serve", "--profile", "/data/profile", "--port", "8086"]

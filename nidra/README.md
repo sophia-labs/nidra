@@ -9,8 +9,13 @@ affiliated with NVIDIA.
 
 ## Run it
 
-    cp .env.example .env            # DEFAULT_MODELS_* = any OpenAI-compatible chat model; no embedding endpoint needed
-    docker compose -f compose.nidra.yaml up -d --build
+From the download (two files) or this checkout:
+
+    docker load -i nidra-gardend-<date>.tar     # the Sophia engine image (skip if you build it: nidra/gardend)
+    tar xzf nidra-local-<date>.tar.gz && cd nidra-local-<date>
+    cp .env.example .env                         # set DEFAULT_MODELS_* (any OpenAI-compatible chat model;
+                                                 # OpenRouter works) and GARDEND_TOKEN; no embedding endpoint
+    docker compose -f compose.nidra.yaml up -d   # builds the engine image on first run
     curl -s http://127.0.0.1:3001/api/health
 
 The engine answers on :3001 (its API is the upstream FastAPI surface; the
