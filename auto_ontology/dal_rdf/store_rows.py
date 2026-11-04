@@ -13,7 +13,7 @@ port shares (the file is not a port of anything else, so they are not in
   are batched (ids and natural keys through ``VALUES``), a child of a parent that
   this batch created is known to be new without asking, and nothing is written
   until :meth:`Upserter.flush`.
-* :func:`commit` -- inserts plus column updates, in one SPARQL update request.
+* :func:`commit` -- inserts plus column updates, as one write (``rdf.writes.commit``).
 
 A candidate for ``auto_ontology/rdf/writes.py``: ``Upserter`` (generic upsert by
 natural key), ``commit`` (batched mixed update) and ``coerce_row``.
@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Iterable
 
 from sqlalchemy import ARRAY, Boolean, DateTime, Integer
@@ -31,9 +31,10 @@ from sqlalchemy.exc import IntegrityError
 from auto_ontology.catalog.constants import Labels
 from auto_ontology.catalog.store import registry
 from auto_ontology.dal.schema import METADATA
-from auto_ontology.dal_rdf._common import client, iri, lit, prop_iri, class_iri, ref_iri, values, wrap
-from auto_ontology.rdf.vocab import row_iri, row_iri_single
-from auto_ontology.rdf.writes import _column_props, apply_defaults, data_graph_iri, row_triples
+from auto_ontology.dal_rdf._common import client, iri, lit, prop_iri, class_iri, values, wrap
+from auto_ontology.rdf.vocab import row_iri_single
+from auto_ontology.rdf import writes
+from auto_ontology.rdf.writes import apply_defaults
 
 logger = logging.getLogger(__name__)
 
@@ -191,28 +192,22 @@ def commit(
     inserts: dict[str, list[dict[str, Any]]] | None = None,
     updates: Iterable[tuple[str, str, dict[str, Any]]] = (),
 ) -> None:
-    """Apply inserts and column updates in ONE SPARQL update request.
+    """Apply inserts and column updates as ONE write (``rdf.writes.commit``).
 
     ``inserts``: ``{table: [row, ...]}`` of complete rows (defaults applied).
     ``updates``: ``(table, subject_iri, {column: value})``; ``None`` clears the
     column. An update of a subject that does not exist is dropped, as an
-    ``UPDATE`` that matches no row is. The request is a DELETE of the replaced
-    triples followed (``;``) by one INSERT DATA of the new ones; gardend applies
-    the request atomically.
+    ``UPDATE`` that matches no row is.
     """
-    g = iri(data_graph_iri())
-    lines: list[str] = []
+    ops: list[writes.Op] = []
     for table, rows in (inserts or {}).items():
         for row in rows:
-            lines.extend(row_triples(table, row))
+            ops.extend(writes.row_ops(table, row))
 
     by_table: dict[str, list[tuple[str, dict[str, Any]]]] = {}
     for table, subject, changes in updates:
         if changes:
             by_table.setdefault(table, []).append((subject, changes))
-    pairs: list[str] = []
-    from auto_ontology.rdf.vocab import parse_row_iri
-
     for table, items in by_table.items():
         alive = existing_subjects(table, [s for s, _ in items])
         merged: dict[str, dict[str, Any]] = {}
@@ -220,23 +215,8 @@ def commit(
             if subject in alive:
                 merged.setdefault(subject, {}).update(coerce_row(table, changes))
         for subject, changes in merged.items():
-            for column in changes:
-                for prop in _column_props(table, column):
-                    pairs.append(f"({iri(subject)} {iri(prop)})")
-            _, pk = parse_row_iri(subject)
-            kept = [c for c, v in changes.items() if v is not None]
-            if kept:
-                lines.extend(row_triples(table, {**pk, **{c: changes[c] for c in kept}}, columns=kept))
-
-    ops = []
-    if pairs:
-        ops.append(
-            f"DELETE {{ GRAPH {g} {{ ?s ?p ?o }} }} WHERE {{ GRAPH {g} {{ VALUES (?s ?p) {{ {' '.join(pairs)} }} ?s ?p ?o }} }}"
-        )
-    if lines:
-        ops.append(f"INSERT DATA {{ GRAPH {g} {{ {' '.join(lines)} }} }}")
-    if ops:
-        client().update(" ; ".join(ops))
+            ops.extend(writes.update_ops(table, subject, changes))
+    writes.commit(ops)
 
 
 class Upserter:

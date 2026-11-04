@@ -4,8 +4,8 @@ custom_analyses, pql_analyses, reset). Underscore-named: not installed as a port
 
 Generic operations missing from ``auto_ontology.rdf.writes`` that these ports
 needed (candidates to move there): ``insert_batch`` (rows of several tables in
-ONE update request), ``link_rows`` (link-table rows by a column value),
-``delete_link_subjects_op`` (the DELETE of link rows as a composable operation),
+ONE write), ``link_rows`` (link-table rows by a column value),
+``delete_link_ops`` (the deletion of link rows as composable ops),
 ``raise_unique`` / ``require_row`` (the IntegrityErrors Postgres would raise).
 """
 from __future__ import annotations
@@ -53,29 +53,21 @@ def link_rows(table: str, cols: list[str], where: dict[str, Any] | None = None) 
 
 
 def insert_batch(batch: dict[str, Iterable[dict[str, Any]]]) -> dict[str, list[dict[str, Any]]]:
-    """Insert rows of several tables (defaults applied) in ONE update request."""
+    """Insert rows of several tables (defaults applied) in ONE write."""
     stored: dict[str, list[dict[str, Any]]] = {}
-    lines: list[str] = []
+    ops: list[W.Op] = []
     for table, rows in batch.items():
         stored[table] = [W.apply_defaults(table, r) for r in rows]
         for row in stored[table]:
-            lines.extend(W.row_triples(table, row))
-    if lines:
-        client().update(f"INSERT DATA {{ GRAPH {graph()} {{ {' '.join(lines)} }} }}")
+            ops.extend(W.row_ops(table, row))
+    W.commit(ops)
     return stored
 
 
-def delete_link_subjects_op(subjects: Iterable[str]) -> str:
-    """A SPARQL DELETE operation for link-table rows (no dependents to cascade)."""
+def delete_link_ops(table: str, subjects: Iterable[str]) -> list[W.Op]:
+    """The ops deleting link-table rows (``W.delete_ops``: their dependents, if any, cascade)."""
     subjects = list(dict.fromkeys(subjects))
-    if not subjects:
-        return ""
-    vals = " ".join(iri(x) for x in subjects)
-    g = graph()
-    return (
-        f"DELETE {{ GRAPH {g} {{ ?s ?p ?o . ?x ?q ?s }} }} "
-        f"WHERE {{ GRAPH {g} {{ VALUES ?s {{ {vals} }} ?s ?p ?o . OPTIONAL {{ ?x ?q ?s }} }} }}"
-    )
+    return W.delete_ops(table, subjects) if subjects else []
 
 
 def raise_unique(table: str, constraint: str) -> None:

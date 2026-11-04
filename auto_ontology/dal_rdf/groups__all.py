@@ -20,7 +20,7 @@ from auto_ontology.dal import schema as s
 from auto_ontology.dal.groups import _ACCOUNT_SQL, GroupNameTaken, UnknownGroupMembers
 from auto_ontology.dal.session import store
 from auto_ontology.dal_rdf import _gov
-from auto_ontology.dal_rdf._common import P, client, iri, select_rows, wrap
+from auto_ontology.dal_rdf._common import P, client, select_rows, wrap
 from auto_ontology.rdf import writes
 from auto_ontology.rdf.vocab import row_id, row_iri
 
@@ -173,10 +173,10 @@ def create_group(
         "user_group", {"name": name, "description": description, "color": color, "role": str(role)}
     )
     members = _member_rows(group["id"], user_ids)
-    lines = writes.row_triples("user_group", group)
+    ops = writes.row_ops("user_group", group)
     for member in members:
-        lines.extend(writes.row_triples("user_group__member", member))
-    client().update(f"INSERT DATA {{ GRAPH {iri(writes.data_graph_iri())} {{ {' '.join(lines)} }} }}")
+        ops.extend(writes.row_ops("user_group__member", member))
+    writes.commit(ops)
 
     created = get_group(group["id"])
     if created is None:  # pragma: no cover - the insert just wrote this id

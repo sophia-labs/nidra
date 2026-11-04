@@ -70,7 +70,7 @@ def merge_column_attribute(
         )
         + " } LIMIT 1"
     )
-    inserts: list[str] = []
+    inserts: list[W.Op] = []
     cells = {}
     if found:
         attribute_id = row_id(found[0]["a"])
@@ -92,20 +92,20 @@ def merge_column_attribute(
             },
         )
         attribute_id = stored["id"]
-        inserts.extend(W.row_triples("column_attribute", stored))
+        inserts.extend(W.row_ops("column_attribute", stored))
 
     # ON CONFLICT DO NOTHING (no target): any unique violation skips the insert,
     # which for the Term link includes UNIQUE(attribute_id).
     has_iri = link_iri("column__has_attribute", column_id=column_id, attribute_id=attribute_id)
     if has_iri not in existing("column__has_attribute", [has_iri]):
-        inserts.extend(W.row_triples("column__has_attribute", {"column_id": column_id, "attribute_id": attribute_id}))
+        inserts.extend(W.row_ops("column__has_attribute", {"column_id": column_id, "attribute_id": attribute_id}))
     term_links = _sel(
         "SELECT ?l WHERE { "
         + wrap(f"?l {P.column_attribute__term.ref_attribute_id} {iri(row_iri_single('column_attribute', attribute_id))} .")
         + " } LIMIT 1"
     )
     if not term_links:
-        inserts.extend(W.row_triples("column_attribute__term", {"attribute_id": attribute_id, "term_id": term_id}))
+        inserts.extend(W.row_ops("column_attribute__term", {"attribute_id": attribute_id, "term_id": term_id}))
     with no_transaction():
         apply_cells(cells, inserts)
     return attribute_id

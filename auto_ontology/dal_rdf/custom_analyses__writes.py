@@ -32,12 +32,8 @@ PORTS = [
 
 def detach_existing_sql_edges(analysis_id: str) -> None:
     """Unlink every statement from the analysis, leaving the statements alone."""
-    from auto_ontology.dal_rdf._common import client
-
     links = sw.link_rows("custom_analysis__sql", ["sql_query_id"], {"analysis_id": analysis_id})
-    op = sw.delete_link_subjects_op(r["_s"] for r in links)
-    if op:
-        client().update(op)
+    W.commit(sw.delete_link_ops("custom_analysis__sql", (r["_s"] for r in links)))
 
 
 def delete_custom_analysis_node(analysis_id: str) -> None:

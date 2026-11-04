@@ -29,11 +29,7 @@ PORTS = [
 def detach_existing_sql_edges(attr_id: str) -> None:
     """Unlink every statement from the attribute, leaving the statements alone."""
     links = sw.link_rows("sql_attribute__sql", ["sql_query_id"], {"attribute_id": attr_id})
-    op = sw.delete_link_subjects_op(r["_s"] for r in links)
-    if op:
-        from auto_ontology.dal_rdf._common import client
-
-        client().update(op)
+    W.commit(sw.delete_link_ops("sql_attribute__sql", (r["_s"] for r in links)))
 
 
 def link_to_term(attr_id: str, term_id: str) -> None:
@@ -42,18 +38,15 @@ def link_to_term(attr_id: str, term_id: str) -> None:
         sw.raise_fk("sql_attribute__term", "sql_attribute__term_attribute_id_fkey")
     if not sw.exists("term", term_id):
         sw.raise_fk("sql_attribute__term", "sql_attribute__term_term_id_fkey")
-    from auto_ontology.dal_rdf._common import client
-
     others = [
         r["_s"]
         for r in sw.link_rows("sql_attribute__term", ["term_id"], {"attribute_id": attr_id})
         if r["term_id"] != term_id
     ]
-    ops = [sw.delete_link_subjects_op(others)]
-    # INSERT DATA of a link row that already exists changes nothing: ON CONFLICT DO NOTHING.
-    lines = W.row_triples("sql_attribute__term", {"attribute_id": attr_id, "term_id": term_id})
-    ops.append(f"INSERT DATA {{ GRAPH {sw.graph()} {{ {' '.join(lines)} }} }}")
-    client().update(" ; ".join(op for op in ops if op))
+    ops = sw.delete_link_ops("sql_attribute__term", others)
+    # Re-setting a link row that already exists changes nothing: ON CONFLICT DO NOTHING.
+    ops += W.row_ops("sql_attribute__term", {"attribute_id": attr_id, "term_id": term_id})
+    W.commit(ops)
 
 
 def update_sql_attribute(
