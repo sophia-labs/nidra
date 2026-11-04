@@ -306,6 +306,13 @@ def _build_client(
     if model.startswith(("openai/", "azure/", "aws/")) or non_nvidia:
         from langchain_openai import ChatOpenAI
 
+        extra: dict = {}
+        if "deepseek" in (base_url or ""):
+            # DeepSeek's thinking mode answers in prose instead of calling the
+            # structured-output tool on long prompts, and refuses a forced
+            # tool choice; the engine needs the tool every time, so thinking
+            # is off here.
+            extra["thinking"] = {"type": "disabled"}
         return ChatOpenAI(
             model=model,
             api_key=api_key,
@@ -317,6 +324,7 @@ def _build_client(
             max_tokens=max_tokens,
             timeout=LLM_INVOKE_TIMEOUT_S,
             max_retries=0,
+            extra_body=extra or None,
         )
 
     from langchain_nvidia_ai_endpoints import ChatNVIDIA
@@ -558,9 +566,13 @@ def _structured_output_kwargs(llm: BaseChatModel) -> dict:
     # refused by DeepSeek ("This response_format type is unavailable now").
     base = str(getattr(llm, "openai_api_base", None) or getattr(llm, "base_url", None) or "")
     if base and "api.openai.com" not in base and "nvidia.com" not in base:
-        # No forced tool choice: DeepSeek's thinking mode refuses one
-        # ("Thinking mode does not support this tool_choice"); the model calls
-        # the tool anyway and the caller retries if it ever answers without.
+        if "deepseek" in base:
+            # thinking is disabled on the client, so the tool choice may be
+            # forced, and must be: without it the model answers in prose.
+            return {"method": "function_calling"}
+        # Other gateways (OpenRouter's Anthropic models among them) refuse a
+        # forced tool choice; the model calls the tool anyway and the caller
+        # retries if it ever answers without.
         return {"method": "function_calling", "tool_choice": None}
     return {}
 
