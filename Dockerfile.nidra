@@ -9,6 +9,11 @@
 # UI and its Nidra service), the ingestion service (:3002, inside only) and the engine's API (:3001). Everything
 # that lasts is in /data. The compose path (compose.nidra.yaml) stays as the advanced option.
 #
+# The engine writes the catalog through gardend's Emporium ledger (NIDRA_WRITES=commit, the default), so the
+# gardend stage must be a build with the ledger. A volume written by an older Nidra over SPARQL is adopted by
+# the ledger at the engine's first start on this image (auto_ontology/rdf/adopt.py; the ingestion service waits
+# for it). `-e NIDRA_WRITES=sparql` is the opt-out.
+#
 # The engine stages below are the root Dockerfile's (its builder unchanged, its runtime up to the permission
 # check: no migrations, there is no Postgres), so the two images share their layers; the gardend stages are
 # nidra/gardend/Dockerfile's. The Sophia UI is staged into nidra/oneliner/ui by
@@ -22,7 +27,9 @@ ARG PYTHON_VERSION=3.12
 ARG UV_VERSION=0.11.29
 ARG BASE_IMG=nvcr.io/nvidia/base/ubuntu
 ARG BASE_IMG_TAG=jammy-20250619
-# The gardend release image (Linux x86-64; the binary needs glibc 2.35, which jammy has).
+# The gardend release image (Linux x86-64; the binary needs glibc 2.35, which jammy has). It must carry the
+# Emporium ledger (the commit route): the engine refuses to start against one without it under NIDRA_WRITES=commit.
+# TODO(lead): ledger build tag (the release image of gardend main at the W7d ledger, 7968ea6 or later)
 ARG GARDEND_IMAGE=816069160218.dkr.ecr.us-west-1.amazonaws.com/gardend-release:src-5870c0029629-ship
 ARG ORT_VERSION=1.28.3
 ARG E5_REVISION=614241f622f53c4eeff9890bdc4f31cfecc418b3
@@ -172,7 +179,8 @@ ENV GARDEN_PDFIUM_LIB=/usr/local/lib/gardend/libpdfium.so \
     RUST_LOG=info,tracing::span=warn \
     PYTHONPATH=/opt/nidra/python \
     ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.so \
-    FASTEMBED_CACHE_DIR=/opt/fastembed
+    FASTEMBED_CACHE_DIR=/opt/fastembed \
+    NIDRA_WRITES=commit
 
 # Root inside the container, so a bind-mounted /data works whoever owns it on the host.
 USER root

@@ -29,6 +29,9 @@ services:
     depends_on: !override
       - ingestion-service
     environment: &engine-env
+      # SPARQL writes: the gardend inside Sophia.app has no Emporium ledger yet (no /emporium/commit route).
+      # Moves to commit when Sophia.app's engine carries the ledger.
+      NIDRA_WRITES: ${NIDRA_WRITES:-sparql}
       DEFAULT_MODELS_ENDPOINT: ${DEFAULT_MODELS_ENDPOINT}
       DEFAULT_MODELS_API_KEY: ${DEFAULT_MODELS_API_KEY}
       DEFAULT_MODELS_MODEL: ${DEFAULT_MODELS_MODEL}
