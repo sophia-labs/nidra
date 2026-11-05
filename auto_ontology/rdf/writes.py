@@ -30,7 +30,10 @@ commit ``set`` survives it, a ``remove`` of a loaded value is a no-op and a
 ``retract`` of a loaded subject removes nothing (probed on the W7b-2 binary,
 ``3bf51b9``; see ``nidra/README.md``). Seeding therefore goes through commit
 too (:func:`ntriples_ops` turns a Direct-Mapping export into ``set`` ops), and
-SPARQL load stays a sparql-mode tool.
+SPARQL load stays a sparql-mode tool. A graph whose rows were written by SPARQL
+(an older volume, a graph seeded under ``sparql``) is adopted by the ledger
+once, at the API server's start (:mod:`auto_ontology.rdf.adopt`, called from
+:func:`startup_check`).
 
 Transactions: ``write_transaction()`` under commit collects the block's ops
 and sends them as one request (:func:`collecting`); a read inside the block
@@ -523,13 +526,31 @@ def check_ledger(c=None) -> dict[str, Any]:
     raise CommitError(response.status_code, body, "watermark")
 
 
-def startup_check() -> None:
-    """At service start: under ``NIDRA_WRITES=commit`` the gardend must have the
-    ledger's commit route, else :class:`LedgerUnavailable` (fail loudly, not at the
-    first write hours later). A no-op under ``sparql``."""
+def startup_check(*, adopt: bool = False) -> None:
+    """At service start, under ``NIDRA_WRITES=commit``:
+
+    * the gardend must have the ledger's commit route, else :class:`LedgerUnavailable`
+      (fail loudly, not at the first write hours later);
+    * the graph's catalog must be ledger-owned. ``adopt=True`` (the API server, and
+      only it) adopts the rows written by SPARQL (:func:`auto_ontology.rdf.adopt.adopt`,
+      once: a second start finds nothing to do); every other process (the ingestion
+      service) waits until it has, bounded by ``NIDRA_ADOPT_WAIT_S``
+      (:func:`auto_ontology.rdf.adopt.wait_until_adopted`), so two adoptions never run
+      at once and nothing is written before the rows are owned.
+
+    Under ``sparql``: only a warning when the ledger already owns this graph's catalog.
+    """
+    from auto_ontology.rdf import adopt as adoption
+
     if write_mode() == "commit":
         check_ledger()
         logger.info("writes: NIDRA_WRITES=commit; the ledger answers on %s", client().url)
+        if adopt:
+            adoption.adopt()
+        else:
+            adoption.wait_until_adopted()
+    else:
+        adoption.warn_if_ledger_owned()
 
 
 class WitnessMiddleware:
