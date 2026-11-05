@@ -16,13 +16,13 @@ Emporium commit API (``plans/2026-11-02-emporium-log/COMMIT-API.md`` §3):
 :func:`update_ops` and :func:`delete_ops` build them from rows; :func:`commit`
 sends one logical write. ``NIDRA_WRITES`` (read once) picks the transport:
 
-* ``sparql`` (default): the ops are rendered to ONE SPARQL update request
-  (``DELETE`` of the replaced values, ``INSERT DATA`` of the new ones), which
-  Oxigraph applies atomically.
-* ``commit``: the ops go to ``POST /emporium/commit/{graph}/ao?wait=folded``.
+* ``commit`` (default): the ops go to ``POST /emporium/commit/{graph}/ao?wait=folded``.
   The ledger appends one frame (the ack is its durability barrier) and the
   fold applies it to ``urn:mnemosyne:local:graph:{graph}:user:rdf``, the graph
   every read already uses; ``wait=folded`` gives read-your-writes.
+* ``sparql`` (the opt-out, for a gardend without the ledger): the ops are
+  rendered to ONE SPARQL update request (``DELETE`` of the replaced values,
+  ``INSERT DATA`` of the new ones), which Oxigraph applies atomically.
 
 In commit mode **every ao subject must be ledger-owned**: the fold owns only
 the subjects it holds frames for, so a value loaded by SPARQL beside a later
@@ -424,10 +424,10 @@ _MODES = ("sparql", "commit")
 
 
 def write_mode() -> str:
-    """``NIDRA_WRITES``: ``sparql`` (default) or ``commit``, read once per process."""
+    """``NIDRA_WRITES``: ``commit`` (default) or ``sparql``, read once per process."""
     global _MODE
     if _MODE is None:
-        raw = (os.environ.get("NIDRA_WRITES") or "sparql").strip().lower()
+        raw = (os.environ.get("NIDRA_WRITES") or "commit").strip().lower()
         if raw not in _MODES:
             raise ValueError(f"NIDRA_WRITES must be one of {_MODES}, not {raw!r}")
         _MODE = raw
@@ -519,9 +519,9 @@ def check_ledger(c=None) -> dict[str, Any]:
         return {"ok": True, "graph": c.graph_id, "missing": True}
     if response.status_code == 404:
         raise LedgerUnavailable(
-            f"NIDRA_WRITES=commit, but {c.url} has no Emporium commit route "
+            f"NIDRA_WRITES=commit (the default), but {c.url} has no Emporium commit route "
             f"(GET {_path(c.graph_id, '/watermark')} -> 404): this gardend has no ledger. "
-            "Run a gardend with the commit seam, or set NIDRA_WRITES=sparql."
+            "Run a gardend with the ledger, or set NIDRA_WRITES=sparql (the opt-out)."
         )
     raise CommitError(response.status_code, body, "watermark")
 

@@ -158,9 +158,12 @@ def test_switch_reads_nidra_writes_once(monkeypatch):
     try:
         W.set_write_mode(None)
         monkeypatch.delenv("NIDRA_WRITES", raising=False)
-        assert W.write_mode() == "sparql"  # the default
-        monkeypatch.setenv("NIDRA_WRITES", "commit")
-        assert W.write_mode() == "sparql"  # read once per process
+        assert W.write_mode() == "commit"  # the default (since 11-05: the ledger is on gardend main)
+        monkeypatch.setenv("NIDRA_WRITES", "sparql")
+        assert W.write_mode() == "commit"  # read once per process
+        W.set_write_mode(None)
+        assert W.write_mode() == "sparql"  # the opt-out
+        monkeypatch.setenv("NIDRA_WRITES", " Commit ")
         W.set_write_mode(None)
         assert W.write_mode() == "commit"
         monkeypatch.setenv("NIDRA_WRITES", "postgres")

@@ -73,7 +73,7 @@ async def lifespan(_app: FastAPI):
 
         _gardend().ensure_graph("Nidra catalog")
 
-        # NIDRA_WRITES=commit: the gardend must have the ledger (refuse to
+        # NIDRA_WRITES=commit (the default): the gardend must have the ledger (refuse to
         # start otherwise), and this process, the only one that does, adopts catalog
         # rows written by SPARQL into the ledger (once; see auto_ontology/rdf/adopt.py).
         from auto_ontology.rdf.writes import startup_check
