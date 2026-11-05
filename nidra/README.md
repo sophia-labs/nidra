@@ -68,7 +68,9 @@ ClickHouse, SQLite) to catalogue it; the ingestion service sweeps it every
 loopback API (`http://host.docker.internal:7674`), `GARDEND_TOKEN` to a token
 from `gardend token create --grant session-all`, `GARDEND_GRAPH_ID` to the
 graph you want the catalog in. Turn `find` on for that graph with
-`gardend index --graph <id>`.
+`gardend index --graph <id>`. Until the app's gardend carries the Emporium
+ledger, also set `NIDRA_WRITES=sparql` (below); `nidra/service/compose.sophia.yaml`
+does this for the Nidra service inside Sophia.app.
 
 ## Writes: SPARQL or the ledger (`NIDRA_WRITES`)
 
@@ -79,15 +81,19 @@ gardend's Emporium commit API (`set` with `values[]`, `add`, `remove`,
 `delete_ops` (a cascade is explicit ops: the ledger knows no foreign keys).
 `NIDRA_WRITES` (read once at start) picks the transport:
 
-- `sparql` (default): the ops are rendered to one SPARQL update, applied
-  atomically by Oxigraph. Works with any gardend.
-- `commit`: the ops go to `POST /emporium/commit/{graph}/ao?wait=folded`. The
+- `commit` (**the default** since 11-05, when the ledger, W7d `7968ea6`, went to
+  gardend main): the ops go to `POST /emporium/commit/{graph}/ao?wait=folded`. The
   ledger appends one frame and acks on its durability barrier (the 1 s window);
   the fold applies it to the graph every read uses, and `wait=folded` gives
   read-your-writes. A list column is rewritten whole by one `set values[]`
   (its `rdf:JSON` value plus one value per member). The engine and the ingestion
   service probe `GET /emporium/commit/{graph}/ao/watermark` at start and refuse
   to start against a gardend without the ledger (`LedgerUnavailable`).
+- `sparql` (**the opt-out**, for a gardend without the ledger, such as Sophia.app's
+  today): the ops are rendered to one SPARQL update, applied atomically by
+  Oxigraph. Works with any gardend. Keep one mode per graph: under `sparql` the
+  engine warns at start when the ledger already owns the graph's catalog, because
+  values SPARQL then changes on those rows are not adopted when `commit` returns.
 
 Identity: the body's `writer` is `NIDRA_ORIGIN` (default `nidra-engine`;
 tenant-stable, never a cell or container id); the `witness` is the caller in
@@ -101,6 +107,41 @@ loaded by `/api/rdf/load` survives a later commit `set` beside the new value, a
 removes nothing. So in commit mode a graph is seeded through commit too
 (`rdf.export.load`, used by `--load` and `write_diff`, sends `set` ops), and
 SPARQL load is a sparql-mode tool.
+
+**Adoption: a graph written by SPARQL comes under the ledger once**
+(`auto_ontology/rdf/adopt.py`). An older Nidra volume, or a graph seeded under
+`sparql`, holds catalog rows the ledger has never seen. At the API server's start
+under `commit`, the ledger adopts them:
+
+- *What moves:* every subject of `user:rdf` typed with a catalog class, and every
+  vector-index record with no row (`urn:ao:vdb/...`): all their triples but
+  `rdf:type` become `set` ops holding exactly the values stored (columns, mirrors,
+  `#ref-` links, and the index's `dcterms:description`, `vdb#metadata`,
+  `vdb#collection`). Nothing else is read: Emporium testimony, wires,
+  corrections, the Nidra service's questions and every other non-row subject stay
+  as they are, and so do their links to rows.
+- *Order, and no deletes:* read the rows (cursor-paged), commit them in **one
+  transaction** (`nidra-adopt-<hex>`, split into requests of at most 32 MiB),
+  wait for the fold, check the ledger's oracle. The fold writes into the same
+  graph, so the triples it folds in are the ones already there: nothing is cleared
+  or deleted, the graph reads the same throughout, and an adoption that dies
+  leaves an unclosed run the fold never applies (the next start adopts again).
+- *Once:* the start check counts the adoptable subjects against the subjects the
+  ledger owns (the fold's status). A second start finds nothing and logs
+  `nothing to adopt (N ao subjects; the ledger owns N)`; an adoption logs how many
+  subjects (catalog rows, index records) and values moved, the transaction, the
+  oracle and the graph's size before and after. If the ledger owns some subjects
+  but fewer than the graph has (rows written by SPARQL beside commits), the fold's
+  `heads` route says which are not owned and only those move.
+- *Concurrency:* only the API server adopts (`startup_check(adopt=True)`). The
+  ingestion service waits until nothing is left to adopt, checking every 2 s for
+  up to `NIDRA_ADOPT_WAIT_S` (default 900), then refuses to start; it never adopts
+  and never writes into an unadopted graph. One API server per graph.
+- *By hand:* `python -m auto_ontology.rdf.adopt` (`--check` reports without
+  writing; `--every` asks the fold about every subject).
+- *Not adoptable, logged and left:* a second `rdf:type`, a blank-node object
+  (neither can be an op; a live replay of the fold drops them), and index triples
+  on a row IRI that has no row (adopting would make it one).
 
 **Transactions.** `write_transaction()` under commit collects the block's ops
 and sends one request at the end (one frame, atomic); an exception discards
@@ -147,4 +188,5 @@ on one predicate).
   supervises gardend, the ingestion service and the engine; the Nidra service
   `nidra/service/main.mjs` runs attached behind gardend) and the installers.
 - `nidra/closure.sh`: the proof that nothing of the engine's state is in
-  Postgres: seed the fixture with Postgres unreachable, replay the golden.
+  Postgres: seed the fixture with Postgres unreachable, replay the golden
+  (through the ledger by default; `NIDRA_WRITES=sparql` for the SPARQL path).

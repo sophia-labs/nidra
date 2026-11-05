@@ -76,8 +76,11 @@ semantics, `RETURNING` ids and the embed hooks (`embed_*` calls stay as they
 are: the vector store is gardend too). Reads inside a write use the DAL
 functions (already ported) or `select_rows`. Every write is ops sent by
 `writes.commit` (build them with `row_ops` / `update_ops` / `delete_ops`; never
-compose SPARQL update strings): under `NIDRA_WRITES=commit` they go to the ledger,
-under `sparql` they are rendered to one SPARQL update. `write_transaction()`
+compose SPARQL update strings): under `NIDRA_WRITES=commit` (the default) they go
+to the ledger, under `sparql` (the opt-out) they are rendered to one SPARQL update.
+A graph written by SPARQL is adopted by the ledger at the API server's start
+(`rdf/adopt.py`); a write lane's own fixtures are seeded through `rdf.export.load`,
+which commits under `commit`. `write_transaction()`
 collects a block into one request under commit and is a no-op under sparql; keep
 each function's writes to as few `commit` calls as possible (one per batch, never
 one per row in a loop of thousands).
