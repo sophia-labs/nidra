@@ -3,7 +3,10 @@
 # binary on Debian embeds 274 entities in 6 s), plus what `find` needs offline:
 # ONNX Runtime (gardend pins `ort` at API 24, so 1.23 or newer) and the
 # multilingual-e5-small model, baked in so nothing is downloaded at run time.
-ARG GARDEND_IMAGE=816069160218.dkr.ecr.us-west-1.amazonaws.com/gardend-release:src-5870c0029629-ship
+# The engine writes the catalog through this gardend's Emporium ledger (NIDRA_WRITES=commit, the default), so
+# the release image must be a build with the ledger (the /emporium/commit route).
+# gardend main 7968ea6 (the W7d ledger), shipped 2026-11-05; digest sha256:a08a1a38b142a2a16985562a9114839fdb98a8c6ab8bd224fc1630ac0407bcca
+ARG GARDEND_IMAGE=816069160218.dkr.ecr.us-west-1.amazonaws.com/gardend-release:src-7968ea69a15b-ship
 ARG ORT_VERSION=1.28.3
 ARG E5_REVISION=614241f622f53c4eeff9890bdc4f31cfecc418b3
 

@@ -52,7 +52,11 @@ export DEFAULT_MODELS_API_KEY="${DEFAULT_MODELS_API_KEY:-}" DEFAULT_MODELS_ENDPO
   DEFAULT_MODELS_MODEL="${DEFAULT_MODELS_MODEL:-}"
 [ -z "${NON_REASONING_MODEL:-}" ] || export NON_REASONING_MODEL
 
-# The engine's settings: its store is gardend, here; there is no Postgres and no embedding endpoint.
+# The engine's settings: its store is gardend, here; there is no Postgres and no embedding endpoint. Writes go
+# through this gardend's Emporium ledger (NIDRA_WRITES=commit; -e NIDRA_WRITES=sparql is the opt-out). A volume
+# written by an older Nidra over SPARQL is adopted by the ledger when the engine's API starts; the ingestion
+# service, started first, waits for that (NIDRA_ADOPT_WAIT_S, default 900 s) before it writes.
+export NIDRA_WRITES="${NIDRA_WRITES:-commit}"
 export CATALOG_READ_BACKEND=rdf AO_RDF_STRICT=1 GARDEND_URL=http://127.0.0.1:$GARDEND_PORT GARDEND_TOKEN="$KEY" \
   GARDEND_GRAPH_ID="$GRAPH" NIDRA_SCHEDULER=internal AO_FLAG_SEMANTIC_COMPILATION_ENABLED=true \
   CONNECTION_STRINGS="${CONNECTION_STRINGS:-sqlite:////data/chinook.sqlite}" \
@@ -95,7 +99,8 @@ fi
   done ) &
 HELPERS+=($!)
 
-# 2. the ingestion service (catalogues the sources, then compiles the semantic layer), 3. the engine's API.
+# 2. the ingestion service (catalogues the sources, then compiles the semantic layer), 3. the engine's API (it
+# alone adopts a SPARQL-written catalog into the ledger, at its start; the ingestion service waits for it).
 cd /app
 python -m auto_ontology.ingestion_service &
 PIDS+=($!)

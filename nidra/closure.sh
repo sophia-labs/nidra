@@ -6,8 +6,10 @@
 #
 #   GARDEND_URL=http://127.0.0.1:7691 GARDEND_TOKEN=... nidra/closure.sh
 #
-# NIDRA_WRITES=commit (passed through) seeds through gardend's Emporium ledger
-# instead of SPARQL updates; that needs a gardend with the commit seam.
+# The writes go through gardend's Emporium ledger (NIDRA_WRITES=commit, the
+# default), so GARDEND_URL must name a gardend with the ledger. NIDRA_WRITES=sparql
+# (passed through) seeds with SPARQL updates instead, against any gardend; a graph
+# seeded that way is adopted by the ledger when an engine starts on it under commit.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 _URL="${GARDEND_URL:-}"; _TOKEN="${GARDEND_TOKEN:-}"; _GRAPH="${GARDEND_GRAPH_ID:-}"

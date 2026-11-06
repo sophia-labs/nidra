@@ -16,13 +16,13 @@ Emporium commit API (``plans/2026-11-02-emporium-log/COMMIT-API.md`` §3):
 :func:`update_ops` and :func:`delete_ops` build them from rows; :func:`commit`
 sends one logical write. ``NIDRA_WRITES`` (read once) picks the transport:
 
-* ``sparql`` (default): the ops are rendered to ONE SPARQL update request
-  (``DELETE`` of the replaced values, ``INSERT DATA`` of the new ones), which
-  Oxigraph applies atomically.
-* ``commit``: the ops go to ``POST /emporium/commit/{graph}/ao?wait=folded``.
+* ``commit`` (default): the ops go to ``POST /emporium/commit/{graph}/ao?wait=folded``.
   The ledger appends one frame (the ack is its durability barrier) and the
   fold applies it to ``urn:mnemosyne:local:graph:{graph}:user:rdf``, the graph
   every read already uses; ``wait=folded`` gives read-your-writes.
+* ``sparql`` (the opt-out, for a gardend without the ledger): the ops are
+  rendered to ONE SPARQL update request (``DELETE`` of the replaced values,
+  ``INSERT DATA`` of the new ones), which Oxigraph applies atomically.
 
 In commit mode **every ao subject must be ledger-owned**: the fold owns only
 the subjects it holds frames for, so a value loaded by SPARQL beside a later
@@ -30,7 +30,10 @@ commit ``set`` survives it, a ``remove`` of a loaded value is a no-op and a
 ``retract`` of a loaded subject removes nothing (probed on the W7b-2 binary,
 ``3bf51b9``; see ``nidra/README.md``). Seeding therefore goes through commit
 too (:func:`ntriples_ops` turns a Direct-Mapping export into ``set`` ops), and
-SPARQL load stays a sparql-mode tool.
+SPARQL load stays a sparql-mode tool. A graph whose rows were written by SPARQL
+(an older volume, a graph seeded under ``sparql``) is adopted by the ledger
+once, at the API server's start (:mod:`auto_ontology.rdf.adopt`, called from
+:func:`startup_check`).
 
 Transactions: ``write_transaction()`` under commit collects the block's ops
 and sends them as one request (:func:`collecting`); a read inside the block
@@ -421,10 +424,10 @@ _MODES = ("sparql", "commit")
 
 
 def write_mode() -> str:
-    """``NIDRA_WRITES``: ``sparql`` (default) or ``commit``, read once per process."""
+    """``NIDRA_WRITES``: ``commit`` (default) or ``sparql``, read once per process."""
     global _MODE
     if _MODE is None:
-        raw = (os.environ.get("NIDRA_WRITES") or "sparql").strip().lower()
+        raw = (os.environ.get("NIDRA_WRITES") or "commit").strip().lower()
         if raw not in _MODES:
             raise ValueError(f"NIDRA_WRITES must be one of {_MODES}, not {raw!r}")
         _MODE = raw
@@ -516,20 +519,38 @@ def check_ledger(c=None) -> dict[str, Any]:
         return {"ok": True, "graph": c.graph_id, "missing": True}
     if response.status_code == 404:
         raise LedgerUnavailable(
-            f"NIDRA_WRITES=commit, but {c.url} has no Emporium commit route "
+            f"NIDRA_WRITES=commit (the default), but {c.url} has no Emporium commit route "
             f"(GET {_path(c.graph_id, '/watermark')} -> 404): this gardend has no ledger. "
-            "Run a gardend with the commit seam, or set NIDRA_WRITES=sparql."
+            "Run a gardend with the ledger, or set NIDRA_WRITES=sparql (the opt-out)."
         )
     raise CommitError(response.status_code, body, "watermark")
 
 
-def startup_check() -> None:
-    """At service start: under ``NIDRA_WRITES=commit`` the gardend must have the
-    ledger's commit route, else :class:`LedgerUnavailable` (fail loudly, not at the
-    first write hours later). A no-op under ``sparql``."""
+def startup_check(*, adopt: bool = False) -> None:
+    """At service start, under ``NIDRA_WRITES=commit``:
+
+    * the gardend must have the ledger's commit route, else :class:`LedgerUnavailable`
+      (fail loudly, not at the first write hours later);
+    * the graph's catalog must be ledger-owned. ``adopt=True`` (the API server, and
+      only it) adopts the rows written by SPARQL (:func:`auto_ontology.rdf.adopt.adopt`,
+      once: a second start finds nothing to do); every other process (the ingestion
+      service) waits until it has, bounded by ``NIDRA_ADOPT_WAIT_S``
+      (:func:`auto_ontology.rdf.adopt.wait_until_adopted`), so two adoptions never run
+      at once and nothing is written before the rows are owned.
+
+    Under ``sparql``: only a warning when the ledger already owns this graph's catalog.
+    """
+    from auto_ontology.rdf import adopt as adoption
+
     if write_mode() == "commit":
         check_ledger()
         logger.info("writes: NIDRA_WRITES=commit; the ledger answers on %s", client().url)
+        if adopt:
+            adoption.adopt()
+        else:
+            adoption.wait_until_adopted()
+    else:
+        adoption.warn_if_ledger_owned()
 
 
 class WitnessMiddleware:

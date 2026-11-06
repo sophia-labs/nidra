@@ -11,6 +11,13 @@
 #    `gardend token create --grant session-all`. The catalog then lives in
 #    your own graph, backed up and browsed like any other.
 #
+# Writes: the engine and the ingestion service write the catalog through
+# gardend's Emporium ledger (NIDRA_WRITES=commit, the default), so the gardend
+# must carry it: the bundled one does. A volume written by an older Nidra over
+# SPARQL is adopted by the ledger at the engine's first start (the ingestion
+# service waits for it; see nidra/README.md). A Sophia app whose gardend has no
+# ledger yet: set NIDRA_WRITES=sparql, the opt-out.
+#
 # Sources are the databases you ask questions about (Chinook, a SQLite sample,
 # ships in ./nidra/data). Inference is any OpenAI-compatible endpoint (the
 # DEFAULT_MODELS_* triplet in .env); no embedding endpoint is needed.
@@ -21,7 +28,7 @@ services:
   gardend:
     image: ${GARDEND_IMAGE:-nidra-gardend:latest}
     # from the download (`docker load -i nidra-gardend-<date>.tar`) or
-    # `docker build -t nidra-gardend:latest nidra/gardend`
+    # `docker build -t nidra-gardend:latest nidra/gardend` (a gardend with the ledger)
     restart: unless-stopped
     user: "0:0"
     environment:
@@ -52,6 +59,7 @@ services:
       GARDEND_URL: ${GARDEND_URL:-http://gardend:8086}
       GARDEND_TOKEN: ${GARDEND_TOKEN}
       GARDEND_GRAPH_ID: ${GARDEND_GRAPH_ID:-nidra}
+      NIDRA_WRITES: ${NIDRA_WRITES:-commit}
       AO_FLAG_SEMANTIC_COMPILATION_ENABLED: ${AO_FLAG_SEMANTIC_COMPILATION_ENABLED:-true}
       INGESTION_SERVICE_URL: http://ingestion-service:3002
       CONNECTION_STRINGS: ${CONNECTION_STRINGS:-sqlite:////data/chinook.sqlite}
@@ -73,6 +81,7 @@ services:
       GARDEND_URL: ${GARDEND_URL:-http://gardend:8086}
       GARDEND_TOKEN: ${GARDEND_TOKEN}
       GARDEND_GRAPH_ID: ${GARDEND_GRAPH_ID:-nidra}
+      NIDRA_WRITES: ${NIDRA_WRITES:-commit}
       AO_FLAG_SEMANTIC_COMPILATION_ENABLED: ${AO_FLAG_SEMANTIC_COMPILATION_ENABLED:-true}
       CONNECTION_STRINGS: ${CONNECTION_STRINGS:-sqlite:////data/chinook.sqlite}
     volumes:

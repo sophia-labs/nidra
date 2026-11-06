@@ -3,9 +3,12 @@
 # gardend (the Sophia engine) holds the catalog as RDF; the backend reads it
 # through SPARQL when CATALOG_READ_BACKEND=rdf. Postgres stays for ingestion,
 # compilation and pgvector in this POC. GARDEND_TOKEN comes from .env.
+# Catalog writes go through gardend's Emporium ledger (NIDRA_WRITES=commit, the
+# default), so the gardend image must carry it; NIDRA_WRITES=sparql is the opt-out.
 services:
   gardend:
-    image: ${GARDEND_IMAGE:-gardend:cell-ad8f4dd985f4}
+    # nidra/gardend/Dockerfile on gardend main 7968ea6 (the W7d ledger): docker build -t nidra-gardend:latest nidra/gardend
+    image: ${GARDEND_IMAGE:-nidra-gardend:latest}
     container_name: auto-ontology-gardend
     restart: unless-stopped
     command: ["serve", "--profile", "/data/profile", "--port", "8086"]
@@ -32,6 +35,7 @@ services:
       GARDEND_URL: http://gardend:8086
       GARDEND_TOKEN: ${GARDEND_TOKEN}
       GARDEND_GRAPH_ID: ${GARDEND_GRAPH_ID:-ao-catalog}
+      NIDRA_WRITES: ${NIDRA_WRITES:-commit}
     depends_on:
       gardend:
         condition: service_started

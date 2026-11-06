@@ -73,10 +73,12 @@ async def lifespan(_app: FastAPI):
 
         _gardend().ensure_graph("Nidra catalog")
 
-        # NIDRA_WRITES=commit: the gardend must have the ledger; refuse to start otherwise.
+        # NIDRA_WRITES=commit (the default): the gardend must have the ledger (refuse to
+        # start otherwise), and this process, the only one that does, adopts catalog
+        # rows written by SPARQL into the ledger (once; see auto_ontology/rdf/adopt.py).
         from auto_ontology.rdf.writes import startup_check
 
-        startup_check()
+        startup_check(adopt=True)
 
     # Kick off the chat worker pool's initial warm spawn at boot. The pool
     # itself is lazy on first use, but eagerly initialising here means the
