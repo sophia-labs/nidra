@@ -5,8 +5,8 @@
 # multilingual-e5-small model, baked in so nothing is downloaded at run time.
 # The engine writes the catalog through this gardend's Emporium ledger (NIDRA_WRITES=commit, the default), so
 # the release image must be a build with the ledger (the /emporium/commit route).
-# TODO(lead): ledger build tag (the release image of gardend main at the W7d ledger, 7968ea6 or later)
-ARG GARDEND_IMAGE=816069160218.dkr.ecr.us-west-1.amazonaws.com/gardend-release:src-5870c0029629-ship
+# gardend main 7968ea6 (the W7d ledger), shipped 2026-11-05; digest sha256:a08a1a38b142a2a16985562a9114839fdb98a8c6ab8bd224fc1630ac0407bcca
+ARG GARDEND_IMAGE=816069160218.dkr.ecr.us-west-1.amazonaws.com/gardend-release:src-7968ea69a15b-ship
 ARG ORT_VERSION=1.28.3
 ARG E5_REVISION=614241f622f53c4eeff9890bdc4f31cfecc418b3
 

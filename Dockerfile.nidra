@@ -29,8 +29,8 @@ ARG BASE_IMG=nvcr.io/nvidia/base/ubuntu
 ARG BASE_IMG_TAG=jammy-20250619
 # The gardend release image (Linux x86-64; the binary needs glibc 2.35, which jammy has). It must carry the
 # Emporium ledger (the commit route): the engine refuses to start against one without it under NIDRA_WRITES=commit.
-# TODO(lead): ledger build tag (the release image of gardend main at the W7d ledger, 7968ea6 or later)
-ARG GARDEND_IMAGE=816069160218.dkr.ecr.us-west-1.amazonaws.com/gardend-release:src-5870c0029629-ship
+# gardend main 7968ea6 (the W7d ledger), shipped 2026-11-05; digest sha256:a08a1a38b142a2a16985562a9114839fdb98a8c6ab8bd224fc1630ac0407bcca
+ARG GARDEND_IMAGE=816069160218.dkr.ecr.us-west-1.amazonaws.com/gardend-release:src-7968ea69a15b-ship
 ARG ORT_VERSION=1.28.3
 ARG E5_REVISION=614241f622f53c4eeff9890bdc4f31cfecc418b3
 ARG NODE_VERSION=22.23.4

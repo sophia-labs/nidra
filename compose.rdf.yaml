@@ -7,8 +7,8 @@
 # default), so the gardend image must carry it; NIDRA_WRITES=sparql is the opt-out.
 services:
   gardend:
-    # TODO(lead): ledger build tag (a gardend image with the W7d ledger, 7968ea6 or later)
-    image: ${GARDEND_IMAGE:-gardend:cell-ad8f4dd985f4}
+    # nidra/gardend/Dockerfile on gardend main 7968ea6 (the W7d ledger): docker build -t nidra-gardend:latest nidra/gardend
+    image: ${GARDEND_IMAGE:-nidra-gardend:latest}
     container_name: auto-ontology-gardend
     restart: unless-stopped
     command: ["serve", "--profile", "/data/profile", "--port", "8086"]
